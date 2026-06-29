@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -58,7 +58,23 @@ export default function LibraryScreen() {
   const [activeGenre, setActiveGenre] = useState('Dân gian');
   const [tab, setTab] = useState('Bản nhạc');
   const [bpm, setBpm] = useState(80);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playheadLeft, setPlayheadLeft] = useState(30);
+
+  useEffect(() => {
+    let interval: any;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setPlayheadLeft((prev) => {
+          const next = prev + 3;
+          return next > 250 ? 30 : next;
+        });
+      }, 60);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -132,7 +148,7 @@ export default function LibraryScreen() {
               <View style={[styles.noteStem, { bottom: 56, left: 85 }]} />
             </View>
             {/* Active bar indicator */}
-            <View style={styles.activeBar} />
+            <View style={[styles.activeBar, { left: playheadLeft }]} />
           </View>
 
           {/* Player Controls */}

@@ -97,6 +97,30 @@ export default function LearningScreen() {
     }
   };
 
+  const navigateToNextLesson = (currentLessonId: number, freshCourse?: CourseDetailDto) => {
+    const activeCourse = freshCourse || course;
+    if (!activeCourse || !activeCourse.chapters) return;
+    
+    const allLessons = activeCourse.chapters.flatMap(chap => chap.lessons || []);
+    const currentIndex = allLessons.findIndex(l => l.id === currentLessonId);
+    
+    if (currentIndex !== -1 && currentIndex + 1 < allLessons.length) {
+      const nextLesson = allLessons[currentIndex + 1];
+      
+      // Auto expand next chapter if it is different
+      const nextChapter = activeCourse.chapters.find(chap => 
+        chap.lessons?.some(l => l.id === nextLesson.id)
+      );
+      if (nextChapter && !expanded.includes(nextChapter.id.toString())) {
+        setExpanded(prev => [...prev, nextChapter.id.toString()]);
+      }
+      
+      handleSelectLesson(activeCourse.id, nextLesson);
+    } else {
+      Alert.alert("Chúc mừng!", "Bạn đã hoàn thành bài học cuối cùng của khóa học này!");
+    }
+  };
+
   const handleSelectQuizOption = (lessonId: number, optionIndex: number) => {
     setQuizAnswers(prev => ({ ...prev, [lessonId]: optionIndex }));
   };
@@ -107,6 +131,7 @@ export default function LearningScreen() {
 
   const handleCompleteTextOrQuiz = async () => {
     if (!course || !activeLesson) return;
+    const currentId = activeLesson.id;
     try {
       const res = await api.updateProgress(course.id, activeLesson.id, totalSeconds, totalSeconds);
       if (res && res.success) {
@@ -115,17 +140,20 @@ export default function LearningScreen() {
           setCourse(detailRes.data);
           const updatedLesson = detailRes.data.chapters
             ?.flatMap(chap => chap.lessons || [])
-            .find(l => l.id === activeLesson.id);
+            .find(l => l.id === currentId);
           if (updatedLesson) {
             setActiveLesson(updatedLesson);
           }
+          navigateToNextLesson(currentId, detailRes.data);
           return;
         }
       }
-      simulateLocalCompletion(activeLesson.id);
+      simulateLocalCompletion(currentId);
+      navigateToNextLesson(currentId);
     } catch (e) {
       console.warn('Error completing lesson on server, simulating completion locally:', e);
-      simulateLocalCompletion(activeLesson.id);
+      simulateLocalCompletion(currentId);
+      navigateToNextLesson(currentId);
     }
   };
   const fetchCourseData = async () => {
@@ -223,18 +251,21 @@ export default function LearningScreen() {
           )
             .then(() => {
               api.getCourseDetail(course.id).then(r => {
-                if (r.success && r.data) setCourse(r.data);
+                if (r.success && r.data) {
+                  setCourse(r.data);
+                  navigateToNextLesson(activeLesson.id, r.data);
+                }
               });
             })
             .catch(err => {
               console.warn("Error updating final progress, simulating completion locally:", err);
               simulateLocalCompletion(activeLesson.id);
+              navigateToNextLesson(activeLesson.id);
             });
+
         }
       }
     );
-    }
-  );
 
   const interval = setInterval(() => {
     const current = Math.floor(player.currentTime);
@@ -439,7 +470,7 @@ export default function LearningScreen() {
               </View>
             </LinearGradient>
           </View>
-        ) : activeLesson?.type === 'Practice' || activeLesson?.type === 'Practise' ? (
+        ) : activeLesson?.type === 'Practice' || activeLesson?.type === 'Practise' || activeLesson?.type === 'Practical' ? (
           <View style={styles.mediaContainer}>
             <LinearGradient
               colors={['#3B275C', '#1D1330']}
@@ -629,7 +660,7 @@ export default function LearningScreen() {
           })()}
 
           {/* Practice Component */}
-          {(activeLesson?.type === 'Practice' || activeLesson?.type === 'Practise') && (
+          {(activeLesson?.type === 'Practice' || activeLesson?.type === 'Practise' || activeLesson?.type === 'Practical') && (
             <View style={styles.typeSpecificCard}>
               <Text style={styles.cardHeaderTitle}>YÊU CẦU THỰC HÀNH CỦA BÀI HỌC</Text>
               <Text style={styles.practiceBodyText}>
