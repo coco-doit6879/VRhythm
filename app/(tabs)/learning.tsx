@@ -107,9 +107,13 @@ export default function LearningScreen() {
       interval = setInterval(() => {
         setWatchedSeconds((prev) => {
           const next = prev + 5;
-          if (next >= totalSeconds) {
+          const isAtLeast90Percent = next / totalSeconds >= 0.9;
+
+          if (next >= totalSeconds || isAtLeast90Percent) {
             clearInterval(interval);
             setIsPlaying(false);
+            
+            // Mark completed on the server by sending totalSeconds (100% watched)
             api.updateProgress(course.id, activeLesson.id, totalSeconds, totalSeconds)
               .then(() => {
                 // Refresh course details to update completion checklist
