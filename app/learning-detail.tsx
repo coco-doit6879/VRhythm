@@ -1,18 +1,79 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Colors } from '../constants/Colors';
+import { api, CourseDetailDto } from '../services/api';
 
 export default function LearningDetailScreen() {
+  const [course, setCourse] = useState<CourseDetailDto | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourseDetail = async () => {
+      const courseId = api.getCurrentCourseId();
+      if (!courseId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await api.getCourseDetail(courseId);
+        if (response.success && response.data) {
+          setCourse(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching course detail:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourseDetail();
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={{ marginTop: 12, color: Colors.light.textMuted }}>Đang tải thông tin khóa học...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!course) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Lỗi</Text>
+          <View style={{ width: 38 }} />
+        </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <Text style={{ color: Colors.light.textMuted, textAlign: 'center', fontSize: 16 }}>
+            Không tìm thấy thông tin khóa học. Vui lòng quay lại Trang chủ.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const emoji = course.instrument?.includes('Tranh') ? '🎵' 
+              : course.instrument?.includes('Nguyệt') ? '🎸' 
+              : course.instrument?.includes('Sáo') ? '🎶' : '🎼';
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -20,28 +81,26 @@ export default function LearningDetailScreen() {
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Chi tiết nhạc cụ</Text>
+          <Text style={styles.headerTitle}>Chi tiết khóa học</Text>
           <View style={{ width: 38 }} />
         </View>
         <LinearGradient colors={['#1A3020', '#2D6A4F']} style={styles.banner}>
-          <Text style={{ fontSize: 64, marginBottom: 12 }}>🎵</Text>
-          <Text style={styles.bannerTitle}>Đàn Tranh</Text>
-          <Text style={styles.bannerSub}>Nhạc cụ dây gảy truyền thống Việt Nam</Text>
+          <Text style={{ fontSize: 64, marginBottom: 12 }}>{emoji}</Text>
+          <Text style={styles.bannerTitle}>{course.title}</Text>
+          <Text style={styles.bannerSub}>Nhạc cụ: {course.instrument || 'Nhạc cụ dân tộc'}</Text>
           <TouchableOpacity style={styles.startBtn} onPress={() => router.push('/(tabs)/learning')}>
             <Text style={styles.startBtnText}>Bắt đầu học</Text>
           </TouchableOpacity>
         </LinearGradient>
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Giới thiệu</Text>
+          <Text style={styles.sectionTitle}>Giới thiệu khóa học</Text>
           <Text style={styles.desc}>
-            Đàn tranh (hay còn gọi là đàn thập lục) là một nhạc cụ dây gảy truyền thống của Việt Nam, 
-            với 16 đến 25 dây. Âm thanh của đàn tranh trong sáng, réo rắt, thường được dùng trong 
-            nhạc cung đình, nhạc thính phòng và các thể loại âm nhạc truyền thống.
+            {course.description || `Khóa học giảng dạy nhạc cụ truyền thống ${course.instrument} của Việt Nam từ cơ bản đến nâng cao.`}
           </Text>
           <TouchableOpacity style={styles.learnBtn} onPress={() => router.push('/(tabs)/learning')}>
             <LinearGradient colors={[Colors.primaryDark, Colors.primary]} style={styles.learnBtnGrad}>
               <Ionicons name="school-outline" size={18} color="#FFF" style={{ marginRight: 8 }} />
-              <Text style={styles.learnBtnText}>Vào khóa học</Text>
+              <Text style={styles.learnBtnText}>Vào học ngay</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

@@ -8,12 +8,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
+import { api } from '../../services/api';
 
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState('');
@@ -23,9 +25,48 @@ export default function RegisterScreen() {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleRegister = () => {
-    router.replace('/(tabs)');
+  const handleRegister = async () => {
+    if (!fullName.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      setErrorMessage('Vui lòng điền đầy đủ thông tin.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMessage('Mật khẩu xác nhận không khớp.');
+      return;
+    }
+    if (password.length < 8) {
+      setErrorMessage('Mật khẩu phải có ít nhất 8 ký tự.');
+      return;
+    }
+    if (!agreed) {
+      setErrorMessage('Bạn phải đồng ý với Điều khoản sử dụng.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      const response = await api.register({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        password: password,
+        confirmPassword: confirmPassword,
+      });
+
+      if (response.success) {
+        router.replace('/(tabs)');
+      } else {
+        setErrorMessage(response.message || 'Đăng ký không thành công.');
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Đã xảy ra lỗi kết nối. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,6 +88,10 @@ export default function RegisterScreen() {
 
             <Text style={styles.title}>Tạo tài khoản</Text>
             <Text style={styles.subtitle}>Bắt đầu hành trình âm nhạc của riêng bạn{'\n'}ngay hôm nay.</Text>
+
+            {errorMessage ? (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            ) : null}
 
             <View style={styles.form}>
               {/* Full Name */}
@@ -122,15 +167,26 @@ export default function RegisterScreen() {
               </TouchableOpacity>
 
               {/* Register Button */}
-              <TouchableOpacity style={styles.registerBtn} onPress={handleRegister} activeOpacity={0.85}>
+              <TouchableOpacity
+                style={styles.registerBtn}
+                onPress={handleRegister}
+                activeOpacity={0.85}
+                disabled={isLoading}
+              >
                 <LinearGradient
                   colors={['#2D6A4F', '#40916C']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.registerBtnGradient}
                 >
-                  <Text style={styles.registerBtnText}>Đăng ký ngay</Text>
-                  <Ionicons name="home" size={18} color="#FFF" style={{ marginLeft: 8 }} />
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <>
+                      <Text style={styles.registerBtnText}>Đăng ký ngay</Text>
+                      <Ionicons name="home" size={18} color="#FFF" style={{ marginLeft: 8 }} />
+                    </>
+                  )}
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -199,6 +255,16 @@ const styles = StyleSheet.create({
 
   title: { fontSize: 28, fontWeight: '800', color: '#FFF', marginBottom: 10 },
   subtitle: { fontSize: 14, color: Colors.dark.textSecondary, lineHeight: 20, marginBottom: 28 },
+  errorText: {
+    color: '#FF6B6B',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 16,
+    backgroundColor: 'rgba(230, 57, 70, 0.15)',
+    padding: 10,
+    borderRadius: 10,
+    textAlign: 'center',
+  },
 
   form: { gap: 14 },
   inputWrapper: {

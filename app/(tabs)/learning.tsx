@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,63 +6,193 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
+  TextInput,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../constants/Colors';
+import { api, CourseDetailDto, LessonDto } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 
-const COURSE_CHAPTERS = [
-  {
-    id: '1',
-    number: 'I',
-    title: 'Nhập môn & Cơ bản',
-    icon: 'layers-outline',
-    iconColor: Colors.primary,
-    iconBg: '#EBF6F0',
-    expanded: true,
-    lessons: [
-      { id: '1a', title: 'Bài 1: Làm quen với đàn', duration: '10:20', done: true },
-      { id: '1b', title: 'Bài 2: Tư thế và cách cầm', duration: '12:45', done: true },
-      { id: '1c', title: 'Bài 3: Nốt nhạc cơ bản', duration: '15:40', done: false, current: true },
-    ],
-  },
-  {
-    id: '2',
-    number: 'II',
-    title: 'Kỹ thuật Trung cấp',
-    icon: 'star-outline',
-    iconColor: Colors.intermediate,
-    iconBg: '#FEF3E8',
-    expanded: false,
-    lessons: [],
-  },
-  {
-    id: '3',
-    number: 'III',
-    title: 'Biểu diễn Nâng cao',
-    icon: 'trophy-outline',
-    iconColor: '#7B5EA7',
-    iconBg: '#F0EBFA',
-    expanded: false,
-    lessons: [],
-  },
-];
+const formatTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
 
 export default function LearningScreen() {
+  const [course, setCourse] = useState<CourseDetailDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeLesson, setActiveLesson] = useState<LessonDto | null>(null);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0.3);
-  const [expanded, setExpanded] = useState<string[]>(['1']);
-  const [note, setNote] = useState('Luyện ngón cái và ngón trỏ thật đều. Nhớ thả lỏng cổ tay khi gảy nốt cao...');
+  const [watchedSeconds, setWatchedSeconds] = useState(0);
+  const [expanded, setExpanded] = useState<string[]>([]);
+  const [note, setNote] = useState('');
+
+  const fetchCourseData = async () => {
+    setLoading(true);
+    try {
+      let courseId = api.getCurrentCourseId();
+      
+      // Fallback: If no current course is selected, fetch the list and pick the first one
+      if (!courseId) {
+        const listRes = await api.getCourses();
+        if (listRes.success && listRes.data && listRes.data.length > 0) {
+          courseId = listRes.data[0].id;
+          api.setCurrentCourseId(courseId);
+        }
+      }
+
+      if (courseId) {
+        const detailRes = await api.getCourseDetail(courseId);
+        if (detailRes.success && detailRes.data) {
+          const data = detailRes.data;
+          setCourse(data);
+
+          // Auto expand first chapter and select first lesson
+          if (data.chapters && data.chapters.length > 0) {
+            const firstChapter = data.chapters[0];
+            setExpanded([firstChapter.id.toString()]);
+            if (firstChapter.lessons && firstChapter.lessons.length > 0) {
+              handleSelectLesson(courseId, firstChapter.lessons[0]);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading course data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourseData();
+  }, []);
+
+  const handleSelectLesson = async (courseId: number, lesson: LessonDto) => {
+    setActiveLesson(lesson);
+    setVideoUrl(null);
+    setVideoLoading(true);
+    setIsPlaying(false);
+    setWatchedSeconds(0);
+    setNote('');
+
+    try {
+      const res = await api.getVideoUrl(courseId, lesson.id);
+      if (res.success && res.data) {
+        setVideoUrl(res.data);
+      }
+    } catch (e) {
+      console.warn('Could not load video URL:', e);
+    } finally {
+      setVideoLoading(false);
+    }
+  };
+
+  const totalSeconds = activeLesson?.durationSeconds || 600; // default 10 minutes
+
+  // Mock progress updates during playback
+  useEffect(() => {
+    let interval: any;
+    if (isPlaying && activeLesson && course) {
+      interval = setInterval(() => {
+        setWatchedSeconds((prev) => {
+          const next = prev + 5;
+          if (next >= totalSeconds) {
+            clearInterval(interval);
+            setIsPlaying(false);
+            api.updateProgress(course.id, activeLesson.id, totalSeconds, totalSeconds)
+              .then(() => {
+                // Refresh course details to update completion checklist
+                api.getCourseDetail(course.id).then(r => {
+                  if (r.success && r.data) setCourse(r.data);
+                });
+              })
+              .catch(err => console.error('Error updating final progress:', err));
+            return totalSeconds;
+          }
+          api.updateProgress(course.id, activeLesson.id, next, totalSeconds)
+            .catch(err => console.error('Error updating progress:', err));
+          return next;
+        });
+      }, 5000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, activeLesson, course, totalSeconds]);
 
   const toggleChapter = (id: string) => {
     setExpanded(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
+
+  const handleSaveNote = async () => {
+    if (!course) return;
+    if (!note.trim()) {
+      Alert.alert('Thông báo', 'Vui lòng nhập nội dung ghi chú.');
+      return;
+    }
+    try {
+      const lessonId = activeLesson ? activeLesson.id : null;
+      const res = await api.saveNote(course.id, lessonId, note.trim());
+      if (res.success) {
+        Alert.alert('Thành công', 'Ghi chú của bạn đã được lưu trên máy chủ!');
+      } else {
+        Alert.alert('Thất bại', res.message || 'Không thể lưu ghi chú.');
+      }
+    } catch (error: any) {
+      Alert.alert('Lỗi', error.message || 'Đã xảy ra lỗi kết nối.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={{ marginTop: 12, color: Colors.light.textMuted }}>Đang tải lộ trình học tập...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!course) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <Text style={{ color: Colors.light.textMuted, textAlign: 'center', marginBottom: 20 }}>
+            Bạn chưa chọn khóa học nào. Vui lòng chọn một khóa học từ Trang chủ.
+          </Text>
+          <TouchableOpacity 
+            style={{ backgroundColor: Colors.primary, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 }}
+            onPress={() => router.replace('/(tabs)')}
+          >
+            <Text style={{ color: '#FFF', fontWeight: '600' }}>Quay lại Trang chủ</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Calculate dynamic progress
+  const totalLessons = course.chapters?.reduce((acc, chap) => acc + (chap.lessons?.length || 0), 0) || 0;
+  const completedLessons = course.chapters?.reduce(
+    (acc, chap) => acc + (chap.lessons?.filter(l => l.isCompleted).length || 0),
+    0
+  ) || 0;
+  const progressPercent = totalLessons > 0 ? completedLessons / totalLessons : 0;
+  const videoProgressPercent = totalSeconds > 0 ? (watchedSeconds / totalSeconds) * 100 : 0;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -73,8 +203,8 @@ export default function LearningScreen() {
             <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
           </TouchableOpacity>
           <View style={{ flex: 1, marginHorizontal: 12 }}>
-            <Text style={styles.courseTitle}>Khóa học Đàn Tranh</Text>
-            <Text style={styles.courseInstructor}>Giảng viên: Nguyễn Minh Anh</Text>
+            <Text style={styles.courseTitle} numberOfLines={1}>{course.title}</Text>
+            <Text style={styles.courseInstructor}>Nhạc cụ: {course.instrument}</Text>
           </View>
           <TouchableOpacity style={styles.moreBtn}>
             <Ionicons name="ellipsis-vertical" size={20} color={Colors.light.text} />
@@ -87,29 +217,39 @@ export default function LearningScreen() {
             colors={['#1A3020', '#0D1F17', '#1A2E22']}
             style={styles.videoPlayer}
           >
-            <View style={styles.videoOverlay}>
-              <Text style={{ fontSize: 80 }}>🎵</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.videoPlayBtn}
-              onPress={() => setIsPlaying(!isPlaying)}
-            >
-              <Ionicons name={isPlaying ? 'pause' : 'play'} size={32} color="#FFF" />
-            </TouchableOpacity>
+            {videoLoading ? (
+              <ActivityIndicator size="large" color="#FFFFFF" />
+            ) : (
+              <>
+                <View style={styles.videoOverlay}>
+                  <Text style={{ fontSize: 80 }}>🎵</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.videoPlayBtn}
+                  onPress={() => setIsPlaying(!isPlaying)}
+                  disabled={!activeLesson}
+                >
+                  <Ionicons name={isPlaying ? 'pause' : 'play'} size={32} color="#FFF" />
+                </TouchableOpacity>
+              </>
+            )}
+            
             {/* Controls bar */}
             <View style={styles.videoControls}>
               <View style={styles.videoProgress}>
-                <View style={[styles.videoProgressFill, { width: '37%' }]} />
+                <View style={[styles.videoProgressFill, { width: `${videoProgressPercent}%` }]} />
                 <View style={styles.videoProgressThumb} />
               </View>
               <View style={styles.videoControlsRow}>
-                <TouchableOpacity>
-                  <Ionicons name="pause" size={18} color="#FFF" />
+                <TouchableOpacity onPress={() => setIsPlaying(!isPlaying)} disabled={!activeLesson}>
+                  <Ionicons name={isPlaying ? 'pause' : 'play'} size={18} color="#FFF" />
                 </TouchableOpacity>
                 <TouchableOpacity>
                   <Ionicons name="play-skip-forward" size={18} color="#FFF" />
                 </TouchableOpacity>
-                <Text style={styles.videoTime}>05:24 / 15:40</Text>
+                <Text style={styles.videoTime}>
+                  {formatTime(watchedSeconds)} / {formatTime(totalSeconds)}
+                </Text>
                 <TouchableOpacity style={{ marginLeft: 'auto' as any }}>
                   <Ionicons name="text-outline" size={16} color="#FFF" />
                 </TouchableOpacity>
@@ -126,97 +266,121 @@ export default function LearningScreen() {
 
         <View style={styles.content}>
           {/* Lesson Info */}
-          <Text style={styles.lessonTitle}>Bài 3: Nốt nhạc cơ bản</Text>
+          <Text style={styles.lessonTitle}>
+            {activeLesson ? activeLesson.title : 'Chọn bài học bên dưới'}
+          </Text>
           <View style={styles.lessonMeta}>
             <View style={styles.levelBadge}>
               <Ionicons name="bar-chart-outline" size={12} color={Colors.primary} />
-              <Text style={styles.levelText}>CƠ BẢN</Text>
+              <Text style={styles.levelText}>
+                {course.accessType === 'Free' || course.accessType === '0' ? 'MIỄN PHÍ' : 'CAO CẤP'}
+              </Text>
             </View>
-            <Text style={styles.metaSep}>154 lượt học</Text>
+            <Text style={styles.metaSep}>Lộ trình học chuẩn</Text>
             <Ionicons name="star" size={14} color="#F4A261" />
-            <Text style={styles.rating}>4.9</Text>
+            <Text style={styles.rating}>5.0</Text>
           </View>
 
           {/* Progress */}
           <View style={styles.progressCard}>
             <View style={styles.progressHeader}>
               <Text style={styles.progressLabel}>Tiến độ học tập</Text>
-              <Text style={styles.progressPercent}>45%</Text>
+              <Text style={styles.progressPercent}>{Math.round(progressPercent * 100)}%</Text>
             </View>
             <View style={styles.progressBar}>
               <LinearGradient
                 colors={[Colors.primary, Colors.accent]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={[styles.progressFill, { width: '45%' }]}
+                style={[styles.progressFill, { width: `${progressPercent * 100}%` }]}
               />
             </View>
-            <Text style={styles.progressSub}>Hoàn thành 3/7 bài học trong lộ trình này</Text>
+            <Text style={styles.progressSub}>
+              Hoàn thành {completedLessons}/{totalLessons} bài học trong lộ trình này
+            </Text>
           </View>
 
           {/* Course Chapters */}
           <Text style={styles.sectionTitle}>LỘ TRÌNH HỌC</Text>
-          {COURSE_CHAPTERS.map((chapter) => (
-            <View key={chapter.id} style={styles.chapterCard}>
-              <TouchableOpacity
-                style={styles.chapterHeader}
-                onPress={() => toggleChapter(chapter.id)}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.chapterIcon, { backgroundColor: chapter.iconBg }]}>
-                  <Ionicons name={chapter.icon as any} size={18} color={chapter.iconColor} />
-                </View>
-                <Text style={styles.chapterTitle}>{chapter.number}. {chapter.title}</Text>
-                <Ionicons
-                  name={expanded.includes(chapter.id) ? 'chevron-up' : 'chevron-down'}
-                  size={18}
-                  color={Colors.light.textMuted}
-                />
-              </TouchableOpacity>
-
-              {expanded.includes(chapter.id) && chapter.lessons.map((lesson) => (
+          {course.chapters && course.chapters.map((chapter, index) => {
+            const isExpanded = expanded.includes(chapter.id.toString());
+            return (
+              <View key={chapter.id} style={styles.chapterCard}>
                 <TouchableOpacity
-                  key={lesson.id}
-                  style={[styles.lessonRow, lesson.current && styles.lessonRowActive]}
+                  style={styles.chapterHeader}
+                  onPress={() => toggleChapter(chapter.id.toString())}
+                  activeOpacity={0.7}
                 >
-                  {lesson.done ? (
-                    <View style={styles.doneBadge}>
-                      <Ionicons name="checkmark" size={14} color="#FFF" />
-                    </View>
-                  ) : lesson.current ? (
-                    <View style={styles.currentBadge}>
-                      <Ionicons name="play" size={12} color="#FFF" />
-                    </View>
-                  ) : (
-                    <View style={styles.pendingBadge}>
-                      <Text style={styles.pendingDot}>•</Text>
-                    </View>
-                  )}
-                  <Text style={[styles.lessonRowTitle, lesson.current && { color: Colors.primary, fontWeight: '700' }]}>
-                    {lesson.title}
-                  </Text>
-                  {lesson.current ? (
-                    <Text style={styles.currentLabel}>ĐANG HỌC</Text>
-                  ) : (
-                    <Text style={styles.lessonDuration}>{lesson.duration}</Text>
-                  )}
+                  <View style={[styles.chapterIcon, { backgroundColor: '#EBF6F0' }]}>
+                    <Ionicons name="layers-outline" size={18} color={Colors.primary} />
+                  </View>
+                  <Text style={styles.chapterTitle}>Chương {index + 1}: {chapter.title}</Text>
+                  <Ionicons
+                    name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color={Colors.light.textMuted}
+                  />
                 </TouchableOpacity>
-              ))}
-            </View>
-          ))}
+
+                {isExpanded && chapter.lessons && chapter.lessons.map((lesson) => {
+                  const isCurrent = activeLesson?.id === lesson.id;
+                  return (
+                    <TouchableOpacity
+                      key={lesson.id}
+                      style={[styles.lessonRow, isCurrent && styles.lessonRowActive]}
+                      onPress={() => handleSelectLesson(course.id, lesson)}
+                    >
+                      {lesson.isCompleted ? (
+                        <View style={styles.doneBadge}>
+                          <Ionicons name="checkmark" size={14} color="#FFF" />
+                        </View>
+                      ) : isCurrent ? (
+                        <View style={styles.currentBadge}>
+                          <Ionicons name="play" size={12} color="#FFF" />
+                        </View>
+                      ) : (
+                        <View style={styles.pendingBadge}>
+                          <Text style={styles.pendingDot}>•</Text>
+                        </View>
+                      )}
+                      <Text style={[styles.lessonRowTitle, isCurrent && { color: Colors.primary, fontWeight: '700' }]}>
+                        {lesson.title}
+                      </Text>
+                      {isCurrent ? (
+                        <Text style={styles.currentLabel}>ĐANG HỌC</Text>
+                      ) : (
+                        <Text style={styles.lessonDuration}>
+                          {lesson.durationSeconds ? formatTime(lesson.durationSeconds) : '10:00'}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            );
+          })}
 
           {/* My Notes */}
           <View style={styles.notesCard}>
             <View style={styles.notesHeader}>
-              <Text style={styles.notesTitle}>Ghi chú của tôi</Text>
-              <TouchableOpacity>
-                <Text style={styles.notesEdit}>Sửa</Text>
-              </TouchableOpacity>
+              <Text style={styles.notesTitle}>Ghi chú học tập</Text>
+              {activeLesson && (
+                <Text style={{ fontSize: 12, color: Colors.light.textMuted }}>
+                  Bài học: {activeLesson.title}
+                </Text>
+              )}
             </View>
             <View style={styles.notesBox}>
-              <Text style={styles.notesText}>{note}</Text>
+              <TextInput
+                style={styles.notesInput}
+                multiline
+                placeholder="Nhập ghi chú học tập của bạn tại đây để lưu lại..."
+                value={note}
+                onChangeText={setNote}
+                placeholderTextColor={Colors.light.textMuted}
+              />
             </View>
-            <TouchableOpacity style={styles.saveNotesBtn} activeOpacity={0.85}>
+            <TouchableOpacity style={styles.saveNotesBtn} activeOpacity={0.85} onPress={handleSaveNote}>
               <LinearGradient
                 colors={[Colors.primaryDark, Colors.primary]}
                 start={{ x: 0, y: 0 }}
@@ -224,7 +388,7 @@ export default function LearningScreen() {
                 style={styles.saveNotesBtnGradient}
               >
                 <Ionicons name="save-outline" size={16} color="#FFF" style={{ marginRight: 8 }} />
-                <Text style={styles.saveNotesBtnText}>Lưu ghi chú</Text>
+                <Text style={styles.saveNotesBtnText}>Lưu ghi chú lên máy chủ</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -421,6 +585,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   notesText: { fontSize: 13, color: Colors.light.textSecondary, lineHeight: 20 },
+  notesInput: { fontSize: 13, color: Colors.light.textSecondary, lineHeight: 20, minHeight: 60, textAlignVertical: 'top' },
   saveNotesBtn: { borderRadius: 12, overflow: 'hidden' },
   saveNotesBtnGradient: {
     flexDirection: 'row',
