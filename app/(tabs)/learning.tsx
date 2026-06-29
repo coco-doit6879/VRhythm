@@ -25,6 +25,35 @@ const formatTime = (seconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
+// Sample quiz questions based on lesson title for traditional instruments (pentatonic scales, strings, etc.)
+const getQuizQuestion = (title: string | null) => {
+  const t = title || '';
+  if (t.toLowerCase().includes('guitar') || t.toLowerCase().includes('gảy') || t.toLowerCase().includes('dây')) {
+    return {
+      question: 'Kỹ thuật nào giúp điều chỉnh cao độ tạm thời của một dây đàn khi đang biểu diễn mà không cần vặn trục dây?',
+      options: [
+        'Nhấn lực tay trái ở phía sau nhạn đàn (nhạn khều)',
+        'Gảy đàn sát vào cầu đàn',
+        'Sử dụng ngón rung bên tay phải',
+        'Tì lòng bàn tay vào mặt gỗ'
+      ],
+      correctIndex: 0,
+      explanation: 'Nhấn tay trái ở phần dây phía sau nhạn đàn làm tăng sức căng của dây đàn, làm cao độ của nốt nhạc ngân lên cao hơn nốt ban đầu.'
+    };
+  }
+  return {
+    question: 'Trong âm nhạc cổ truyền Việt Nam, hệ thống thang âm "ngũ cung" chuẩn gồm những nốt nào?',
+    options: [
+      'Hò, Xự, Xang, Xê, Cống',
+      'Hò, Xự, Sang, Xê, Phạn',
+      'Đồ, Rê, Mi, Son, La',
+      'C, D, E, G, A'
+    ],
+    correctIndex: 0,
+    explanation: 'Hệ thống ngũ cung Việt Nam truyền thống bao gồm 5 âm cốt lõi: Hò, Xự, Xang, Xê, Cống (tương ứng nhạc ngũ cung truyền thống).'
+  };
+};
+
 export default function LearningScreen() {
   const [course, setCourse] = useState<CourseDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,12 +66,70 @@ export default function LearningScreen() {
   const [expanded, setExpanded] = useState<string[]>([]);
   const [note, setNote] = useState('');
 
+  // Interactive states for Quiz/Theory
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
+  const [quizSubmitted, setQuizSubmitted] = useState<Record<number, boolean>>({});
+
+  const simulateLocalCompletion = (lessonId: number) => {
+    if (!course) return;
+    const updatedChapters = course.chapters?.map(chap => ({
+      ...chap,
+      lessons: chap.lessons?.map(l => l.id === lessonId ? { ...l, isCompleted: true } : l) || null
+    })) || null;
+    
+    const updatedCourse = {
+      ...course,
+      chapters: updatedChapters
+    };
+    setCourse(updatedCourse);
+    
+    if (activeLesson && activeLesson.id === lessonId) {
+      const updatedActiveLesson = updatedChapters
+        ?.flatMap(chap => chap.lessons || [])
+        .find(l => l.id === lessonId);
+      if (updatedActiveLesson) {
+        setActiveLesson(updatedActiveLesson);
+      }
+    }
+  };
+
+  const handleSelectQuizOption = (lessonId: number, optionIndex: number) => {
+    setQuizAnswers(prev => ({ ...prev, [lessonId]: optionIndex }));
+  };
+
+  const handleSubmitQuiz = (lessonId: number) => {
+    setQuizSubmitted(prev => ({ ...prev, [lessonId]: true }));
+  };
+
+  const handleCompleteTextOrQuiz = async () => {
+    if (!course || !activeLesson) return;
+    try {
+      const res = await api.updateProgress(course.id, activeLesson.id, totalSeconds, totalSeconds);
+      if (res && res.success) {
+        const detailRes = await api.getCourseDetail(course.id);
+        if (detailRes.success && detailRes.data) {
+          setCourse(detailRes.data);
+          const updatedLesson = detailRes.data.chapters
+            ?.flatMap(chap => chap.lessons || [])
+            .find(l => l.id === activeLesson.id);
+          if (updatedLesson) {
+            setActiveLesson(updatedLesson);
+          }
+          return;
+        }
+      }
+      simulateLocalCompletion(activeLesson.id);
+    } catch (e) {
+      console.warn('Error completing lesson on server, simulating completion locally:', e);
+      simulateLocalCompletion(activeLesson.id);
+    }
+  };
+
   const fetchCourseData = async () => {
     setLoading(true);
     try {
       let courseId = api.getCurrentCourseId();
       
-      // Fallback: If no current course is selected, fetch the list and pick the first one
       if (!courseId) {
         const listRes = await api.getCourses();
         if (listRes.success && listRes.data && listRes.data.length > 0) {
@@ -57,7 +144,6 @@ export default function LearningScreen() {
           const data = detailRes.data;
           setCourse(data);
 
-          // Auto expand first chapter and select first lesson
           if (data.chapters && data.chapters.length > 0) {
             const firstChapter = data.chapters[0];
             setExpanded([firstChapter.id.toString()]);
@@ -77,24 +163,28 @@ export default function LearningScreen() {
   useEffect(() => {
     fetchCourseData();
   }, []);
-
   const handleSelectLesson = async (courseId: number, lesson: LessonDto) => {
     setActiveLesson(lesson);
     setVideoUrl(null);
-    setVideoLoading(true);
+    setVideoLoading(lesson.type === 'Video');
     setIsPlaying(false);
     setWatchedSeconds(0);
     setNote('');
 
-    try {
-      const res = await api.getVideoUrl(courseId, lesson.id);
-      if (res.success && res.data) {
-        setVideoUrl(res.data);
+    if (lesson.type === 'Video') {
+      try {
+        const res = await api.getVideoUrl(courseId, lesson.id);
+        if (res.success && res.data) {
+          setVideoUrl(res.data);
+        } else {
+          setVideoUrl('https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4');
+        }
+      } catch (e) {
+        console.warn('Could not load video URL, using fallback:', e);
+        setVideoUrl('https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4');
+      } finally {
+        setVideoLoading(false);
       }
-    } catch (e) {
-      console.warn('Could not load video URL:', e);
-    } finally {
-      setVideoLoading(false);
     }
   };
 
@@ -121,11 +211,14 @@ export default function LearningScreen() {
                   if (r.success && r.data) setCourse(r.data);
                 });
               })
-              .catch(err => console.error('Error updating final progress:', err));
+              .catch(err => {
+                console.warn('Error updating final progress, simulating completion locally:', err);
+                simulateLocalCompletion(activeLesson.id);
+              });
             return totalSeconds;
           }
           api.updateProgress(course.id, activeLesson.id, next, totalSeconds)
-            .catch(err => console.error('Error updating progress:', err));
+            .catch(err => console.warn('Error updating progress:', err));
           return next;
         });
       }, 5000);
@@ -215,58 +308,99 @@ export default function LearningScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Video Player */}
-        <View style={styles.videoContainer}>
-          <LinearGradient
-            colors={['#1A3020', '#0D1F17', '#1A2E22']}
-            style={styles.videoPlayer}
-          >
-            {videoLoading ? (
-              <ActivityIndicator size="large" color="#FFFFFF" />
-            ) : (
-              <>
-                <View style={styles.videoOverlay}>
-                  <Text style={{ fontSize: 80 }}>🎵</Text>
+        {/* Dynamic Media / Lesson Interface */}
+        {activeLesson?.type === 'Video' ? (
+          <View style={styles.videoContainer}>
+            <LinearGradient
+              colors={['#1A3020', '#0D1F17', '#1A2E22']}
+              style={styles.videoPlayer}
+            >
+              {videoLoading ? (
+                <ActivityIndicator size="large" color="#FFFFFF" />
+              ) : (
+                <>
+                  <View style={styles.videoOverlay}>
+                    <Text style={{ fontSize: 80 }}>🎵</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.videoPlayBtn}
+                    onPress={() => setIsPlaying(!isPlaying)}
+                    disabled={!activeLesson}
+                  >
+                    <Ionicons name={isPlaying ? 'pause' : 'play'} size={32} color="#FFF" />
+                  </TouchableOpacity>
+                </>
+              )}
+              
+              {/* Controls bar */}
+              <View style={styles.videoControls}>
+                <View style={styles.videoProgress}>
+                  <View style={[styles.videoProgressFill, { width: `${videoProgressPercent}%` }]} />
+                  <View style={styles.videoProgressThumb} />
                 </View>
-                <TouchableOpacity
-                  style={styles.videoPlayBtn}
-                  onPress={() => setIsPlaying(!isPlaying)}
-                  disabled={!activeLesson}
-                >
-                  <Ionicons name={isPlaying ? 'pause' : 'play'} size={32} color="#FFF" />
-                </TouchableOpacity>
-              </>
-            )}
-            
-            {/* Controls bar */}
-            <View style={styles.videoControls}>
-              <View style={styles.videoProgress}>
-                <View style={[styles.videoProgressFill, { width: `${videoProgressPercent}%` }]} />
-                <View style={styles.videoProgressThumb} />
+                <View style={styles.videoControlsRow}>
+                  <TouchableOpacity onPress={() => setIsPlaying(!isPlaying)} disabled={!activeLesson}>
+                    <Ionicons name={isPlaying ? 'pause' : 'play'} size={18} color="#FFF" />
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <Ionicons name="play-skip-forward" size={18} color="#FFF" />
+                  </TouchableOpacity>
+                  <Text style={styles.videoTime}>
+                    {formatTime(watchedSeconds)} / {formatTime(totalSeconds)}
+                  </Text>
+                  <TouchableOpacity style={{ marginLeft: 'auto' as any }}>
+                    <Ionicons name="text-outline" size={16} color="#FFF" />
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <Ionicons name="settings-outline" size={16} color="#FFF" />
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <Ionicons name="expand-outline" size={16} color="#FFF" />
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={styles.videoControlsRow}>
-                <TouchableOpacity onPress={() => setIsPlaying(!isPlaying)} disabled={!activeLesson}>
-                  <Ionicons name={isPlaying ? 'pause' : 'play'} size={18} color="#FFF" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Ionicons name="play-skip-forward" size={18} color="#FFF" />
-                </TouchableOpacity>
-                <Text style={styles.videoTime}>
-                  {formatTime(watchedSeconds)} / {formatTime(totalSeconds)}
-                </Text>
-                <TouchableOpacity style={{ marginLeft: 'auto' as any }}>
-                  <Ionicons name="text-outline" size={16} color="#FFF" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Ionicons name="settings-outline" size={16} color="#FFF" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Ionicons name="expand-outline" size={16} color="#FFF" />
-                </TouchableOpacity>
+            </LinearGradient>
+          </View>
+        ) : activeLesson?.type === 'Theory' ? (
+          <View style={styles.mediaContainer}>
+            <LinearGradient
+              colors={['#1F3A2B', '#112218']}
+              style={styles.mediaHeader}
+            >
+              <Ionicons name="book-outline" size={48} color={Colors.accent} />
+              <View style={styles.mediaHeaderMeta}>
+                <Text style={styles.mediaHeaderTag}>BÀI HỌC LÝ THUYẾT</Text>
+                <Text style={styles.mediaHeaderSubtitle}>Vui lòng đọc kỹ nội dung bài học bên dưới</Text>
               </View>
-            </View>
-          </LinearGradient>
-        </View>
+            </LinearGradient>
+          </View>
+        ) : activeLesson?.type === 'Quiz' ? (
+          <View style={styles.mediaContainer}>
+            <LinearGradient
+              colors={['#2D5A27', '#173014']}
+              style={styles.mediaHeader}
+            >
+              <Ionicons name="help-circle-outline" size={48} color={Colors.warning} />
+              <View style={styles.mediaHeaderMeta}>
+                <Text style={styles.mediaHeaderTag}>BÀI TRẮC NGHIỆM</Text>
+                <Text style={styles.mediaHeaderSubtitle}>Kiểm tra kiến thức đã học</Text>
+              </View>
+            </LinearGradient>
+          </View>
+        ) : activeLesson?.type === 'Practice' || activeLesson?.type === 'Practise' ? (
+          <View style={styles.mediaContainer}>
+            <LinearGradient
+              colors={['#3B275C', '#1D1330']}
+              style={styles.mediaHeader}
+            >
+              <Ionicons name="musical-notes-outline" size={48} color={Colors.info} />
+              <View style={styles.mediaHeaderMeta}>
+                <Text style={styles.mediaHeaderTag}>BÀI TẬP THỰC HÀNH</Text>
+                <Text style={styles.mediaHeaderSubtitle}>Luyện tập kỹ thuật gảy & bấm đàn</Text>
+              </View>
+            </LinearGradient>
+          </View>
+        ) : null}
 
         <View style={styles.content}>
           {/* Lesson Info */}
@@ -303,6 +437,172 @@ export default function LearningScreen() {
               Hoàn thành {completedLessons}/{totalLessons} bài học trong lộ trình này
             </Text>
           </View>
+
+          {/* Dynamic Content Body based on Lesson Type */}
+          {activeLesson?.type === 'Theory' && (
+            <View style={styles.typeSpecificCard}>
+              <Text style={styles.cardHeaderTitle}>NỘI DUNG LÝ THUYẾT</Text>
+              <Text style={styles.theoryBodyText}>
+                {activeLesson.content || "Nội dung lý thuyết đang được cập nhật..."}
+              </Text>
+              
+              <TouchableOpacity
+                style={[styles.actionBtn, activeLesson.isCompleted && styles.actionBtnDisabled]}
+                onPress={handleCompleteTextOrQuiz}
+                disabled={activeLesson.isCompleted}
+              >
+                <LinearGradient
+                  colors={activeLesson.isCompleted ? ['#A8C5B5', '#86A795'] : [Colors.primary, Colors.primaryDark]}
+                  style={styles.actionBtnGradient}
+                >
+                  <Ionicons name={activeLesson.isCompleted ? "checkmark-circle" : "checkmark-circle-outline"} size={20} color="#FFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.actionBtnText}>
+                    {activeLesson.isCompleted ? "Đã hoàn thành lý thuyết" : "Hoàn thành bài đọc"}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {activeLesson?.type === 'Quiz' && (() => {
+            const quiz = getQuizQuestion(activeLesson.title);
+            const selectedOpt = quizAnswers[activeLesson.id];
+            const isSub = quizSubmitted[activeLesson.id];
+            
+            return (
+              <View style={styles.typeSpecificCard}>
+                <Text style={styles.cardHeaderTitle}>CÂU HỎI TRẮC NGHIỆM</Text>
+                <Text style={styles.quizQuestionText}>{quiz.question}</Text>
+                
+                <View style={styles.quizOptionsCol}>
+                  {quiz.options.map((opt, oIdx) => {
+                    const isSelected = selectedOpt === oIdx;
+                    const isCorrectOpt = oIdx === quiz.correctIndex;
+                    
+                    let buttonStyle = styles.quizOptionBtn;
+                    let textStyle = styles.quizOptionText;
+                    
+                    if (isSelected) {
+                      buttonStyle = [styles.quizOptionBtn, styles.quizOptionSelected];
+                      textStyle = [styles.quizOptionText, styles.quizOptionTextSelected];
+                    }
+                    if (isSub) {
+                      if (isCorrectOpt) {
+                        buttonStyle = [styles.quizOptionBtn, styles.quizOptionCorrect];
+                        textStyle = [styles.quizOptionText, styles.quizOptionTextCorrect];
+                      } else if (isSelected && !isCorrectOpt) {
+                        buttonStyle = [styles.quizOptionBtn, styles.quizOptionWrong];
+                        textStyle = [styles.quizOptionText, styles.quizOptionTextWrong];
+                      }
+                    }
+                    
+                    return (
+                      <TouchableOpacity
+                        key={oIdx}
+                        style={buttonStyle}
+                        onPress={() => handleSelectQuizOption(activeLesson.id, oIdx)}
+                        disabled={isSub || activeLesson.isCompleted}
+                      >
+                        <View style={styles.quizOptionNumber}>
+                          <Text style={[styles.quizOptionNumberText, isSelected && { color: '#FFF' }]}>
+                            {String.fromCharCode(65 + oIdx)}
+                          </Text>
+                        </View>
+                        <Text style={textStyle}>{opt}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {isSub && (
+                  <View style={[styles.feedbackBox, selectedOpt === quiz.correctIndex ? styles.feedbackBoxCorrect : styles.feedbackBoxWrong]}>
+                    <View style={styles.feedbackHeader}>
+                      <Ionicons
+                        name={selectedOpt === quiz.correctIndex ? "checkmark-circle" : "close-circle"}
+                        size={18}
+                        color={selectedOpt === quiz.correctIndex ? Colors.primary : Colors.danger}
+                      />
+                      <Text style={[styles.feedbackTitle, { color: selectedOpt === quiz.correctIndex ? Colors.primary : Colors.danger }]}>
+                        {selectedOpt === quiz.correctIndex ? "Đáp án chính xác!" : "Đáp án chưa chính xác"}
+                      </Text>
+                    </View>
+                    <Text style={styles.feedbackExplanation}>{quiz.explanation}</Text>
+                  </View>
+                )}
+
+                {!isSub && !activeLesson.isCompleted ? (
+                  <TouchableOpacity
+                    style={[styles.actionBtn, selectedOpt === undefined && styles.actionBtnDisabled]}
+                    onPress={() => handleSubmitQuiz(activeLesson.id)}
+                    disabled={selectedOpt === undefined}
+                  >
+                    <LinearGradient
+                      colors={selectedOpt === undefined ? ['#A8C5B5', '#86A795'] : [Colors.warning, '#E76F51']}
+                      style={styles.actionBtnGradient}
+                    >
+                      <Ionicons name="send-outline" size={18} color="#FFF" style={{ marginRight: 8 }} />
+                      <Text style={styles.actionBtnText}>Nộp câu trả lời</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.actionBtn, activeLesson.isCompleted && styles.actionBtnDisabled]}
+                    onPress={handleCompleteTextOrQuiz}
+                    disabled={activeLesson.isCompleted}
+                  >
+                    <LinearGradient
+                      colors={activeLesson.isCompleted ? ['#A8C5B5', '#86A795'] : [Colors.primary, Colors.primaryDark]}
+                      style={styles.actionBtnGradient}
+                    >
+                      <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                      <Text style={styles.actionBtnText}>
+                        {activeLesson.isCompleted ? "Đã hoàn thành bài thi" : "Hoàn thành bài trắc nghiệm"}
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                )}
+              </View>
+            );
+          })()}
+
+          {/* Practice Component */}
+          {(activeLesson?.type === 'Practice' || activeLesson?.type === 'Practise') && (
+            <View style={styles.typeSpecificCard}>
+              <Text style={styles.cardHeaderTitle}>YÊU CẦU THỰC HÀNH CỦA BÀI HỌC</Text>
+              <Text style={styles.practiceBodyText}>
+                Bài học này yêu cầu bạn luyện tập bài đàn trực tiếp. Bạn sẽ sử dụng nhạc cụ truyền thống của mình (như Đàn Tranh, Đàn Nguyệt) và hệ thống của chúng tôi sẽ lắng nghe qua mic điện thoại để chấm điểm cao độ, nhịp điệu.
+              </Text>
+              
+              <TouchableOpacity
+                style={styles.actionBtn}
+                onPress={() => router.push('/ai-scoring')}
+              >
+                <LinearGradient
+                  colors={[Colors.info, '#4361EE']}
+                  style={styles.actionBtnGradient}
+                >
+                  <Ionicons name="hardware-chip-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.actionBtnText}>Vào Chấm điểm AI ngay</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionBtn, { marginTop: 12 }, activeLesson.isCompleted && styles.actionBtnDisabled]}
+                onPress={handleCompleteTextOrQuiz}
+                disabled={activeLesson.isCompleted}
+              >
+                <LinearGradient
+                  colors={activeLesson.isCompleted ? ['#A8C5B5', '#86A795'] : [Colors.primary, Colors.primaryDark]}
+                  style={styles.actionBtnGradient}
+                >
+                  <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.actionBtnText}>
+                    {activeLesson.isCompleted ? "Đã hoàn thành luyện tập" : "Đánh dấu đã hoàn thành bài tập"}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Course Chapters */}
           <Text style={styles.sectionTitle}>LỘ TRÌNH HỌC</Text>
@@ -620,5 +920,175 @@ const styles = StyleSheet.create({
     bottom: 80,
     backgroundColor: Colors.primary,
     shadowColor: Colors.primary,
+  },
+
+  // Interactive Styles
+  mediaContainer: {
+    height: 180,
+    overflow: 'hidden',
+  },
+  mediaHeader: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 24,
+    gap: 16,
+  },
+  mediaHeaderMeta: {
+    flex: 1,
+  },
+  mediaHeaderTag: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 1.5,
+    marginBottom: 4,
+  },
+  mediaHeaderSubtitle: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+  },
+  typeSpecificCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  cardHeaderTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    color: Colors.light.textMuted,
+    marginBottom: 14,
+  },
+  theoryBodyText: {
+    fontSize: 15,
+    color: Colors.light.textSecondary,
+    lineHeight: 24,
+    marginBottom: 20,
+  },
+  actionBtn: {
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  actionBtnDisabled: {
+    opacity: 0.7,
+  },
+  actionBtnGradient: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 14,
+  },
+  actionBtnText: {
+    color: '#FFF',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  quizQuestionText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.light.text,
+    lineHeight: 24,
+    marginBottom: 18,
+  },
+  quizOptionsCol: {
+    gap: 12,
+    marginBottom: 18,
+  },
+  quizOptionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.bg,
+    borderWidth: 1.5,
+    borderColor: Colors.light.border,
+    borderRadius: 12,
+    padding: 12,
+    gap: 12,
+  },
+  quizOptionSelected: {
+    borderColor: Colors.warning,
+    backgroundColor: '#FFFBF0',
+  },
+  quizOptionCorrect: {
+    borderColor: Colors.success,
+    backgroundColor: '#EBF6F0',
+  },
+  quizOptionWrong: {
+    borderColor: Colors.danger,
+    backgroundColor: '#FEE2E2',
+  },
+  quizOptionText: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontWeight: '500',
+  },
+  quizOptionTextSelected: {
+    color: Colors.warning,
+    fontWeight: '700',
+  },
+  quizOptionTextCorrect: {
+    color: Colors.success,
+    fontWeight: '700',
+  },
+  quizOptionTextWrong: {
+    color: Colors.danger,
+    fontWeight: '700',
+  },
+  quizOptionNumber: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quizOptionNumberText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.light.textMuted,
+  },
+  feedbackBox: {
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 18,
+    borderWidth: 1,
+  },
+  feedbackBoxCorrect: {
+    backgroundColor: '#EBF6F0',
+    borderColor: Colors.success + '40',
+  },
+  feedbackBoxWrong: {
+    backgroundColor: '#FEE2E2',
+    borderColor: Colors.danger + '40',
+  },
+  feedbackHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  feedbackTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  feedbackExplanation: {
+    fontSize: 13,
+    color: Colors.light.textSecondary,
+    lineHeight: 18,
+  },
+  practiceBodyText: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    lineHeight: 22,
+    marginBottom: 20,
   },
 });

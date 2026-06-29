@@ -175,7 +175,7 @@ async function request<T>(
   try {
     const response = await fetch(url, config);
     const text = await response.text();
-    
+
     let json: any = {};
     if (text) {
       try {
@@ -192,10 +192,12 @@ async function request<T>(
 
     return json as ApiResponse<T>;
   } catch (error: any) {
-    console.error(`API Error [${endpoint}]:`, error);
+    console.warn(`API Error [${endpoint}]:`, error.message || error);
     throw error;
   }
 }
+
+
 
 // API Service exports
 export const api = {
@@ -210,7 +212,7 @@ export const api = {
     storage.removeItem('authToken');
     storage.removeItem('currentCourseId');
   },
-  
+
   // Storage methods for current selected course
   setCurrentCourseId: (courseId: number) => {
     storage.setItem('currentCourseId', courseId.toString());
@@ -262,6 +264,12 @@ export const api = {
     });
   },
 
+  enrollCourse: async (courseId: number): Promise<ApiResponse<any>> => {
+    return request<any>(`/api/courses/${courseId}/enroll`, {
+      method: 'POST',
+    });
+  },
+
   saveNote: async (courseId: number, lessonId: number | null, content: string): Promise<ApiResponse<any>> => {
     return request<any>(`/api/courses/${courseId}/notes`, {
       method: 'POST',
@@ -278,7 +286,7 @@ export const api = {
     watchedSeconds: number,
     totalSeconds: number
   ): Promise<ApiResponse<any>> => {
-    return request<any>(`/api/courses/${courseId}/lessons/${lessonId}/progress`, {
+    return request<any>(`/api/lessons/${lessonId}/progress?courseId=${courseId}`, {
       method: 'POST',
       body: JSON.stringify({
         watchedSeconds,
@@ -288,7 +296,7 @@ export const api = {
   },
 
   getVideoUrl: async (courseId: number, lessonId: number): Promise<ApiResponse<string>> => {
-    return request<string>(`/api/courses/${courseId}/lessons/${lessonId}/video-url`, {
+    return request<string>(`/api/lessons/${lessonId}/video-url?courseId=${courseId}`, {
       method: 'GET',
     });
   }
