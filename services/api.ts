@@ -119,6 +119,13 @@ export interface QuizExamDto {
   questions: QuizQuestionDto[] | null;
 }
 
+export interface QuizSubmitResponseDto {
+  correctAnswers: number;
+  totalQuestions: number;
+  scorePercentage: number;
+  passed: boolean;
+}
+
 export interface PracticalExamDto {
   id: number;
   title: string | null;
@@ -298,6 +305,22 @@ export const api = {
   getVideoUrl: async (courseId: number, lessonId: number): Promise<ApiResponse<string>> => {
     return request<string>(`/api/lessons/${lessonId}/video-url?courseId=${courseId}`, {
       method: 'GET',
+    });
+  },
+
+  getQuiz: async (lessonId: number): Promise<ApiResponse<QuizExamDto>> => {
+    return request<QuizExamDto>(`/api/quizzes/${lessonId}`, {
+      method: 'GET',
+    });
+  },
+
+  submitQuiz: async (
+    lessonId: number,
+    answers: { questionId: number; selectedOptionId: number }[]
+  ): Promise<ApiResponse<QuizSubmitResponseDto>> => {
+    return request<QuizSubmitResponseDto>(`/api/quizzes/${lessonId}/submit`, {
+      method: 'POST',
+      body: JSON.stringify({ answers }),
     });
   }
 };
