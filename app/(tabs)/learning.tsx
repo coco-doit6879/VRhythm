@@ -139,14 +139,6 @@ export default function LearningScreen() {
     }
   };
 
-  const handleSelectQuizOption = (lessonId: number, optionIndex: number) => {
-    setQuizAnswers(prev => ({ ...prev, [lessonId]: optionIndex }));
-  };
-
-  const handleSubmitQuiz = (lessonId: number) => {
-    setQuizSubmitted(prev => ({ ...prev, [lessonId]: true }));
-  };
-
   const handleCompleteTextOrQuiz = async () => {
     if (!course || !activeLesson) return;
     const currentId = activeLesson.id;
@@ -240,7 +232,16 @@ export default function LearningScreen() {
     if (lesson.type === 'Quiz') {
       setQuizLoading(true);
       setActiveQuiz(null);
-      setQuizResult(null);
+      if (lesson.isCompleted) {
+        setQuizResult({
+          correctAnswers: 10,
+          totalQuestions: 10,
+          scorePercentage: 100,
+          passed: true
+        });
+      } else {
+        setQuizResult(null);
+      }
       setCurrentQuestionIndex(0);
       setQuizAnswers({});
       try {
@@ -640,18 +641,34 @@ export default function LearningScreen() {
                   </View>
 
                   {isPassed ? (
-                    <TouchableOpacity
-                      style={styles.actionBtn}
-                      onPress={handleCompleteTextOrQuiz}
-                    >
-                      <LinearGradient
-                        colors={[Colors.primary, Colors.primaryDark]}
-                        style={styles.actionBtnGradient}
+                    <View style={{ gap: 10 }}>
+                      <TouchableOpacity
+                        style={styles.actionBtn}
+                        onPress={handleCompleteTextOrQuiz}
                       >
-                        <Ionicons name="arrow-forward-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                        <Text style={styles.actionBtnText}>Hoàn thành & Học tiếp</Text>
-                      </LinearGradient>
-                    </TouchableOpacity>
+                        <LinearGradient
+                          colors={[Colors.primary, Colors.primaryDark]}
+                          style={styles.actionBtnGradient}
+                        >
+                          <Ionicons name="arrow-forward-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                          <Text style={styles.actionBtnText}>Hoàn thành & Học tiếp</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.actionBtn}
+                        onPress={() => {
+                          setQuizResult(null);
+                          setCurrentQuestionIndex(0);
+                          setQuizAnswers({});
+                        }}
+                      >
+                        <View style={[styles.actionBtnGradient, { backgroundColor: '#F0F2F5', borderWidth: 1, borderColor: '#DDD' }]}>
+                          <Ionicons name="refresh-outline" size={20} color={Colors.light.text} style={{ marginRight: 8 }} />
+                          <Text style={[styles.actionBtnText, { color: Colors.light.text }]}>Làm lại bài thi</Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
                   ) : (
                     <TouchableOpacity
                       style={styles.actionBtn}
@@ -674,16 +691,17 @@ export default function LearningScreen() {
               );
             }
 
-            const currentQuestion = activeQuiz.questions[currentQuestionIndex];
+            const questions = activeQuiz.questions || [];
+            const currentQuestion = questions[currentQuestionIndex];
             const selectedOptionId = quizAnswers[currentQuestion.id];
-            const isLastQuestion = currentQuestionIndex === activeQuiz.questions.length - 1;
+            const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
             return (
               <View style={styles.typeSpecificCard}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <Text style={styles.cardHeaderTitle}>BÀI TRẮC NGHIỆM</Text>
                   <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.primary }}>
-                    Câu hỏi {currentQuestionIndex + 1} / {activeQuiz.questions.length}
+                    Câu hỏi {currentQuestionIndex + 1} / {questions.length}
                   </Text>
                 </View>
                 
@@ -693,8 +711,8 @@ export default function LearningScreen() {
                   {currentQuestion.options?.map((opt, oIdx) => {
                     const isSelected = selectedOptionId === opt.id;
                     
-                    let buttonStyle = styles.quizOptionBtn;
-                    let textStyle = styles.quizOptionText;
+                    let buttonStyle: any = styles.quizOptionBtn;
+                    let textStyle: any = styles.quizOptionText;
                     
                     if (isSelected) {
                       buttonStyle = [styles.quizOptionBtn, styles.quizOptionSelected];
@@ -759,20 +777,20 @@ export default function LearningScreen() {
                           if (res.success && res.data) {
                             setQuizResult(res.data);
                           } else {
-                            const score = Math.round((Object.keys(quizAnswers).length / activeQuiz.questions.length) * 100);
+                            const score = Math.round((Object.keys(quizAnswers).length / questions.length) * 100);
                             setQuizResult({
                               correctAnswers: Object.keys(quizAnswers).length,
-                              totalQuestions: activeQuiz.questions.length,
+                              totalQuestions: questions.length,
                               scorePercentage: score,
                               passed: score >= activeQuiz.passPercentage
                             });
                           }
                         } catch (e) {
                           console.warn("Quiz submission error, simulating local success:", e);
-                          const score = Math.round((Object.keys(quizAnswers).length / activeQuiz.questions.length) * 100);
+                          const score = Math.round((Object.keys(quizAnswers).length / questions.length) * 100);
                           setQuizResult({
                             correctAnswers: Object.keys(quizAnswers).length,
-                            totalQuestions: activeQuiz.questions.length,
+                            totalQuestions: questions.length,
                             scorePercentage: score,
                             passed: score >= activeQuiz.passPercentage
                           });
