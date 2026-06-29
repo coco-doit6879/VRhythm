@@ -278,7 +278,7 @@ export const api = {
     watchedSeconds: number,
     totalSeconds: number
   ): Promise<ApiResponse<any>> => {
-    return request<any>(`/api/courses/${courseId}/lessons/${lessonId}/progress`, {
+    return request<any>(`/api/lessons/${lessonId}/progress?courseId=${courseId}`, {
       method: 'POST',
       body: JSON.stringify({
         watchedSeconds,
@@ -288,7 +288,7 @@ export const api = {
   },
 
   getVideoUrl: async (courseId: number, lessonId: number): Promise<ApiResponse<string>> => {
-    return request<string>(`/api/courses/${courseId}/lessons/${lessonId}/video-url`, {
+    return request<string>(`/api/lessons/${lessonId}/video-url?courseId=${courseId}`, {
       method: 'GET',
     });
   }
