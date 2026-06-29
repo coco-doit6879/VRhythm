@@ -85,12 +85,13 @@ export default function LearningScreen() {
   const player = useVideoPlayer(videoUrl ?? "", (player) => {
     player.loop = false;
   });
+
   // Interactive states for Quiz/Theory
   const [activeQuiz, setActiveQuiz] = useState<QuizExamDto | null>(null);
   const [quizLoading, setQuizLoading] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({}); // maps questionId to selectedOptionId
-  const [quizResult, setQuizResult] = useState<QuizSubmitResponseDto | null>(null);
+  const [quizQuestionIndices, setQuizQuestionIndices] = useState<Record<number, number>>({}); // maps lessonId to currentQuestionIndex
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, Record<number, number>>>({}); // maps lessonId to { questionId: selectedOptionId }
+  const [quizResults, setQuizResults] = useState<Record<number, QuizSubmitResponseDto>>({}); // maps lessonId to QuizSubmitResponseDto
   const [submittingQuiz, setSubmittingQuiz] = useState(false);
   const simulateLocalCompletion = (lessonId: number) => {
     if (!course) return;
@@ -232,18 +233,19 @@ export default function LearningScreen() {
     if (lesson.type === 'Quiz') {
       setQuizLoading(true);
       setActiveQuiz(null);
-      if (lesson.isCompleted) {
-        setQuizResult({
-          correctAnswers: 10,
-          totalQuestions: 10,
-          scorePercentage: 100,
-          passed: true
-        });
-      } else {
-        setQuizResult(null);
+      
+      if (lesson.isCompleted && !quizResults[lesson.id]) {
+        setQuizResults(prev => ({
+          ...prev,
+          [lesson.id]: {
+            correctAnswers: 10,
+            totalQuestions: 10,
+            scorePercentage: 100,
+            passed: true
+          }
+        }));
       }
-      setCurrentQuestionIndex(0);
-      setQuizAnswers({});
+
       try {
         const res = await api.getQuiz(lesson.id);
         if (res.success && res.data) {
@@ -615,10 +617,26 @@ export default function LearningScreen() {
               );
             }
 
-            const hasResult = quizResult !== null;
+            const lessonId = activeLesson.id;
+            const questions = activeQuiz.questions || [];
+            
+            const currentQuestionIndex = quizQuestionIndices[lessonId] || 0;
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            const currentAnswers = quizAnswers[lessonId] || {};
+            const selectedOptionId = currentQuestion ? currentAnswers[currentQuestion.id] : undefined;
+            const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+            const res = quizResults[lessonId] || (activeLesson.isCompleted ? {
+              correctAnswers: questions.length,
+              totalQuestions: questions.length,
+              scorePercentage: 100,
+              passed: true
+            } : null);
+
+            const hasResult = res !== null;
             
             if (hasResult) {
-              const res = quizResult!;
               const isPassed = res.passed;
               return (
                 <View style={styles.typeSpecificCard}>
@@ -658,9 +676,17 @@ export default function LearningScreen() {
                       <TouchableOpacity
                         style={styles.actionBtn}
                         onPress={() => {
-                          setQuizResult(null);
-                          setCurrentQuestionIndex(0);
-                          setQuizAnswers({});
+                          setQuizResults(prev => {
+                            const next = { ...prev };
+                            delete next[lessonId];
+                            return next;
+                          });
+                          setQuizQuestionIndices(prev => ({ ...prev, [lessonId]: 0 }));
+                          setQuizAnswers(prev => {
+                            const next = { ...prev };
+                            delete next[lessonId];
+                            return next;
+                          });
                         }}
                       >
                         <View style={[styles.actionBtnGradient, { backgroundColor: '#F0F2F5', borderWidth: 1, borderColor: '#DDD' }]}>
@@ -673,9 +699,17 @@ export default function LearningScreen() {
                     <TouchableOpacity
                       style={styles.actionBtn}
                       onPress={() => {
-                        setQuizResult(null);
-                        setCurrentQuestionIndex(0);
-                        setQuizAnswers({});
+                        setQuizResults(prev => {
+                          const next = { ...prev };
+                          delete next[lessonId];
+                          return next;
+                        });
+                        setQuizQuestionIndices(prev => ({ ...prev, [lessonId]: 0 }));
+                        setQuizAnswers(prev => {
+                          const next = { ...prev };
+                          delete next[lessonId];
+                          return next;
+                        });
                       }}
                     >
                       <LinearGradient
@@ -690,11 +724,6 @@ export default function LearningScreen() {
                 </View>
               );
             }
-
-            const questions = activeQuiz.questions || [];
-            const currentQuestion = questions[currentQuestionIndex];
-            const selectedOptionId = quizAnswers[currentQuestion.id];
-            const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
             return (
               <View style={styles.typeSpecificCard}>
@@ -723,7 +752,13 @@ export default function LearningScreen() {
                       <TouchableOpacity
                         key={opt.id}
                         style={buttonStyle}
-                        onPress={() => setQuizAnswers(prev => ({ ...prev, [currentQuestion.id]: opt.id }))}
+                        onPress={() => setQuizAnswers(prev => ({
+                          ...prev,
+                          [lessonId]: {
+                            ...(prev[lessonId] || {}),
+                            [currentQuestion.id]: opt.id
+                          }
+                        }))}
                       >
                         <View style={styles.quizOptionNumber}>
                           <Text style={[styles.quizOptionNumberText, isSelected && { color: '#FFF' }]}>
@@ -740,7 +775,10 @@ export default function LearningScreen() {
                   {currentQuestionIndex > 0 && (
                     <TouchableOpacity
                       style={[styles.actionBtn, { flex: 1 }]}
-                      onPress={() => setCurrentQuestionIndex(prev => prev - 1)}
+                      onPress={() => setQuizQuestionIndices(prev => ({
+                        ...prev,
+                        [lessonId]: Math.max(0, (prev[lessonId] || 0) - 1)
+                      }))}
                     >
                       <View style={[styles.actionBtnGradient, { backgroundColor: '#F0F2F5', borderWidth: 1, borderColor: '#DDD' }]}>
                         <Ionicons name="arrow-back-outline" size={18} color={Colors.light.text} style={{ marginRight: 6 }} />
@@ -752,7 +790,10 @@ export default function LearningScreen() {
                   {!isLastQuestion ? (
                     <TouchableOpacity
                       style={[styles.actionBtn, { flex: 2 }, selectedOptionId === undefined && styles.actionBtnDisabled]}
-                      onPress={() => setCurrentQuestionIndex(prev => prev + 1)}
+                      onPress={() => setQuizQuestionIndices(prev => ({
+                        ...prev,
+                        [lessonId]: (prev[lessonId] || 0) + 1
+                      }))}
                       disabled={selectedOptionId === undefined}
                     >
                       <LinearGradient
@@ -769,31 +810,37 @@ export default function LearningScreen() {
                       onPress={async () => {
                         setSubmittingQuiz(true);
                         try {
-                          const payload = Object.entries(quizAnswers).map(([qId, optId]) => ({
+                          const payload = Object.entries(currentAnswers).map(([qId, optId]) => ({
                             questionId: parseInt(qId),
-                            selectedOptionId: optId
+                            selectedOptionId: optId as number
                           }));
                           const res = await api.submitQuiz(activeLesson.id, payload);
                           if (res.success && res.data) {
-                            setQuizResult(res.data);
+                            setQuizResults(prev => ({ ...prev, [lessonId]: res.data! }));
                           } else {
-                            const score = Math.round((Object.keys(quizAnswers).length / questions.length) * 100);
-                            setQuizResult({
-                              correctAnswers: Object.keys(quizAnswers).length,
-                              totalQuestions: questions.length,
-                              scorePercentage: score,
-                              passed: score >= activeQuiz.passPercentage
-                            });
+                            const score = Math.round((Object.keys(currentAnswers).length / questions.length) * 100);
+                            setQuizResults(prev => ({
+                              ...prev,
+                              [lessonId]: {
+                                correctAnswers: Object.keys(currentAnswers).length,
+                                totalQuestions: questions.length,
+                                scorePercentage: score,
+                                passed: score >= activeQuiz.passPercentage
+                              }
+                            }));
                           }
                         } catch (e) {
                           console.warn("Quiz submission error, simulating local success:", e);
-                          const score = Math.round((Object.keys(quizAnswers).length / questions.length) * 100);
-                          setQuizResult({
-                            correctAnswers: Object.keys(quizAnswers).length,
-                            totalQuestions: questions.length,
-                            scorePercentage: score,
-                            passed: score >= activeQuiz.passPercentage
-                          });
+                          const score = Math.round((Object.keys(currentAnswers).length / questions.length) * 100);
+                          setQuizResults(prev => ({
+                            ...prev,
+                            [lessonId]: {
+                              correctAnswers: Object.keys(currentAnswers).length,
+                              totalQuestions: questions.length,
+                              scorePercentage: score,
+                              passed: score >= activeQuiz.passPercentage
+                            }
+                          }));
                         } finally {
                           setSubmittingQuiz(false);
                         }
