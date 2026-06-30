@@ -15,7 +15,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "../../constants/Colors";
-import { api, CourseDetailDto, LessonDto, QuizExamDto, QuizSubmitResponseDto } from "../../services/api";
+import {
+  api,
+  CourseDetailDto,
+  LessonDto,
+  QuizExamDto,
+  QuizSubmitResponseDto,
+} from "../../services/api";
 import { VideoView, useVideoPlayer } from "expo-video";
 const { width } = Dimensions.get("window");
 
@@ -23,51 +29,6 @@ const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-};
-
-// Mock quiz generator as fallback when api fails
-const getMockQuiz = (title: string | null): QuizExamDto => {
-  const t = title || '';
-  if (t.toLowerCase().includes('guitar') || t.toLowerCase().includes('gảy') || t.toLowerCase().includes('dây')) {
-    return {
-      id: 1,
-      title: t,
-      sortOrder: 1,
-      passPercentage: 70,
-      questions: [
-        {
-          id: 1,
-          sortOrder: 1,
-          prompt: 'Kỹ thuật nào giúp điều chỉnh cao độ tạm thời của một dây đàn khi đang biểu diễn mà không cần vặn trục dây?',
-          options: [
-            { id: 1, sortOrder: 1, text: 'Nhấn lực tay trái ở phía sau nhạn đàn (nhạn khều)' },
-            { id: 2, sortOrder: 2, text: 'Gảy đàn sát vào cầu đàn' },
-            { id: 3, sortOrder: 3, text: 'Sử dụng ngón rung bên tay phải' },
-            { id: 4, sortOrder: 4, text: 'Tì lòng bàn tay vào mặt gỗ' }
-          ]
-        }
-      ]
-    };
-  }
-  return {
-    id: 1,
-    title: t,
-    sortOrder: 1,
-    passPercentage: 70,
-    questions: [
-      {
-        id: 1,
-        sortOrder: 1,
-        prompt: 'Trong âm nhạc cổ truyền Việt Nam, hệ thống thang âm "ngũ cung" chuẩn gồm những nốt nào?',
-        options: [
-          { id: 1, sortOrder: 1, text: 'Hò, Xự, Xang, Xê, Cống' },
-          { id: 2, sortOrder: 2, text: 'Hò, Xự, Sang, Xê, Phạn' },
-          { id: 3, sortOrder: 3, text: 'Đồ, Rê, Mi, Son, La' },
-          { id: 4, sortOrder: 4, text: 'C, D, E, G, A' }
-        ]
-      }
-    ]
-  };
 };
 
 export default function LearningScreen() {
@@ -87,56 +48,75 @@ export default function LearningScreen() {
   });
 
   // Interactive states for Quiz/Theory
-  const [activeQuiz, setActiveQuiz] = useState<QuizExamDto | null>(null);
+  const [lessonDetail, setLessonDetail] = useState<LessonDto | null>(null);
+  // const [activeQuiz, setActiveQuiz] = useState<QuizExamDto | null>(null);
   const [quizLoading, setQuizLoading] = useState(false);
-  const [quizQuestionIndices, setQuizQuestionIndices] = useState<Record<number, number>>({}); // maps lessonId to currentQuestionIndex
-  const [quizAnswers, setQuizAnswers] = useState<Record<number, Record<number, number>>>({}); // maps lessonId to { questionId: selectedOptionId }
-  const [quizResults, setQuizResults] = useState<Record<number, QuizSubmitResponseDto>>({}); // maps lessonId to QuizSubmitResponseDto
+  const [quizQuestionIndices, setQuizQuestionIndices] = useState<
+    Record<number, number>
+  >({}); // maps lessonId to currentQuestionIndex
+  const [quizAnswers, setQuizAnswers] = useState<
+    Record<number, Record<number, number>>
+  >({}); // maps lessonId to { questionId: selectedOptionId }
+  const [quizResults, setQuizResults] = useState<
+    Record<number, QuizSubmitResponseDto>
+  >({}); // maps lessonId to QuizSubmitResponseDto
   const [submittingQuiz, setSubmittingQuiz] = useState(false);
   const simulateLocalCompletion = (lessonId: number) => {
     if (!course) return;
-    const updatedChapters = course.chapters?.map(chap => ({
-      ...chap,
-      lessons: chap.lessons?.map(l => l.id === lessonId ? { ...l, isCompleted: true } : l) || null
-    })) || null;
-    
+    const updatedChapters =
+      course.chapters?.map((chap) => ({
+        ...chap,
+        lessons:
+          chap.lessons?.map((l) =>
+            l.id === lessonId ? { ...l, isCompleted: true } : l,
+          ) || null,
+      })) || null;
+
     const updatedCourse = {
       ...course,
-      chapters: updatedChapters
+      chapters: updatedChapters,
     };
     setCourse(updatedCourse);
-    
+
     if (activeLesson && activeLesson.id === lessonId) {
       const updatedActiveLesson = updatedChapters
-        ?.flatMap(chap => chap.lessons || [])
-        .find(l => l.id === lessonId);
+        ?.flatMap((chap) => chap.lessons || [])
+        .find((l) => l.id === lessonId);
       if (updatedActiveLesson) {
         setActiveLesson(updatedActiveLesson);
       }
     }
   };
 
-  const navigateToNextLesson = (currentLessonId: number, freshCourse?: CourseDetailDto) => {
+  const navigateToNextLesson = (
+    currentLessonId: number,
+    freshCourse?: CourseDetailDto,
+  ) => {
     const activeCourse = freshCourse || course;
     if (!activeCourse || !activeCourse.chapters) return;
-    
-    const allLessons = activeCourse.chapters.flatMap(chap => chap.lessons || []);
-    const currentIndex = allLessons.findIndex(l => l.id === currentLessonId);
-    
+
+    const allLessons = activeCourse.chapters.flatMap(
+      (chap) => chap.lessons || [],
+    );
+    const currentIndex = allLessons.findIndex((l) => l.id === currentLessonId);
+
     if (currentIndex !== -1 && currentIndex + 1 < allLessons.length) {
       const nextLesson = allLessons[currentIndex + 1];
-      
+
       // Auto expand next chapter if it is different
-      const nextChapter = activeCourse.chapters.find(chap => 
-        chap.lessons?.some(l => l.id === nextLesson.id)
+      const nextChapter = activeCourse.chapters.find((chap) =>
+        chap.lessons?.some((l) => l.id === nextLesson.id),
       );
       if (nextChapter && !expanded.includes(nextChapter.id.toString())) {
-        setExpanded(prev => [...prev, nextChapter.id.toString()]);
+        setExpanded((prev) => [...prev, nextChapter.id.toString()]);
       }
-      
+
       handleSelectLesson(activeCourse.id, nextLesson);
     } else {
-      Alert.alert("Chúc mừng!", "Bạn đã hoàn thành bài học cuối cùng của khóa học này!");
+      Alert.alert(
+        "Chúc mừng!",
+        "Bạn đã hoàn thành bài học cuối cùng của khóa học này!",
+      );
     }
   };
 
@@ -144,14 +124,19 @@ export default function LearningScreen() {
     if (!course || !activeLesson) return;
     const currentId = activeLesson.id;
     try {
-      const res = await api.updateProgress(course.id, activeLesson.id, totalSeconds, totalSeconds);
+      const res = await api.updateVideoProgress(
+        course.id,
+        activeLesson.id,
+        totalSeconds,
+        totalSeconds,
+      );
       if (res && res.success) {
         const detailRes = await api.getCourseDetail(course.id);
         if (detailRes.success && detailRes.data) {
           setCourse(detailRes.data);
           const updatedLesson = detailRes.data.chapters
-            ?.flatMap(chap => chap.lessons || [])
-            .find(l => l.id === currentId);
+            ?.flatMap((chap) => chap.lessons || [])
+            .find((l) => l.id === currentId);
           if (updatedLesson) {
             setActiveLesson(updatedLesson);
           }
@@ -162,7 +147,10 @@ export default function LearningScreen() {
       simulateLocalCompletion(currentId);
       navigateToNextLesson(currentId);
     } catch (e) {
-      console.warn('Error completing lesson on server, simulating completion locally:', e);
+      console.warn(
+        "Error completing lesson on server, simulating completion locally:",
+        e,
+      );
       simulateLocalCompletion(currentId);
       navigateToNextLesson(currentId);
     }
@@ -209,61 +197,51 @@ export default function LearningScreen() {
 
   const handleSelectLesson = async (courseId: number, lesson: LessonDto) => {
     setActiveLesson(lesson);
+    setLessonDetail(null);
+
     setVideoUrl(null);
-    setVideoLoading(lesson.type === 'Video');
+    setVideoLoading(lesson.type === "Video");
     setIsPlaying(false);
     setWatchedSeconds(0);
     setNote("");
-    if (lesson.type === 'Video') {
+
+    try {
+      // 1. FETCH FULL LESSON DETAIL (NEW CORE)
+      const res = await api.getLessonDetail(lesson.id);
+
+      if (res.success && res.data) {
+        setLessonDetail(res.data);
+      } else {
+        setLessonDetail(lesson); // fallback
+      }
+    } catch (e) {
+      console.warn("Lesson detail load failed:", e);
+      setLessonDetail(lesson);
+    }
+
+    // 2. VIDEO HANDLING (KEEP OLD BEHAVIOR)
+    if (lesson.type === "Video") {
       try {
         const res = await api.getVideoUrl(courseId, lesson.id);
         if (res.success && res.data) {
           setVideoUrl(res.data);
         } else {
-          setVideoUrl('https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4');
+          setVideoUrl(
+            "https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+          );
         }
       } catch (e) {
-        console.warn('Could not load video URL, using fallback:', e);
-        setVideoUrl('https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4');
+        setVideoUrl("https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4");
       } finally {
         setVideoLoading(false);
       }
-    }
-
-    if (lesson.type === 'Quiz') {
-      setQuizLoading(true);
-      setActiveQuiz(null);
-      
-      if (lesson.isCompleted && !quizResults[lesson.id]) {
-        setQuizResults(prev => ({
-          ...prev,
-          [lesson.id]: {
-            correctAnswers: 10,
-            totalQuestions: 10,
-            scorePercentage: 100,
-            passed: true
-          }
-        }));
-      }
-
-      try {
-        const res = await api.getQuiz(lesson.id);
-        if (res.success && res.data) {
-          setActiveQuiz(res.data);
-        } else {
-          setActiveQuiz(getMockQuiz(lesson.title));
-        }
-      } catch (e) {
-        console.warn('Could not load quiz, using fallback:', e);
-        setActiveQuiz(getMockQuiz(lesson.title));
-      } finally {
-        setQuizLoading(false);
-      }
+    } else {
+      setVideoLoading(false);
     }
   };
   const totalSeconds = activeLesson?.durationSeconds || 600; // default 10 minutes
   useEffect(() => {
-  if (!player || !activeLesson || !course) return;
+    if (!player || !activeLesson || !course) return;
 
     let lastReported = 0;
 
@@ -282,52 +260,56 @@ export default function LearningScreen() {
         if (status === "idle") {
           console.log("Video finished");
 
-          api.updateProgress(
-            course.id,
-            activeLesson.id,
-            totalSeconds,
-            totalSeconds
-          )
+          api
+            .updateVideoProgress(
+              course.id,
+              activeLesson.id,
+              totalSeconds,
+              totalSeconds,
+            )
             .then(() => {
-              api.getCourseDetail(course.id).then(r => {
+              api.getCourseDetail(course.id).then((r) => {
                 if (r.success && r.data) {
                   setCourse(r.data);
                   navigateToNextLesson(activeLesson.id, r.data);
                 }
               });
             })
-            .catch(err => {
-              console.warn("Error updating final progress, simulating completion locally:", err);
+            .catch((err) => {
+              console.warn(
+                "Error updating final progress, simulating completion locally:",
+                err,
+              );
               simulateLocalCompletion(activeLesson.id);
               navigateToNextLesson(activeLesson.id);
             });
-
         }
-      }
+      },
     );
+    const interval = setInterval(() => {
+      const current = Math.floor(player.currentTime);
 
-  const interval = setInterval(() => {
-    const current = Math.floor(player.currentTime);
+      if (current !== lastReported && current % 5 === 0) {
+        lastReported = current;
 
-    if (current !== lastReported && current % 5 === 0) {
-      lastReported = current;
+        setWatchedSeconds(current);
 
-      setWatchedSeconds(current);
+        api
+          .updateVideoProgress(
+            course.id,
+            activeLesson.id,
+            current,
+            totalSeconds,
+          )
+          .catch(console.error);
+      }
+    }, 1000);
 
-      api.updateProgress(
-        course.id,
-        activeLesson.id,
-        current,
-        totalSeconds
-      ).catch(console.error);
-    }
-  }, 1000);
-
-  return () => {
-    subscription.remove();
-    clearInterval(interval);
-  };
-}, [player, activeLesson, course, totalSeconds]);
+    return () => {
+      subscription.remove();
+      clearInterval(interval);
+    };
+  }, [player, activeLesson, course, totalSeconds]);
   const toggleChapter = (id: string) => {
     setExpanded((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
@@ -405,6 +387,10 @@ export default function LearningScreen() {
       </SafeAreaView>
     );
   }
+  const theory = lessonDetail?.theory;
+  const quiz = lessonDetail?.quiz;
+  const practical = lessonDetail?.practical;
+  const quizQuestions = quiz?.questions ?? [];
 
   // Calculate dynamic progress
   const totalLessons =
@@ -451,7 +437,7 @@ export default function LearningScreen() {
           </TouchableOpacity>
         </View>
         {/* Dynamic Media / Lesson Interface */}
-        {activeLesson?.type === 'Video' ? (
+        {activeLesson?.type === "Video" ? (
           <View style={styles.videoContainer}>
             {videoLoading ? (
               <LinearGradient
@@ -463,10 +449,7 @@ export default function LearningScreen() {
             ) : videoUrl ? (
               <VideoView
                 player={player}
-                style={{
-                  width: "100%",
-                  height: 220,
-                }}
+                style={{ width: "100%", height: 220 }}
                 nativeControls
                 contentFit="contain"
                 allowsFullscreen
@@ -483,42 +466,58 @@ export default function LearningScreen() {
               </LinearGradient>
             )}
           </View>
-        ) : activeLesson?.type === 'Theory' ? (
+        ) : activeLesson?.type === "Theory" ? (
           <View style={styles.mediaContainer}>
             <LinearGradient
-              colors={['#1F3A2B', '#112218']}
+              colors={["#1F3A2B", "#112218"]}
               style={styles.mediaHeader}
             >
               <Ionicons name="book-outline" size={48} color={Colors.accent} />
               <View style={styles.mediaHeaderMeta}>
                 <Text style={styles.mediaHeaderTag}>BÀI HỌC LÝ THUYẾT</Text>
-                <Text style={styles.mediaHeaderSubtitle}>Vui lòng đọc kỹ nội dung bài học bên dưới</Text>
+                <Text style={styles.mediaHeaderSubtitle}>
+                  Vui lòng đọc kỹ nội dung bài học bên dưới
+                </Text>
               </View>
             </LinearGradient>
           </View>
-        ) : activeLesson?.type === 'Quiz' ? (
+        ) : activeLesson?.type === "Quiz" ? (
           <View style={styles.mediaContainer}>
             <LinearGradient
-              colors={['#2D5A27', '#173014']}
+              colors={["#2D5A27", "#173014"]}
               style={styles.mediaHeader}
             >
-              <Ionicons name="help-circle-outline" size={48} color={Colors.warning} />
+              <Ionicons
+                name="help-circle-outline"
+                size={48}
+                color={Colors.warning}
+              />
               <View style={styles.mediaHeaderMeta}>
                 <Text style={styles.mediaHeaderTag}>BÀI TRẮC NGHIỆM</Text>
-                <Text style={styles.mediaHeaderSubtitle}>Kiểm tra kiến thức đã học</Text>
+                <Text style={styles.mediaHeaderSubtitle}>
+                  Kiểm tra kiến thức đã học
+                </Text>
               </View>
             </LinearGradient>
           </View>
-        ) : activeLesson?.type === 'Practice' || activeLesson?.type === 'Practise' || activeLesson?.type === 'Practical' ? (
+        ) : ["Practice", "Practise", "Practical"].includes(
+            activeLesson?.type ?? "",
+          ) ? (
           <View style={styles.mediaContainer}>
             <LinearGradient
-              colors={['#3B275C', '#1D1330']}
+              colors={["#3B275C", "#1D1330"]}
               style={styles.mediaHeader}
             >
-              <Ionicons name="musical-notes-outline" size={48} color={Colors.info} />
+              <Ionicons
+                name="musical-notes-outline"
+                size={48}
+                color={Colors.info}
+              />
               <View style={styles.mediaHeaderMeta}>
                 <Text style={styles.mediaHeaderTag}>BÀI TẬP THỰC HÀNH</Text>
-                <Text style={styles.mediaHeaderSubtitle}>Luyện tập kỹ thuật gảy & bấm đàn</Text>
+                <Text style={styles.mediaHeaderSubtitle}>
+                  Luyện tập kỹ thuật gảy & bấm đàn
+                </Text>
               </View>
             </LinearGradient>
           </View>
@@ -572,340 +571,373 @@ export default function LearningScreen() {
           </View>
 
           {/* Dynamic Content Body based on Lesson Type */}
-          {activeLesson?.type === 'Theory' && (
+          {activeLesson?.type === "Theory" && (
             <View style={styles.typeSpecificCard}>
               <Text style={styles.cardHeaderTitle}>NỘI DUNG LÝ THUYẾT</Text>
+
               <Text style={styles.theoryBodyText}>
-                {activeLesson.content || "Nội dung lý thuyết đang được cập nhật..."}
+                {theory?.content || lessonDetail?.content || "Đang cập nhật..."}
               </Text>
-              
-              <TouchableOpacity
-                style={[styles.actionBtn, activeLesson.isCompleted && styles.actionBtnDisabled]}
-                onPress={handleCompleteTextOrQuiz}
-                disabled={activeLesson.isCompleted}
-              >
-                <LinearGradient
-                  colors={activeLesson.isCompleted ? ['#A8C5B5', '#86A795'] : [Colors.primary, Colors.primaryDark]}
-                  style={styles.actionBtnGradient}
-                >
-                  <Ionicons name={activeLesson.isCompleted ? "checkmark-circle" : "checkmark-circle-outline"} size={20} color="#FFF" style={{ marginRight: 8 }} />
-                  <Text style={styles.actionBtnText}>
-                    {activeLesson.isCompleted ? "Đã hoàn thành lý thuyết" : "Hoàn thành bài đọc"}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          )}
 
-          {activeLesson?.type === 'Quiz' && (() => {
-            if (quizLoading) {
-              return (
-                <View style={[styles.typeSpecificCard, { alignItems: 'center', padding: 30 }]}>
-                  <ActivityIndicator size="large" color={Colors.primary} />
-                  <Text style={{ marginTop: 12, color: Colors.light.textMuted }}>Đang tải bài trắc nghiệm...</Text>
-                </View>
-              );
-            }
-
-            if (!activeQuiz || !activeQuiz.questions || activeQuiz.questions.length === 0) {
-              return (
-                <View style={[styles.typeSpecificCard, { alignItems: 'center', padding: 20 }]}>
-                  <Text style={{ color: Colors.light.textMuted, textAlign: 'center' }}>
-                    Không có câu hỏi nào trong bài trắc nghiệm này.
-                  </Text>
-                </View>
-              );
-            }
-
-            const lessonId = activeLesson.id;
-            const questions = activeQuiz.questions || [];
-            
-            const currentQuestionIndex = quizQuestionIndices[lessonId] || 0;
-            const currentQuestion = questions[currentQuestionIndex];
-            
-            const currentAnswers = quizAnswers[lessonId] || {};
-            const selectedOptionId = currentQuestion ? currentAnswers[currentQuestion.id] : undefined;
-            const isLastQuestion = currentQuestionIndex === questions.length - 1;
-
-            const res = quizResults[lessonId] || (activeLesson.isCompleted ? {
-              correctAnswers: questions.length,
-              totalQuestions: questions.length,
-              scorePercentage: 100,
-              passed: true
-            } : null);
-
-            const hasResult = res !== null;
-            
-            if (hasResult) {
-              const isPassed = res.passed;
-              return (
-                <View style={styles.typeSpecificCard}>
-                  <Text style={styles.cardHeaderTitle}>KẾT QUẢ BÀI THI</Text>
-                  <View style={{ alignItems: 'center', marginVertical: 20 }}>
-                    <Ionicons 
-                      name={isPassed ? "ribbon-outline" : "alert-circle-outline"} 
-                      size={64} 
-                      color={isPassed ? Colors.primary : Colors.danger} 
-                    />
-                    <Text style={{ fontSize: 24, fontWeight: '800', marginTop: 12, color: isPassed ? Colors.primary : Colors.danger }}>
-                      {isPassed ? "ĐÃ ĐẠT BÀI THI!" : "CHƯA ĐẠT YÊU CẦU"}
-                    </Text>
-                    <Text style={{ fontSize: 15, color: Colors.light.textSecondary, marginTop: 8 }}>
-                      Số câu đúng: {res.correctAnswers} / {res.totalQuestions}
-                    </Text>
-                    <Text style={{ fontSize: 15, color: Colors.light.textSecondary, marginTop: 4 }}>
-                      Tỷ lệ chính xác: {res.scorePercentage}% (Yêu cầu: {activeQuiz.passPercentage}%)
-                    </Text>
-                  </View>
-
-                  {isPassed ? (
-                    <View style={{ gap: 10 }}>
-                      <TouchableOpacity
-                        style={styles.actionBtn}
-                        onPress={handleCompleteTextOrQuiz}
-                      >
-                        <LinearGradient
-                          colors={[Colors.primary, Colors.primaryDark]}
-                          style={styles.actionBtnGradient}
-                        >
-                          <Ionicons name="arrow-forward-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                          <Text style={styles.actionBtnText}>Hoàn thành & Học tiếp</Text>
-                        </LinearGradient>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.actionBtn}
-                        onPress={() => {
-                          setQuizResults(prev => {
-                            const next = { ...prev };
-                            delete next[lessonId];
-                            return next;
-                          });
-                          setQuizQuestionIndices(prev => ({ ...prev, [lessonId]: 0 }));
-                          setQuizAnswers(prev => {
-                            const next = { ...prev };
-                            delete next[lessonId];
-                            return next;
-                          });
-                        }}
-                      >
-                        <View style={[styles.actionBtnGradient, { backgroundColor: '#F0F2F5', borderWidth: 1, borderColor: '#DDD' }]}>
-                          <Ionicons name="refresh-outline" size={20} color={Colors.light.text} style={{ marginRight: 8 }} />
-                          <Text style={[styles.actionBtnText, { color: Colors.light.text }]}>Làm lại bài thi</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.actionBtn}
-                      onPress={() => {
-                        setQuizResults(prev => {
-                          const next = { ...prev };
-                          delete next[lessonId];
-                          return next;
-                        });
-                        setQuizQuestionIndices(prev => ({ ...prev, [lessonId]: 0 }));
-                        setQuizAnswers(prev => {
-                          const next = { ...prev };
-                          delete next[lessonId];
-                          return next;
-                        });
-                      }}
-                    >
-                      <LinearGradient
-                        colors={[Colors.warning, '#E76F51']}
-                        style={styles.actionBtnGradient}
-                      >
-                        <Ionicons name="refresh-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                        <Text style={styles.actionBtnText}>Làm lại bài thi</Text>
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              );
-            }
-
-            return (
-              <View style={styles.typeSpecificCard}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <Text style={styles.cardHeaderTitle}>BÀI TRẮC NGHIỆM</Text>
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.primary }}>
-                    Câu hỏi {currentQuestionIndex + 1} / {questions.length}
-                  </Text>
-                </View>
-                
-                <Text style={styles.quizQuestionText}>{currentQuestion.prompt}</Text>
-                
-                <View style={styles.quizOptionsCol}>
-                  {currentQuestion.options?.map((opt, oIdx) => {
-                    const isSelected = selectedOptionId === opt.id;
-                    
-                    let buttonStyle: any = styles.quizOptionBtn;
-                    let textStyle: any = styles.quizOptionText;
-                    
-                    if (isSelected) {
-                      buttonStyle = [styles.quizOptionBtn, styles.quizOptionSelected];
-                      textStyle = [styles.quizOptionText, styles.quizOptionTextSelected];
-                    }
-                    
-                    return (
-                      <TouchableOpacity
-                        key={opt.id}
-                        style={buttonStyle}
-                        onPress={() => setQuizAnswers(prev => ({
-                          ...prev,
-                          [lessonId]: {
-                            ...(prev[lessonId] || {}),
-                            [currentQuestion.id]: opt.id
-                          }
-                        }))}
-                      >
-                        <View style={styles.quizOptionNumber}>
-                          <Text style={[styles.quizOptionNumberText, isSelected && { color: '#FFF' }]}>
-                            {String.fromCharCode(65 + oIdx)}
-                          </Text>
-                        </View>
-                        <Text style={textStyle}>{opt.text}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-
-                <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
-                  {currentQuestionIndex > 0 && (
-                    <TouchableOpacity
-                      style={[styles.actionBtn, { flex: 1 }]}
-                      onPress={() => setQuizQuestionIndices(prev => ({
-                        ...prev,
-                        [lessonId]: Math.max(0, (prev[lessonId] || 0) - 1)
-                      }))}
-                    >
-                      <View style={[styles.actionBtnGradient, { backgroundColor: '#F0F2F5', borderWidth: 1, borderColor: '#DDD' }]}>
-                        <Ionicons name="arrow-back-outline" size={18} color={Colors.light.text} style={{ marginRight: 6 }} />
-                        <Text style={[styles.actionBtnText, { color: Colors.light.text }]}>Quay lại</Text>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-
-                  {!isLastQuestion ? (
-                    <TouchableOpacity
-                      style={[styles.actionBtn, { flex: 2 }, selectedOptionId === undefined && styles.actionBtnDisabled]}
-                      onPress={() => setQuizQuestionIndices(prev => ({
-                        ...prev,
-                        [lessonId]: (prev[lessonId] || 0) + 1
-                      }))}
-                      disabled={selectedOptionId === undefined}
-                    >
-                      <LinearGradient
-                        colors={selectedOptionId === undefined ? ['#A8C5B5', '#86A795'] : [Colors.primary, Colors.primaryDark]}
-                        style={styles.actionBtnGradient}
-                      >
-                        <Text style={styles.actionBtnText}>Câu tiếp theo</Text>
-                        <Ionicons name="arrow-forward-outline" size={18} color="#FFF" style={{ marginLeft: 6 }} />
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity
-                      style={[styles.actionBtn, { flex: 2 }, (selectedOptionId === undefined || submittingQuiz) && styles.actionBtnDisabled]}
-                      onPress={async () => {
-                        setSubmittingQuiz(true);
-                        try {
-                          const payload = Object.entries(currentAnswers).map(([qId, optId]) => ({
-                            questionId: parseInt(qId),
-                            selectedOptionId: optId as number
-                          }));
-                          const res = await api.submitQuiz(activeLesson.id, payload);
-                          if (res.success && res.data) {
-                            setQuizResults(prev => ({ ...prev, [lessonId]: res.data! }));
-                          } else {
-                            const score = Math.round((Object.keys(currentAnswers).length / questions.length) * 100);
-                            setQuizResults(prev => ({
-                              ...prev,
-                              [lessonId]: {
-                                correctAnswers: Object.keys(currentAnswers).length,
-                                totalQuestions: questions.length,
-                                scorePercentage: score,
-                                passed: score >= activeQuiz.passPercentage
-                              }
-                            }));
-                          }
-                        } catch (e) {
-                          console.warn("Quiz submission error, simulating local success:", e);
-                          const score = Math.round((Object.keys(currentAnswers).length / questions.length) * 100);
-                          setQuizResults(prev => ({
-                            ...prev,
-                            [lessonId]: {
-                              correctAnswers: Object.keys(currentAnswers).length,
-                              totalQuestions: questions.length,
-                              scorePercentage: score,
-                              passed: score >= activeQuiz.passPercentage
-                            }
-                          }));
-                        } finally {
-                          setSubmittingQuiz(false);
-                        }
-                      }}
-                      disabled={selectedOptionId === undefined || submittingQuiz}
-                    >
-                      <LinearGradient
-                        colors={(selectedOptionId === undefined || submittingQuiz) ? ['#A8C5B5', '#86A795'] : [Colors.warning, '#E76F51']}
-                        style={styles.actionBtnGradient}
-                      >
-                        {submittingQuiz ? (
-                          <ActivityIndicator size="small" color="#FFF" />
-                        ) : (
-                          <>
-                            <Ionicons name="cloud-upload-outline" size={18} color="#FFF" style={{ marginRight: 6 }} />
-                            <Text style={styles.actionBtnText}>Nộp bài thi</Text>
-                          </>
-                        )}
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            );
-          })()}
-
-          {/* Practice Component */}
-          {(activeLesson?.type === 'Practice' || activeLesson?.type === 'Practise' || activeLesson?.type === 'Practical') && (
-            <View style={styles.typeSpecificCard}>
-              <Text style={styles.cardHeaderTitle}>YÊU CẦU THỰC HÀNH CỦA BÀI HỌC</Text>
-              <Text style={styles.practiceBodyText}>
-                Bài học này yêu cầu bạn luyện tập bài đàn trực tiếp. Bạn sẽ sử dụng nhạc cụ truyền thống của mình (như Đàn Tranh, Đàn Nguyệt) và hệ thống của chúng tôi sẽ lắng nghe qua mic điện thoại để chấm điểm cao độ, nhịp điệu.
-              </Text>
-              
               <TouchableOpacity
                 style={styles.actionBtn}
-                onPress={() => router.push('/ai-scoring')}
+                onPress={async () => {
+                  try {
+                    await api.completeTheory(activeLesson.id);
+                    handleCompleteTextOrQuiz();
+                  } catch (e) {
+                    handleCompleteTextOrQuiz();
+                  }
+                }}
               >
                 <LinearGradient
-                  colors={[Colors.info, '#4361EE']}
+                  colors={[Colors.primary, Colors.primaryDark]}
                   style={styles.actionBtnGradient}
                 >
-                  <Ionicons name="hardware-chip-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                  <Text style={styles.actionBtnText}>Vào Chấm điểm AI ngay</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionBtn, { marginTop: 12 }, activeLesson.isCompleted && styles.actionBtnDisabled]}
-                onPress={handleCompleteTextOrQuiz}
-                disabled={activeLesson.isCompleted}
-              >
-                <LinearGradient
-                  colors={activeLesson.isCompleted ? ['#A8C5B5', '#86A795'] : [Colors.primary, Colors.primaryDark]}
-                  style={styles.actionBtnGradient}
-                >
-                  <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                  <Text style={styles.actionBtnText}>
-                    {activeLesson.isCompleted ? "Đã hoàn thành luyện tập" : "Đánh dấu đã hoàn thành bài tập"}
-                  </Text>
+                  <Text style={styles.actionBtnText}>Hoàn thành bài đọc</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
           )}
+{activeLesson?.type === "Quiz" &&
+  (() => {
+    if (quizLoading) {
+      return (
+        <View style={[styles.typeSpecificCard, { alignItems: "center", padding: 30 }]}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={{ marginTop: 12, color: Colors.light.textMuted }}>
+            Đang tải bài trắc nghiệm...
+          </Text>
+        </View>
+      );
+    }
 
+    const quiz = lessonDetail?.quiz;
+    const questions = quiz?.questions ?? [];
+
+    if (!quiz || questions.length === 0) {
+      return (
+        <View style={[styles.typeSpecificCard, { alignItems: "center", padding: 20 }]}>
+          <Text style={{ color: Colors.light.textMuted, textAlign: "center" }}>
+            Không có câu hỏi nào trong bài trắc nghiệm này.
+          </Text>
+        </View>
+      );
+    }
+
+    const lessonId = activeLesson.id;
+
+    const currentQuestionIndex = quizQuestionIndices[lessonId] || 0;
+    const currentQuestion = questions[currentQuestionIndex];
+
+    const currentAnswers = quizAnswers[lessonId] || {};
+
+    // ✅ FIX: dùng option.id
+    const selectedOptionId = currentAnswers[currentQuestion.id];
+
+    const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+    const result =
+      quizResults[lessonId] ||
+      (activeLesson.isCompleted
+        ? {
+            correctAnswers: questions.length,
+            totalQuestions: questions.length,
+            scorePercentage: 100,
+            passed: true,
+          }
+        : null);
+
+    const hasResult = result !== null;
+
+    // =========================
+    // RESULT SCREEN
+    // =========================
+    if (hasResult) {
+      const isPassed = result.passed;
+
+      return (
+        <View style={styles.typeSpecificCard}>
+          <Text style={styles.cardHeaderTitle}>KẾT QUẢ BÀI THI</Text>
+
+          <View style={{ alignItems: "center", marginVertical: 20 }}>
+            <Ionicons
+              name={isPassed ? "ribbon-outline" : "alert-circle-outline"}
+              size={64}
+              color={isPassed ? Colors.primary : Colors.danger}
+            />
+
+            <Text style={{
+              fontSize: 24,
+              fontWeight: "800",
+              marginTop: 12,
+              color: isPassed ? Colors.primary : Colors.danger,
+            }}>
+              {isPassed ? "ĐÃ ĐẠT BÀI THI!" : "CHƯA ĐẠT YÊU CẦU"}
+            </Text>
+
+            <Text style={{ marginTop: 8, color: Colors.light.textSecondary }}>
+              Số câu đúng: {result.correctAnswers} / {result.totalQuestions}
+            </Text>
+
+            <Text style={{ marginTop: 4, color: Colors.light.textSecondary }}>
+              Tỷ lệ: {result.scorePercentage}% (Yêu cầu: {quiz.passPercentage}%)
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => {
+              setQuizResults(prev => {
+                const next = { ...prev };
+                delete next[lessonId];
+                return next;
+              });
+
+              setQuizQuestionIndices(prev => ({
+                ...prev,
+                [lessonId]: 0,
+              }));
+
+              setQuizAnswers(prev => {
+                const next = { ...prev };
+                delete next[lessonId];
+                return next;
+              });
+            }}
+          >
+            <LinearGradient
+              colors={[Colors.primary, Colors.primaryDark]}
+              style={styles.actionBtnGradient}
+            >
+              <Ionicons name="refresh-outline" size={20} color="#FFF" />
+              <Text style={styles.actionBtnText}>Làm lại</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    // =========================
+    // QUIZ UI
+    // =========================
+    return (
+      <View style={styles.typeSpecificCard}>
+        {/* header */}
+        <View style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginBottom: 12,
+        }}>
+          <Text style={styles.cardHeaderTitle}>BÀI TRẮC NGHIỆM</Text>
+
+          <Text style={{ fontSize: 12, fontWeight: "700", color: Colors.primary }}>
+            {currentQuestionIndex + 1} / {questions.length}
+          </Text>
+        </View>
+
+        {/* question */}
+        <Text style={styles.quizQuestionText}>
+          {currentQuestion.prompt}
+        </Text>
+
+        {/* options */}
+        <View style={styles.quizOptionsCol}>
+          {currentQuestion.options?.map((opt, oIdx) => {
+            const isSelected = selectedOptionId === opt.id;
+
+            return (
+              <TouchableOpacity
+                key={opt.id}
+                style={[
+                  styles.quizOptionBtn,
+                  isSelected && styles.quizOptionSelected,
+                ]}
+                onPress={() => {
+                  setQuizAnswers(prev => ({
+                    ...prev,
+                    [lessonId]: {
+                      ...(prev[lessonId] || {}),
+                      [currentQuestion.id]: opt.id, 
+                    },
+                  }));
+                }}
+              >
+                <View style={styles.quizOptionNumber}>
+                  <Text style={[
+                    styles.quizOptionNumberText,
+                    isSelected && { color: "#FFF" },
+                  ]}>
+                    {String.fromCharCode(65 + oIdx)}
+                  </Text>
+                </View>
+
+                <Text style={[
+                  styles.quizOptionText,
+                  isSelected && styles.quizOptionTextSelected,
+                ]}>
+                  {opt.text}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* buttons */}
+        <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
+          {/* back */}
+          {currentQuestionIndex > 0 && (
+            <TouchableOpacity
+              style={[styles.actionBtn, { flex: 1 }]}
+              onPress={() =>
+                setQuizQuestionIndices(prev => ({
+                  ...prev,
+                  [lessonId]: Math.max(0, (prev[lessonId] || 0) - 1),
+                }))
+              }
+            >
+              <View style={[styles.actionBtnGradient, { backgroundColor: "#F0F2F5" }]}>
+                <Text style={[styles.actionBtnText, { color: Colors.light.text }]}>
+                  Quay lại
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+
+          {/* next / submit */}
+          {!isLastQuestion ? (
+            <TouchableOpacity
+              style={[styles.actionBtn, { flex: 2 }]}
+              disabled={selectedOptionId === undefined}
+              onPress={() =>
+                setQuizQuestionIndices(prev => ({
+                  ...prev,
+                  [lessonId]: (prev[lessonId] || 0) + 1,
+                }))
+              }
+            >
+              <LinearGradient
+                colors={
+                  selectedOptionId === undefined
+                    ? ["#A8C5B5", "#86A795"]
+                    : [Colors.primary, Colors.primaryDark]
+                }
+                style={styles.actionBtnGradient}
+              >
+                <Text style={styles.actionBtnText}>Câu tiếp theo</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.actionBtn, { flex: 2 }]}
+              disabled={selectedOptionId === undefined || submittingQuiz}
+              onPress={async () => {
+                setSubmittingQuiz(true);
+
+                try {
+                  const currentAnswers = quizAnswers[lessonId] || {};
+
+                  const payload = Object.entries(currentAnswers).map(
+                    ([questionId, selectedOptionId]) => ({
+                      questionId: Number(questionId),
+                      selectedOptionId: selectedOptionId as number,
+                    })
+                  );
+
+                  const res = await api.submitQuiz(activeLesson.id, payload);
+
+                  if (res.success && res.data) {
+                    setQuizResults(prev => ({
+                      ...prev,
+                      [lessonId]: res.data,
+                    }));
+                  } else {
+                    let correct = 0;
+
+                    questions.forEach(q => {
+                      const selected = quizAnswers[lessonId]?.[q.id];
+                      const correctOption = q.options.find(o => o.isCorrect);
+
+                      if (selected === correctOption?.id) {
+                        correct++;
+                      }
+                    });
+
+                    const score = Math.round((correct / questions.length) * 100);
+
+                    setQuizResults(prev => ({
+                      ...prev,
+                      [lessonId]: {
+                        correctAnswers: correct,
+                        totalQuestions: questions.length,
+                        scorePercentage: score,
+                        passed: score >= (quiz.passPercentage ?? 0),
+                      },
+                    }));
+                  }
+                } finally {
+                  setSubmittingQuiz(false);
+                }
+              }}
+            >
+              <LinearGradient
+                colors={[Colors.warning, "#E76F51"]}
+                style={styles.actionBtnGradient}
+              >
+                <Text style={styles.actionBtnText}>Nộp bài</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    );
+  })()}
+  {/* Practice Component */}
+{practical && (
+  <View style={styles.typeSpecificCard}>
+    <Text style={styles.cardHeaderTitle}>BÀI LUYỆN ÂM</Text>
+
+    <Text style={styles.practiceBodyText}>
+      Luyện theo thứ tự các nốt sau:
+    </Text>
+
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      {practical.notes?.map((n, idx) => (
+        <View
+          key={idx}
+          style={{
+            paddingVertical: 8,
+            paddingHorizontal: 12,
+            borderRadius: 10,
+            backgroundColor: Colors.light.bgElevated,
+            borderWidth: 1,
+            borderColor: Colors.light.border
+          }}
+        >
+          <Text style={{ fontWeight: '700' }}>
+            {n.note}
+          </Text>
+        </View>
+      ))}
+    </View>
+
+    {/* ONLY completion button */}
+    <TouchableOpacity
+      style={[styles.actionBtn, { marginTop: 16 }]}
+      onPress={handleCompleteTextOrQuiz}
+    >
+      <LinearGradient
+        colors={[Colors.primary, Colors.primaryDark]}
+        style={styles.actionBtnGradient}
+      >
+        <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" />
+        <Text style={styles.actionBtnText}>
+          Hoàn thành luyện tập
+        </Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  </View>
+)}
           {/* Course Chapters */}
           <Text style={styles.sectionTitle}>LỘ TRÌNH HỌC</Text>
           {course.chapters &&
@@ -1336,12 +1368,12 @@ const styles = StyleSheet.create({
   // Interactive Styles
   mediaContainer: {
     height: 180,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   mediaHeader: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 24,
     gap: 16,
   },
@@ -1349,22 +1381,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mediaHeaderTag: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 1.5,
     marginBottom: 4,
   },
   mediaHeaderSubtitle: {
-    color: 'rgba(255,255,255,0.7)',
+    color: "rgba(255,255,255,0.7)",
     fontSize: 13,
   },
   typeSpecificCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderRadius: 16,
     padding: 18,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -1372,7 +1404,7 @@ const styles = StyleSheet.create({
   },
   cardHeaderTitle: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 1.5,
     color: Colors.light.textMuted,
     marginBottom: 14,
@@ -1385,25 +1417,25 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     borderRadius: 14,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   actionBtnDisabled: {
     opacity: 0.7,
   },
   actionBtnGradient: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 14,
   },
   actionBtnText: {
-    color: '#FFF',
-    fontWeight: '700',
+    color: "#FFF",
+    fontWeight: "700",
     fontSize: 15,
   },
   quizQuestionText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.light.text,
     lineHeight: 24,
     marginBottom: 18,
@@ -1413,8 +1445,8 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   quizOptionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.light.bg,
     borderWidth: 1.5,
     borderColor: Colors.light.border,
@@ -1424,47 +1456,47 @@ const styles = StyleSheet.create({
   },
   quizOptionSelected: {
     borderColor: Colors.warning,
-    backgroundColor: '#FFFBF0',
+    backgroundColor: "#FFFBF0",
   },
   quizOptionCorrect: {
     borderColor: Colors.success,
-    backgroundColor: '#EBF6F0',
+    backgroundColor: "#EBF6F0",
   },
   quizOptionWrong: {
     borderColor: Colors.danger,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: "#FEE2E2",
   },
   quizOptionText: {
     flex: 1,
     fontSize: 14,
     color: Colors.light.textSecondary,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   quizOptionTextSelected: {
     color: Colors.warning,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   quizOptionTextCorrect: {
     color: Colors.success,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   quizOptionTextWrong: {
     color: Colors.danger,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   quizOptionNumber: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderWidth: 1,
     borderColor: Colors.light.border,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   quizOptionNumberText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.light.textMuted,
   },
   feedbackBox: {
@@ -1474,22 +1506,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   feedbackBoxCorrect: {
-    backgroundColor: '#EBF6F0',
-    borderColor: Colors.success + '40',
+    backgroundColor: "#EBF6F0",
+    borderColor: Colors.success + "40",
   },
   feedbackBoxWrong: {
-    backgroundColor: '#FEE2E2',
-    borderColor: Colors.danger + '40',
+    backgroundColor: "#FEE2E2",
+    borderColor: Colors.danger + "40",
   },
   feedbackHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginBottom: 6,
   },
   feedbackTitle: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   feedbackExplanation: {
     fontSize: 13,

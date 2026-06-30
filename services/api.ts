@@ -1,7 +1,9 @@
 // Central API Service for VRhythm
 // Connected to: http://vrythm.quanglikecookie.io.vn
 
-const BASE_URL = 'http://vrythm.quanglikecookie.io.vn';
+// const BASE_URL = 'http://vrythm.quanglikecookie.io.vn';
+const BASE_URL = 'http://localhost:5205';
+
 
 // Simple bridge storage for React Native (in-memory) & Web (localStorage)
 let memoryStorage: Record<string, string> = {};
@@ -85,10 +87,21 @@ export interface LessonDto {
   id: number;
   sortOrder: number;
   title: string | null;
-  type: string | null; // e.g. "Video", etc.
+  type: string | null;
+
   content: string | null;
   durationSeconds: number | null;
   isCompleted: boolean;
+
+  // NEW EMBEDDED FIELDS
+  theory?: TheoryDto | null;
+  quiz?: QuizExamDto | null;
+  practical?: PracticalDto | null;
+  video?: {
+    videoUrl: string;
+    durationSeconds: number;
+    progressPercent: number;
+  } | null;
 }
 
 export interface ChapterDto {
@@ -100,6 +113,7 @@ export interface ChapterDto {
 
 export interface QuizOptionDto {
   id: number;
+  isCorrect: boolean;
   sortOrder: number;
   text: string | null;
 }
@@ -264,7 +278,31 @@ export const api = {
       method: 'GET',
     });
   },
-
+  getLessonDetail: async (lessonId: number): Promise<ApiResponse<LessonDto>> => {
+  return request<LessonDto>(`/api/lessons/${lessonId}`, {
+    method: 'GET',
+  });
+},
+completeTheory: async (lessonId: number): Promise<ApiResponse<any>> => {
+  return request<any>(`/theory/${lessonId}/complete`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+},
+submitPractical: async (
+  lessonId: number,
+  notes: string[]
+): Promise<ApiResponse<{
+  correctNotes: number;
+  totalNotes: number;
+  scorePercentage: number;
+  passed: boolean;
+}>> => {
+  return request(`/pratical/${lessonId}/complete`, {
+    method: 'POST',
+    body: JSON.stringify({ notes }),
+  });
+},
   getCourseDetail: async (courseId: number): Promise<ApiResponse<CourseDetailDto>> => {
     return request<CourseDetailDto>(`/api/courses/${courseId}`, {
       method: 'GET',
@@ -287,7 +325,8 @@ export const api = {
     });
   },
 
-  updateProgress: async (
+
+  updateVideoProgress: async (
     courseId: number,
     lessonId: number,
     watchedSeconds: number,
@@ -324,3 +363,24 @@ export const api = {
     });
   }
 };
+
+export interface TheoryDto {
+  lessonId: number;
+  title: string;
+  content: string;
+  isCompleted: boolean;
+}
+
+export interface PracticalNoteDto {
+  sortOrder: number;
+  note: string;
+}
+
+export interface PracticalDto {
+  lessonId: number;
+  title: string;
+  instruction: string;
+  notes: PracticalNoteDto[];
+  isCompleted: boolean;
+}
+
