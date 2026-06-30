@@ -1,8 +1,8 @@
 // Central API Service for VRhythm
 // Connected to: http://vrythm.quanglikecookie.io.vn
 
-// const BASE_URL = 'http://vrythm.quanglikecookie.io.vn';
-const BASE_URL = 'http://localhost:5205';
+const BASE_URL = 'http://vrythm.quanglikecookie.io.vn';
+// const BASE_URL = 'http://localhost:5205';
 
 
 // Simple bridge storage for React Native (in-memory) & Web (localStorage)
