@@ -24,13 +24,31 @@ const FINGERING_MAP: Record<string, number[]> = {
   "B5": [0, 0, 0, 0, 0, 0],
 };
 
+// ==========================================
+// ADJUST SPEED HERE
+// 1.0 = Normal speed (based on JSON tempo)
+// 0.5 = Twice as fast
+// 2.0 = Twice as slow
+// ==========================================
+const SPEED_MULTIPLIER = 1.0;
+
 export default function PracticeMock() {
-  const score = useMemo(() => {
-    return {
-      metadata: raw.metadata,
-      notes: raw.notes,
-    };
-  }, []);
+  function getNoteDurationMs(durationStr: string, tempo: number = 90) {
+    const beatMs = (60 / (tempo || 90)) * 1000 * SPEED_MULTIPLIER;
+    const s = (durationStr || 'q').toString().trim().toLowerCase();
+    switch (s) {
+      case 'w': return beatMs * 4;
+      case 'h': return beatMs * 2;
+      case 'q': return beatMs * 1;
+      case 'e': return beatMs * 0.5;
+      case 's': return beatMs * 0.25;
+      default: return beatMs;
+    }
+  }
+  const score = {
+    metadata: raw.metadata,
+    notes: raw.notes,
+  };
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -41,7 +59,7 @@ export default function PracticeMock() {
 
   function stop() {
     if (timer.current) {
-      clearInterval(timer.current);
+      clearTimeout(timer.current);
       timer.current = null;
     }
     setPlaying(false);
@@ -52,18 +70,22 @@ export default function PracticeMock() {
 
     setPlaying(true);
 
-    let i = currentIndex;
-
-    timer.current = setInterval(() => {
-      i++;
-
-      if (i >= score.notes.length) {
+    const playNextNote = (index: number) => {
+      if (index >= score.notes.length) {
         stop();
         return;
       }
-
-      setCurrentIndex(i);
-    }, 700);
+      setCurrentIndex(index);
+      
+      const note = score.notes[index];
+      const durationMs = getNoteDurationMs(note.duration || 'q', score.metadata.tempo || 90);
+      
+      timer.current = setTimeout(() => {
+        playNextNote(index + 1);
+      }, durationMs) as any;
+    };
+    
+    playNextNote(currentIndex);
   }
 
   function pause() {
@@ -86,10 +108,24 @@ export default function PracticeMock() {
         currentIndex={currentIndex}
       />
 
-      <FingeringCard
-        note={currentNote?.pitch}
-        fingering={FINGERING_MAP[currentNote?.pitch] || []}
-      />
+      <View style={{ alignItems: 'center', marginTop: 10, alignSelf: 'stretch' }}>
+        <View style={{ alignSelf: 'stretch' }}>
+          <FingeringCard
+            note={currentNote?.pitch}
+            fingering={FINGERING_MAP[currentNote?.pitch] || []}
+          />
+        </View>
+        
+        {currentIndex + 1 < score.notes.length && (
+          <View style={{ opacity: 0.5, marginTop: -15, zIndex: -1, alignSelf: 'stretch' }}>
+            <FingeringCard
+              note={score.notes[currentIndex + 1]?.pitch}
+              fingering={FINGERING_MAP[score.notes[currentIndex + 1]?.pitch] || []}
+              title="Tiếp theo"
+            />
+          </View>
+        )}
+      </View>
 
       <PlaybackControls
         playing={playing}

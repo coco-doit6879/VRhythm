@@ -34,12 +34,23 @@ interface Props {
 }
 
 export default function PracticalExamEngine({ mode, onComplete }: Props) {
-  const score = useMemo(() => {
-    return {
-      metadata: raw.metadata,
-      notes: raw.notes,
-    };
-  }, []);
+  function getNoteDurationMs(durationStr: string, tempo: number = 90) {
+    const beatMs = (60 / (tempo || 90)) * 1000;
+    const s = (durationStr || 'q').toString().trim().toLowerCase();
+    switch (s) {
+      case 'w': return beatMs * 4;
+      case 'h': return beatMs * 2;
+      case 'q': return beatMs * 1;
+      case 'e': return beatMs * 0.5;
+      case 's': return beatMs * 0.25;
+      default: return beatMs;
+    }
+  }
+
+  const score = {
+    metadata: raw.metadata,
+    notes: raw.notes,
+  };
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -87,6 +98,9 @@ export default function PracticalExamEngine({ mode, onComplete }: Props) {
           
           // Advance note
           PitchDetectorService.stop(); // stop briefly to avoid double trigger
+          
+          const durationMs = getNoteDurationMs(currentNote.duration || 'q', score.metadata.tempo || 90);
+          
           setTimeout(() => {
             if (currentIndex + 1 >= score.notes.length) {
               setPlaying(false);
@@ -94,7 +108,7 @@ export default function PracticalExamEngine({ mode, onComplete }: Props) {
             } else {
               setCurrentIndex(prev => prev + 1);
             }
-          }, 300);
+          }, durationMs);
         } else {
           wrongCounter.current += 1;
           if (wrongCounter.current > 5) {
@@ -107,7 +121,7 @@ export default function PracticalExamEngine({ mode, onComplete }: Props) {
 
   function stop() {
     if (timer.current) {
-      clearInterval(timer.current);
+      clearTimeout(timer.current);
       timer.current = null;
     }
     PitchDetectorService.stop();
@@ -119,16 +133,23 @@ export default function PracticalExamEngine({ mode, onComplete }: Props) {
     setPlaying(true);
 
     if (mode === 'normal') {
-      let i = currentIndex;
-      timer.current = setInterval(() => {
-        i++;
-        if (i >= score.notes.length) {
+      const playNextNote = (index: number) => {
+        if (index >= score.notes.length) {
           stop();
           onComplete();
           return;
         }
-        setCurrentIndex(i);
-      }, 700) as any;
+        setCurrentIndex(index);
+        
+        const note = score.notes[index];
+        const durationMs = getNoteDurationMs(note.duration || 'q', score.metadata.tempo || 90);
+        
+        timer.current = setTimeout(() => {
+          playNextNote(index + 1);
+        }, durationMs) as any;
+      };
+      
+      playNextNote(currentIndex);
     }
   }
 
@@ -167,10 +188,24 @@ export default function PracticalExamEngine({ mode, onComplete }: Props) {
         />
       </View>
 
-      <FingeringCard
-        note={currentNote?.pitch}
-        fingering={FINGERING_MAP[currentNote?.pitch] || []}
-      />
+      <View style={{ alignItems: 'center', marginTop: -30, marginBottom: 30 , alignSelf: 'stretch' }}>
+        <View style={{ alignSelf: 'stretch' }}>
+          <FingeringCard
+            note={currentNote?.pitch}
+            fingering={FINGERING_MAP[currentNote?.pitch] || []}
+          />
+        </View>
+        
+        {currentIndex + 1 < score.notes.length && (
+          <View style={{ opacity: 0.5, marginTop: -10, zIndex: -1, alignSelf: 'stretch' }}>
+            <FingeringCard
+              note={score.notes[currentIndex + 1]?.pitch}
+              fingering={FINGERING_MAP[score.notes[currentIndex + 1]?.pitch] || []}
+              title="Tiếp theo"
+            />
+          </View>
+        )}
+      </View>
 
       <PlaybackControls
         playing={playing}

@@ -4,17 +4,19 @@ import { StyleSheet, Text, View } from "react-native";
 interface Props {
   note?: string;
   fingering?: number[] | null;
+  title?: string;
 }
 
 export default function FingeringCard({
   note,
   fingering,
+  title = "Fingering",
 }: Props) {
   const safeFingering = Array.isArray(fingering) ? fingering : [];
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Fingering</Text>
+      <Text style={styles.title}>{title}</Text>
 
       <Text style={styles.note}>{note ?? "—"}</Text>
 
@@ -64,23 +66,23 @@ const HOLE_SIZE = 32;
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFF",
-    borderRadius: 16,
-    padding: 12,
-    marginTop: 12,
-    elevation: 3,
+    borderRadius: 12,
+    padding: 5,
+    marginTop: 15,
+    elevation: 5,
   },
 
   title: {
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: "700",
     textAlign: "center",
   },
 
   note: {
-    marginTop: 4,
-    marginBottom: 12,
+    marginTop: 2,
+    marginBottom: 4,
     textAlign: "center",
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#2D7EF7",
   },
@@ -120,7 +122,7 @@ const styles = StyleSheet.create({
   labels: {
     flexDirection: "row",
     justifyContent: "space-evenly",
-    marginTop: 10,
+    marginTop: 6,
     alignItems: "center",
   },
 
@@ -141,7 +143,7 @@ const styles = StyleSheet.create({
   legend: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 12,
+    marginTop: 6,
   },
 
   legendItem: {

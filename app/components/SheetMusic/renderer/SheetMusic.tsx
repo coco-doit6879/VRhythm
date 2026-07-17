@@ -39,13 +39,11 @@ export default function SheetMusic({
   useEffect(() => {
     if (!noteForCursor) return;
 
-    const x = noteForCursor.x;
-
-    const visibleLeft = x;
-    const visibleRight = x;
+    const scale = 0.75;
+    const visualX = noteForCursor.x * scale;
 
     scrollRef.current?.scrollTo({
-      x: Math.max(0, x - screenWidth / 2), // center cursor
+      x: Math.max(0, visualX - screenWidth / 2), // center cursor using visual coordinate
       animated: true,
     });
   }, [currentIndex]);
@@ -57,34 +55,40 @@ export default function SheetMusic({
       showsHorizontalScrollIndicator={false}
       scrollEventThrottle={16}
     >
-      <View
-        style={{
-          flex: 1,
-          position: "relative",
-          minHeight: 300,
-          width: 3000, // IMPORTANT: phải đủ rộng để scroll
-        }}
-      >
-        <Staff />
-        <Clef />
-        <TimeSignature />
+      <View style={{ width: 3000 * 0.75, minHeight: 135 }}>
+        <View
+          style={{
+            position: "absolute",
+            width: 3000,
+            height: 180,
+            transform: [
+              { translateX: -3000 * 0.125 },
+              { translateY: -180 * 0.125 },
+              { scale: 0.75 }
+            ]
+          }}
+        >
+          <Staff />
+          <Clef />
+          <TimeSignature />
 
-        {layout.measures.map((m) => (
-          <React.Fragment key={m.index}>
-            {m.notes.map((n) => (
-              <React.Fragment key={n.id}>
-                <Note layout={n} />
-                <Ledger lines={n.ledgerLines} />
-              </React.Fragment>
-            ))}
+          {layout.measures.map((m) => (
+            <React.Fragment key={m.index}>
+              {m.notes.map((n) => (
+                <React.Fragment key={n.id}>
+                  <Note layout={n} />
+                  <Ledger lines={n.ledgerLines} />
+                </React.Fragment>
+              ))}
 
-            <Measure measure={m} />
-          </React.Fragment>
-        ))}
+              <Measure measure={m} />
+            </React.Fragment>
+          ))}
 
-        {noteForCursor && (
-          <Cursor x={noteForCursor.x} height={120} />
-        )}
+          {noteForCursor && (
+            <Cursor x={noteForCursor.x} height={90} />
+          )}
+        </View>
       </View>
     </ScrollView>
   );

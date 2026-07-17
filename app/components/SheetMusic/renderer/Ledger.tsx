@@ -19,7 +19,7 @@ export default function Ledger({ lines }: Props) {
             left: l.x1,
             top: l.y,
             width: l.x2 - l.x1,
-            height: 3,
+            height: 2,
             backgroundColor: "#111",
           }}
         />
