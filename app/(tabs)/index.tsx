@@ -133,6 +133,7 @@ export default function HomeScreen() {
                 <Ionicons name="person" size={18} color="#FFF" />
               </View>
             </TouchableOpacity>
+            
           </View>
         </View>
 

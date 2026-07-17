@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "title": "Twinkle Twinkle Little Star",
+    "composer": "Traditional",
+    "tempo": 90,
+    "keySignature": "C",
+    "timeSignature": {
+      "beats": 4,
+      "beatType": 4
+    }
+  },
+  "notes": [
+    { "id": "n1", "pitch": "C4", "duration": "q" },
+    { "id": "n2", "pitch": "C4", "duration": "q" },
+    { "id": "n3", "pitch": "G4", "duration": "q" },
+    { "id": "n4", "pitch": "G4", "duration": "q" },
+
+    { "id": "n5", "pitch": "A4", "duration": "q" },
+    { "id": "n6", "pitch": "A4", "duration": "q" },
+    { "id": "n7", "pitch": "G4", "duration": "h" },
+
+    { "id": "n8", "pitch": "F4", "duration": "q" },
+    { "id": "n9", "pitch": "F4", "duration": "q" },
+    { "id": "n10", "pitch": "E4", "duration": "q" },
+    { "id": "n11", "pitch": "E4", "duration": "q" },
+
+    { "id": "n12", "pitch": "D4", "duration": "q" },
+    { "id": "n13", "pitch": "D4", "duration": "q" },
+    { "id": "n14", "pitch": "C4", "duration": "h" },
+
+    { "id": "n15", "pitch": "G4", "duration": "q" },
+    { "id": "n16", "pitch": "G4", "duration": "q" },
+    { "id": "n17", "pitch": "F4", "duration": "q" },
+    { "id": "n18", "pitch": "F4", "duration": "q" },
+
+    { "id": "n19", "pitch": "E4", "duration": "q" },
+    { "id": "n20", "pitch": "E4", "duration": "q" },
+    { "id": "n21", "pitch": "D4", "duration": "h" },
+
+    { "id": "n22", "pitch": "G4", "duration": "q" },
+    { "id": "n23", "pitch": "G4", "duration": "q" },
+    { "id": "n24", "pitch": "F4", "duration": "q" },
+    { "id": "n25", "pitch": "F4", "duration": "q" },
+
+    { "id": "n26", "pitch": "E4", "duration": "q" },
+    { "id": "n27", "pitch": "E4", "duration": "q" },
+    { "id": "n28", "pitch": "D4", "duration": "h" },
+
+    { "id": "n29", "pitch": "C4", "duration": "q" },
+    { "id": "n30", "pitch": "C4", "duration": "q" },
+    { "id": "n31", "pitch": "G4", "duration": "q" },
+    { "id": "n32", "pitch": "G4", "duration": "q" },
+
+    { "id": "n33", "pitch": "A4", "duration": "q" },
+    { "id": "n34", "pitch": "A4", "duration": "q" },
+    { "id": "n35", "pitch": "G4", "duration": "h" },
+
+    { "id": "n36", "pitch": "F4", "duration": "q" },
+    { "id": "n37", "pitch": "F4", "duration": "q" },
+    { "id": "n38", "pitch": "E4", "duration": "q" },
+    { "id": "n39", "pitch": "E4", "duration": "q" },
+
+    { "id": "n40", "pitch": "D4", "duration": "q" },
+    { "id": "n41", "pitch": "D4", "duration": "q" },
+    { "id": "n42", "pitch": "C4", "duration": "h" }
+  ]
+}
