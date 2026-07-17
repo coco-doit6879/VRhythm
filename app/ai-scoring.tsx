@@ -7,10 +7,13 @@ import {
   ScrollView,
   Animated,
   Dimensions,
+  Modal,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../constants/Colors';
 
 const { width } = Dimensions.get('window');
@@ -33,6 +36,7 @@ const NOTES: NoteResult[] = [
 export default function AIScoringScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [timer, setTimer] = useState(45);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
   const waveAnimations = useRef(
     Array.from({ length: WAVE_BARS }, () => new Animated.Value(0.3))
   ).current;
@@ -69,6 +73,17 @@ export default function AIScoringScreen() {
   const rhythmScore = 82;
   const stabilityScore = 85;
 
+  const handleShareToCommunity = () => {
+    setShareModalVisible(false);
+    Alert.alert('Thành công!', 'Thành tích của bạn đã được chia sẻ lên Cộng đồng VRhythm.');
+    router.push('/(tabs)/community');
+  };
+
+  const handleShareToSocial = (platform: string) => {
+    setShareModalVisible(false);
+    Alert.alert('Chia sẻ', `Đang mở chia sẻ đến ${platform}...`);
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -77,8 +92,8 @@ export default function AIScoringScreen() {
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Chấm điểm</Text>
-          <TouchableOpacity style={styles.shareBtn}>
+          <Text style={styles.headerTitle}>Chấm điểm AI</Text>
+          <TouchableOpacity style={styles.shareBtn} onPress={() => setShareModalVisible(true)}>
             <Ionicons name="share-outline" size={20} color={Colors.primary} />
           </TouchableOpacity>
         </View>
@@ -213,25 +228,177 @@ export default function AIScoringScreen() {
             </View>
           </View>
 
-          {/* Suggestions */}
-          <View style={styles.suggestCard}>
-            <View style={styles.suggestHeader}>
-              <Ionicons name="bulb-outline" size={18} color={Colors.warning} />
-              <Text style={styles.suggestTitle}>Gợi ý cải thiện</Text>
+          {/* ===== AI FEEDBACK: What you did well ===== */}
+          <View style={styles.feedbackGoodCard}>
+            <View style={styles.feedbackHeader}>
+              <View style={styles.feedbackIconGood}>
+                <Ionicons name="sparkles" size={18} color={Colors.primary} />
+              </View>
+              <Text style={styles.feedbackTitleGood}>Điểm sáng của bạn ✨</Text>
             </View>
-            <Text style={styles.suggestItem}>• Giữ nhịp ổn định hơn ở đoạn điệp khúc.</Text>
-            <Text style={styles.suggestItem}>• Nhấn đúng cao độ ở các nốt trầm.</Text>
-            <Text style={styles.suggestItem}>• Luyện tập ngón mềm mại hơn để tiếng đàn trong trẻo.</Text>
+            <Text style={styles.feedbackBody}>
+              Tiếng đàn của bạn rất tròn trịa và vang sáng — cảm nhận được sự tập trung khi gảy.
+            </Text>
+            <View style={styles.feedbackBulletRow}>
+              <Ionicons name="checkmark-circle" size={16} color={Colors.primary} />
+              <Text style={styles.feedbackBulletText}>
+                Đoạn dạo đầu gảy nốt sạch và chuẩn cao độ, rất ấn tượng!
+              </Text>
+            </View>
+            <View style={styles.feedbackBulletRow}>
+              <Ionicons name="checkmark-circle" size={16} color={Colors.primary} />
+              <Text style={styles.feedbackBulletText}>
+                Nhịp độ bạn giữ ổn định tốt ở 6/9 nốt — đó là một nền tảng vững chắc.
+              </Text>
+            </View>
+            <View style={styles.feedbackBulletRow}>
+              <Ionicons name="checkmark-circle" size={16} color={Colors.primary} />
+              <Text style={styles.feedbackBulletText}>
+                Kỹ thuật ngón tay mềm mại, tạo âm sắc thanh thoát tự nhiên.
+              </Text>
+            </View>
           </View>
 
-          {/* Retry Button */}
-          <TouchableOpacity style={styles.retryBtn} activeOpacity={0.85}>
-            <Ionicons name="refresh" size={18} color="#FFF" style={{ marginRight: 8 }} />
-            <Text style={styles.retryBtnText}>Thực hiện lại bài tập</Text>
-          </TouchableOpacity>
+          {/* ===== AI FEEDBACK: What to improve ===== */}
+          <View style={styles.feedbackImproveCard}>
+            <View style={styles.feedbackHeader}>
+              <View style={styles.feedbackIconImprove}>
+                <Ionicons name="bulb" size={18} color={Colors.warning} />
+              </View>
+              <Text style={styles.feedbackTitleImprove}>Gợi ý hoàn thiện thêm 💡</Text>
+            </View>
+            <Text style={styles.feedbackBody}>
+              Bạn đã rất gần với phần trình diễn hoàn hảo rồi! Chỉ cần tinh chỉnh thêm vài điểm nhỏ thôi nhé:
+            </Text>
+            <View style={styles.feedbackBulletRow}>
+              <Ionicons name="arrow-forward-circle" size={16} color={Colors.warning} />
+              <Text style={styles.feedbackBulletText}>
+                Ở đoạn điệp khúc tốc độ nhanh hơn, hãy thả lỏng cổ tay để giữ nhịp ổn định nhé.
+              </Text>
+            </View>
+            <View style={styles.feedbackBulletRow}>
+              <Ionicons name="arrow-forward-circle" size={16} color={Colors.warning} />
+              <Text style={styles.feedbackBulletText}>
+                Nốt Xang ở phách mạnh nhấn sâu thêm một chút sẽ rất truyền cảm đấy.
+              </Text>
+            </View>
+            <View style={styles.feedbackBulletRow}>
+              <Ionicons name="arrow-forward-circle" size={16} color={Colors.warning} />
+              <Text style={styles.feedbackBulletText}>
+                Luyện tập ngón mềm mại hơn khi chuyển đoạn — từ từ sẽ thuần thục thôi!
+              </Text>
+            </View>
+          </View>
+
+          {/* ===== Action Buttons ===== */}
+          <View style={styles.actionBtnsRow}>
+            <TouchableOpacity
+              style={styles.shareBtnAction}
+              activeOpacity={0.85}
+              onPress={() => setShareModalVisible(true)}
+            >
+              <Ionicons name="trophy" size={18} color={Colors.primary} style={{ marginRight: 6 }} />
+              <Text style={styles.shareBtnActionText}>Khoe thành tích</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.retryBtn} activeOpacity={0.85}>
+              <LinearGradient
+                colors={[Colors.primary, Colors.primaryDark]}
+                style={styles.retryBtnGradient}
+              >
+                <Ionicons name="refresh" size={18} color="#FFF" style={{ marginRight: 8 }} />
+                <Text style={styles.retryBtnText}>Luyện tập lại</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={{ height: 20 }} />
       </ScrollView>
+
+      {/* ===== Share Sheet Modal ===== */}
+      <Modal
+        visible={shareModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShareModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.shareOverlay}
+          activeOpacity={1}
+          onPress={() => setShareModalVisible(false)}
+        >
+          <View style={styles.shareSheet} onStartShouldSetResponder={() => true}>
+            {/* Handle bar */}
+            <View style={styles.shareHandle} />
+
+            <Text style={styles.shareSheetTitle}>Chia sẻ thành tích</Text>
+            <Text style={styles.shareSheetSubtitle}>
+              Khoe điểm số {totalScore}/100 của bạn với mọi người!
+            </Text>
+
+            {/* Score Preview Card */}
+            <View style={styles.sharePreview}>
+              <LinearGradient
+                colors={[Colors.primary, Colors.primaryDark]}
+                style={styles.sharePreviewGradient}
+              >
+                <View style={styles.sharePreviewLeft}>
+                  <Text style={styles.sharePreviewLabel}>VRhythm</Text>
+                  <Text style={styles.sharePreviewSong}>Lý ngựa ô</Text>
+                </View>
+                <View style={styles.sharePreviewRight}>
+                  <Text style={styles.sharePreviewScore}>{totalScore}</Text>
+                  <Text style={styles.sharePreviewMax}>/100</Text>
+                </View>
+                <View style={styles.sharePreviewStars}>
+                  {[1, 2, 3, 4].map((i) => (
+                    <Ionicons key={i} name="star" size={14} color="#F4A261" />
+                  ))}
+                  <Ionicons name="star-half" size={14} color="#F4A261" />
+                </View>
+              </LinearGradient>
+            </View>
+
+            {/* Share Options */}
+            <View style={styles.shareOptions}>
+              <TouchableOpacity style={styles.shareOption} onPress={handleShareToCommunity}>
+                <View style={[styles.shareOptionIcon, { backgroundColor: '#EBF6F0' }]}>
+                  <Ionicons name="people" size={22} color={Colors.primary} />
+                </View>
+                <Text style={styles.shareOptionLabel}>Cộng đồng{'\n'}VRhythm</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.shareOption} onPress={() => handleShareToSocial('Facebook')}>
+                <View style={[styles.shareOptionIcon, { backgroundColor: '#EBF2FE' }]}>
+                  <FontAwesome name="facebook" size={22} color="#1877F2" />
+                </View>
+                <Text style={styles.shareOptionLabel}>Facebook</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.shareOption} onPress={() => handleShareToSocial('Zalo')}>
+                <View style={[styles.shareOptionIcon, { backgroundColor: '#EBF6F0' }]}>
+                  <Ionicons name="chatbubble-ellipses" size={22} color="#0068FF" />
+                </View>
+                <Text style={styles.shareOptionLabel}>Zalo</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.shareOption} onPress={() => handleShareToSocial('Tải về')}>
+                <View style={[styles.shareOptionIcon, { backgroundColor: '#F0EBFA' }]}>
+                  <Ionicons name="download" size={22} color={Colors.purple} />
+                </View>
+                <Text style={styles.shareOptionLabel}>Tải ảnh{'\n'}về máy</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.shareCancelBtn}
+              onPress={() => setShareModalVisible(false)}
+            >
+              <Text style={styles.shareCancelText}>Đóng</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -375,7 +542,56 @@ const styles = StyleSheet.create({
   timelineBase: { position: 'absolute', bottom: 8, left: 0, right: 0, height: 2, backgroundColor: Colors.light.bgElevated },
   noteMarker: { position: 'absolute' },
 
-  suggestCard: {
+  // ===== AI Feedback: Good =====
+  feedbackGoodCard: {
+    backgroundColor: '#EBF6F0',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary,
+  },
+  feedbackHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  feedbackIconGood: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: '#D8F3E6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  feedbackTitleGood: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: Colors.primaryDark,
+  },
+  feedbackBody: {
+    fontSize: 13,
+    color: Colors.light.textSecondary,
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  feedbackBulletRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 8,
+    paddingLeft: 2,
+  },
+  feedbackBulletText: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.light.textSecondary,
+    lineHeight: 20,
+  },
+
+  // ===== AI Feedback: Improve =====
+  feedbackImproveCard: {
     backgroundColor: '#FFFBF0',
     borderRadius: 16,
     padding: 18,
@@ -383,22 +599,173 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: Colors.warning,
   },
-  suggestHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
-  suggestTitle: { fontSize: 15, fontWeight: '700', color: Colors.light.text },
-  suggestItem: { fontSize: 13, color: Colors.light.textSecondary, lineHeight: 22 },
+  feedbackIconImprove: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: '#FEF0D5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  feedbackTitleImprove: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#8B6914',
+  },
 
-  retryBtn: {
+  // ===== Action Buttons =====
+  actionBtnsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 8,
+  },
+  shareBtnAction: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.primaryDark,
-    borderRadius: 16,
-    paddingVertical: 18,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    borderRadius: 14,
+    paddingVertical: 16,
+    backgroundColor: '#EBF6F0',
+  },
+  shareBtnActionText: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  retryBtn: {
+    flex: 1.5,
+    borderRadius: 14,
+    overflow: 'hidden',
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
-  retryBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  retryBtnGradient: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderRadius: 14,
+  },
+  retryBtnText: { color: '#FFF', fontSize: 14, fontWeight: '700' },
+
+  // ===== Share Sheet Modal =====
+  shareOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(10, 26, 18, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  shareSheet: {
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 36,
+  },
+  shareHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E0EBE4',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  shareSheetTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: Colors.light.text,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  shareSheetSubtitle: {
+    fontSize: 14,
+    color: Colors.light.textMuted,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  sharePreview: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 24,
+  },
+  sharePreviewGradient: {
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  sharePreviewLeft: {
+    flex: 1,
+  },
+  sharePreviewLabel: {
+    color: Colors.accentLight,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    marginBottom: 4,
+  },
+  sharePreviewSong: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  sharePreviewRight: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  sharePreviewScore: {
+    color: '#FFF',
+    fontSize: 38,
+    fontWeight: '900',
+  },
+  sharePreviewMax: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  sharePreviewStars: {
+    flexDirection: 'row',
+    gap: 2,
+    width: '100%',
+    marginTop: 10,
+  },
+  shareOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 24,
+  },
+  shareOption: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  shareOptionIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  shareOptionLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
+    lineHeight: 15,
+  },
+  shareCancelBtn: {
+    backgroundColor: Colors.light.bgElevated,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  shareCancelText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.light.textSecondary,
+  },
 });

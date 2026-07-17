@@ -68,7 +68,7 @@ export default function LearningScreen() {
   );
 
   const handleSelectLesson = (lesson: LessonDto) => {
-    router.push(`/lesson/${lesson.id}`);
+    router.push(`/lesson/${lesson.id}` as any);
   };
 
   const toggleChapter = (id: string) => {

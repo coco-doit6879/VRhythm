@@ -18,6 +18,9 @@ export const authApi = {
   logout: () => {
     storage.removeItem("authToken");
     storage.removeItem("currentCourseId");
+    storage.removeItem("hasCompletedOnboarding");
+    storage.removeItem("onboardingInstrument");
+    storage.removeItem("onboardingTime");
   },
   login: async (dto: LoginRequestDto): Promise<ApiResponse<AuthResponseDto>> => {
     const response = await request<AuthResponseDto>("/api/auth/login", {
