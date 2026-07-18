@@ -9,12 +9,14 @@ import {
   Platform,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
+import { api } from '../../services/api';
 
 const { height } = Dimensions.get('window');
 
@@ -22,9 +24,34 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleLogin = () => {
-    router.replace('/(tabs)');
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      setErrorMessage('Vui lòng điền đầy đủ Email và Mật khẩu.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      const response = await api.login({
+        email: email.trim(),
+        password: password,
+      });
+
+      if (response.success) {
+        router.replace('/(tabs)');
+      } else {
+        setErrorMessage(response.message || 'Đăng nhập không thành công.');
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Đã xảy ra lỗi kết nối. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -63,6 +90,10 @@ export default function LoginScreen() {
               <Text style={styles.welcomeSubtitle}>
                 Đăng nhập để tiếp tục hành trình âm nhạc của bạn.
               </Text>
+
+              {errorMessage ? (
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              ) : null}
 
               {/* Email Input */}
               <View style={styles.inputWrapper}>
@@ -103,14 +134,23 @@ export default function LoginScreen() {
               </TouchableOpacity>
 
               {/* Login Button */}
-              <TouchableOpacity style={styles.loginBtn} onPress={handleLogin} activeOpacity={0.85}>
+              <TouchableOpacity
+                style={styles.loginBtn}
+                onPress={handleLogin}
+                activeOpacity={0.85}
+                disabled={isLoading}
+              >
                 <LinearGradient
                   colors={['#2D6A4F', '#40916C']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.loginBtnGradient}
                 >
-                  <Text style={styles.loginBtnText}>Đăng nhập</Text>
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.loginBtnText}>Đăng nhập</Text>
+                  )}
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -208,6 +248,16 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: { fontSize: 24, fontWeight: '800', color: '#FFF', marginBottom: 8 },
   welcomeSubtitle: { fontSize: 14, color: Colors.dark.textSecondary, lineHeight: 20, marginBottom: 24 },
+  errorText: {
+    color: '#FF6B6B',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 16,
+    backgroundColor: 'rgba(230, 57, 70, 0.15)',
+    padding: 10,
+    borderRadius: 10,
+    textAlign: 'center',
+  },
 
   inputWrapper: {
     flexDirection: 'row',

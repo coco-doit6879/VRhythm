@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Spacing, Radius } from '../../constants/Colors';
+import { api, CourseSummaryDto } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -58,9 +61,61 @@ const INSTRUMENTS = [
 ];
 
 export default function HomeScreen() {
+  const [courses, setCourses] = useState<CourseSummaryDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await api.getCourses();
+      if (response.success && response.data) {
+        setCourses(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchCourses();
+  };
+
+  const handleSelectCourse = (courseId: number) => {
+    api.setCurrentCourseId(courseId);
+    router.push('/learning-detail');
+  };
+
+  const handleContinueLearning = () => {
+    let activeId = api.getCurrentCourseId();
+    if (!activeId && courses.length > 0) {
+      activeId = courses[0].id;
+      api.setCurrentCourseId(activeId);
+    }
+    if (activeId) {
+      router.push('/(tabs)/learning');
+    } else {
+      // If no courses at all, go to learning tab anyway
+      router.push('/(tabs)/learning');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scroll} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.primary]} />
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -78,6 +133,7 @@ export default function HomeScreen() {
                 <Ionicons name="person" size={18} color="#FFF" />
               </View>
             </TouchableOpacity>
+            
           </View>
         </View>
 
@@ -143,32 +199,55 @@ export default function HomeScreen() {
         {/* Popular Instruments */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Nhạc cụ phổ biến</Text>
+            <Text style={styles.sectionTitle}>Khóa học phổ biến</Text>
             <TouchableOpacity>
               <Text style={styles.seeAll}>Xem tất cả</Text>
             </TouchableOpacity>
           </View>
-          {INSTRUMENTS.map((inst) => (
-            <TouchableOpacity
-              key={inst.id}
-              style={styles.instrumentCard}
-              activeOpacity={0.8}
-              onPress={() => router.push('/learning-detail')}
-            >
-              <View style={styles.instrumentEmoji}>
-                <Text style={{ fontSize: 36 }}>{inst.emoji}</Text>
-              </View>
-              <View style={styles.instrumentInfo}>
-                <View style={styles.instrumentHeader}>
-                  <Text style={styles.instrumentName}>{inst.name}</Text>
-                  <View style={[styles.levelBadge, { backgroundColor: inst.levelColor + '20' }]}>
-                    <Text style={[styles.levelText, { color: inst.levelColor }]}>{inst.level}</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color={Colors.primary} style={{ marginVertical: 20 }} />
+          ) : courses.length === 0 ? (
+            <Text style={{ color: Colors.light.textMuted, textAlign: 'center', marginVertical: 20 }}>
+              Không tìm thấy khóa học nào.
+            </Text>
+          ) : (
+            courses.map((course) => {
+              const emoji = course.instrument.includes('Tranh') ? '🎵' 
+                          : course.instrument.includes('Nguyệt') ? '🎸' 
+                          : course.instrument.includes('Sáo') ? '🎶' : '🎼';
+              
+              const levelColor = course.accessType === 'Free' || course.accessType === '0'
+                ? Colors.basic 
+                : Colors.intermediate;
+              const levelText = course.accessType === 'Free' || course.accessType === '0'
+                ? 'Miễn phí' 
+                : 'Cao cấp';
+
+              return (
+                <TouchableOpacity
+                  key={course.id}
+                  style={styles.instrumentCard}
+                  activeOpacity={0.8}
+                  onPress={() => handleSelectCourse(course.id)}
+                >
+                  <View style={styles.instrumentEmoji}>
+                    <Text style={{ fontSize: 36 }}>{emoji}</Text>
                   </View>
-                </View>
-                <Text style={styles.instrumentDesc} numberOfLines={2}>{inst.desc}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+                  <View style={styles.instrumentInfo}>
+                    <View style={styles.instrumentHeader}>
+                      <Text style={styles.instrumentName}>{course.title}</Text>
+                      <View style={[styles.levelBadge, { backgroundColor: levelColor + '20' }]}>
+                        <Text style={[styles.levelText, { color: levelColor }]}>{levelText}</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.instrumentDesc} numberOfLines={2}>
+                      {course.description || `Khóa học học nhạc cụ ${course.instrument} truyền thống.`}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })
+          )}
         </View>
 
         {/* Continue Learning */}
@@ -177,7 +256,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.continueCard}
             activeOpacity={0.85}
-            onPress={() => router.push('/learning-detail')}
+            onPress={handleContinueLearning}
           >
             <LinearGradient
               colors={['#1A3020', '#0D1F17']}
@@ -187,8 +266,8 @@ export default function HomeScreen() {
                 <Ionicons name="play" size={22} color="#FFF" />
               </View>
               <View style={styles.continueInfo}>
-                <Text style={styles.continueLessonTitle}>Bài 3: Nốt nhạc cơ bản</Text>
-                <Text style={styles.continueMeta}>Khóa học Đàn Tranh • 12 phút còn lại</Text>
+                <Text style={styles.continueLessonTitle}>Bài học gần đây</Text>
+                <Text style={styles.continueMeta}>Khóa học của bạn • Nhấn để học tiếp</Text>
                 <View style={styles.progressBar}>
                   <View style={[styles.progressFill, { width: '45%' }]} />
                 </View>

@@ -1,7 +1,7 @@
-import { Tabs } from 'expo-router';
+import { Tabs, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
-import { Platform, View } from 'react-native';
+import { Platform, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 type TabIconProps = {
   name: React.ComponentProps<typeof Ionicons>['name'];
@@ -19,7 +19,8 @@ function TabIcon({ name, color, focused }: TabIconProps) {
 
 export default function TabsLayout() {
   return (
-    <Tabs
+    <>
+      <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.primary,
@@ -102,5 +103,31 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+
+      <TouchableOpacity
+        style={styles.mockBtn}
+        onPress={() => router.push('/practical-mock')}
+        accessible
+        accessibilityLabel="Open mock practice"
+      >
+        <Text style={styles.mockBtnText}>Mock Practice</Text>
+      </TouchableOpacity>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  mockBtn: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    bottom: Platform.OS === 'ios' ? 110 : 90,
+    backgroundColor: Colors.primary,
+    paddingVertical: 12,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+  },
+  mockBtnText: { color: '#FFF', fontWeight: '700' },
+});
