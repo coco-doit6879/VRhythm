@@ -3,23 +3,21 @@
 import React from "react";
 import { View } from "react-native";
 import { LayoutMeasure } from "../engine/models/Layout";
-import { STAFF } from "../engine/constants";
 
 interface Props {
   measure: LayoutMeasure;
-  staffTop?: number;
 }
 
-export default function Measure({ measure, staffTop = 40 }: Props) {
+export default function Measure({ measure }: Props) {
   return (
     <View>
       <View
         style={{
           position: "absolute",
           left: measure.startX,
-          top: staffTop,
+          top: 40,
           width: 1,
-          height: STAFF.HEIGHT,
+          height: 120,
           backgroundColor: "#999",
         }}
       />
@@ -28,9 +26,9 @@ export default function Measure({ measure, staffTop = 40 }: Props) {
         style={{
           position: "absolute",
           left: measure.endX,
-          top: staffTop,
+          top: 40,
           width: 1,
-          height: STAFF.HEIGHT,
+          height: 120,
           backgroundColor: "#999",
         }}
       />

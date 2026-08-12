@@ -55,22 +55,22 @@ export default function SheetMusic({
       showsHorizontalScrollIndicator={false}
       scrollEventThrottle={16}
     >
-      <View style={{ width: layout.width * 0.75 + 40, minHeight: layout.height * 0.75 }}>
+      <View style={{ width: 3000 * 0.75, minHeight: 135 }}>
         <View
           style={{
             position: "absolute",
-            width: layout.width,
-            height: layout.height,
+            width: 3000,
+            height: 180,
             transform: [
-              { translateX: 30 - layout.width * 0.125 },
-              { translateY: -layout.height * 0.125 },
+              { translateX: -3000 * 0.125 },
+              { translateY: -180 * 0.125 },
               { scale: 0.75 }
             ]
           }}
         >
-          <Staff width={layout.width} staffTop={layout.staffTop} />
-          <Clef staffTop={layout.staffTop} />
-          <TimeSignature staffTop={layout.staffTop} />
+          <Staff />
+          <Clef />
+          <TimeSignature />
 
           {layout.measures.map((m) => (
             <React.Fragment key={m.index}>
@@ -81,12 +81,12 @@ export default function SheetMusic({
                 </React.Fragment>
               ))}
 
-              <Measure measure={m} staffTop={layout.staffTop} />
+              <Measure measure={m} />
             </React.Fragment>
           ))}
 
           {noteForCursor && (
-            <Cursor x={noteForCursor.x} staffTop={layout.staffTop} />
+            <Cursor x={noteForCursor.x} height={90} />
           )}
         </View>
       </View>

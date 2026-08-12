@@ -82,7 +82,5 @@ export interface LayoutScore {
 
   height: number;
 
-  staffTop: number;
-
   measures: LayoutMeasure[];
 }

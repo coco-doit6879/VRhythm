@@ -13,19 +13,12 @@ export default function FingeringCard({
   title = "Fingering",
 }: Props) {
   const safeFingering = Array.isArray(fingering) ? fingering : [];
-  
-  const NOTE_NAMES: Record<string, string> = {
-    "C4": "Đô (C4)", "D4": "Rê (D4)", "E4": "Mi (E4)", "F4": "Pha (F4)", "G4": "Son (G4)", "A4": "La (A4)", "B4": "Si (B4)",
-    "C5": "Đô (C5)", "D5": "Rê (D5)", "E5": "Mi (E5)", "F5": "Pha (F5)", "G5": "Son (G5)", "A5": "La (A5)", "B5": "Si (B5)",
-    "C6": "Đô (C6)", "D6": "Rê (D6)", "E6": "Mi (E6)", "F6": "Pha (F6)", "G6": "Son (G6)", "A6": "La (A6)", "B6": "Si (B6)",
-    "C7": "Đô (C7)"
-  };
 
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
 
-      <Text style={styles.note}>{note ? (NOTE_NAMES[note] || note) : "—"}</Text>
+      <Text style={styles.note}>{note ?? "—"}</Text>
 
       <View style={styles.instrument}>
         {/* Blow hole */}
@@ -44,7 +37,7 @@ export default function FingeringCard({
       </View>
 
       <View style={styles.labels}>
-        <View style={{ width: HOLE_SIZE }} />
+        <Text style={styles.label}>Thổi</Text>
 
         {[1, 2, 3, 4, 5, 6].map((n) => (
           <Text key={n} style={styles.number}>

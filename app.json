@@ -21,7 +21,6 @@
         "foregroundImage": "./assets/icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "usesCleartextTraffic": true,
       "package": "com.tecookie.VRhythm"
     },
     "web": {

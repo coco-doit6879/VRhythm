@@ -3,12 +3,12 @@
 import React from "react";
 import MusicGlyph from "./MusicGlyph";
 
-export default function Clef({ staffTop = 40 }: { staffTop?: number }) {
+export default function Clef() {
   return (
     <MusicGlyph
       glyph="treble"
       x={40}
-      y={staffTop + 20}
+      y={60}
       size={80}
     />
   );

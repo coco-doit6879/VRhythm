@@ -22,9 +22,7 @@ export function PracticalLesson({ lesson, practical, onComplete, mode, setMode }
     return (
       <View style={[styles.engineContainer, { flex: 1 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => setMode(null)}>
-          <View style={styles.backButtonContainer}>
-            <Text style={styles.backButtonText}>← Đổi chế độ tập luyện</Text>
-          </View>
+          <Text style={styles.backButtonText}>← Chọn chế độ khác</Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <PracticalExamEngine mode={mode} onComplete={onComplete} practical={practical} />
@@ -72,24 +70,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButton: {
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
     marginBottom: 10,
-    alignSelf: 'stretch',
-  },
-  backButtonContainer: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#F0F4F8',
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E1E8ED',
+    alignSelf: 'flex-start',
   },
   backButtonText: {
-    color: '#4A5568',
-    fontWeight: '700',
-    fontSize: 15,
+    color: Colors.primary,
+    fontWeight: 'bold',
   },
   cardHeaderTitle: {
     fontSize: 13,
