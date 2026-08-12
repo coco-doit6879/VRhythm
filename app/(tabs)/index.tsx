@@ -277,7 +277,7 @@ export default function HomeScreen() {
                 key={tool.id}
                 style={styles.toolCard}
                 activeOpacity={0.8}
-                onPress={() => tool.id === '1' ? router.push('/ai-scoring') : router.push('/tuner')}
+                onPress={() => Alert.alert('Sắp ra mắt', 'Tính năng này đang trong quá trình phát triển và sẽ sớm được ra mắt. Cảm ơn bạn đã chờ đợi!')}
               >
                 <View style={[styles.toolIcon, { backgroundColor: tool.bg }]}>
                   <Ionicons name={tool.icon as any} size={26} color={tool.color} />
@@ -294,7 +294,18 @@ export default function HomeScreen() {
           <Text style={styles.featuresSectionLabel}>TÍNH NĂNG NỔI BẬT</Text>
           <View style={styles.featuresGrid}>
             {FEATURES.map((feat) => (
-              <TouchableOpacity key={feat.id} style={styles.featureCell} activeOpacity={0.7}>
+              <TouchableOpacity 
+                key={feat.id} 
+                style={styles.featureCell} 
+                activeOpacity={0.7}
+                onPress={() => {
+                  if (feat.label === 'Thư viện') {
+                    router.push('/(tabs)/library');
+                  } else {
+                    Alert.alert('Sắp ra mắt', 'Tính năng này đang trong quá trình phát triển và sẽ sớm được ra mắt. Cảm ơn bạn đã chờ đợi!');
+                  }
+                }}
+              >
                 <View style={[styles.featureCellIcon, { backgroundColor: feat.bg }]}>
                   <Ionicons name={feat.icon as any} size={22} color={feat.color} />
                 </View>

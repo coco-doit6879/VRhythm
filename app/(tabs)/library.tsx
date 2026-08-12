@@ -11,42 +11,54 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
+import { router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
 const SONGS = [
   {
     id: '1',
-    title: 'Áo mới Cà Mau',
+    title: 'Twinkle Twinkle Little Star',
+    genre: 'Nhạc Thiếu Nhi',
+    instrument: 'Sáo trúc',
+    level: 'Sơ cấp',
+    levelColor: Colors.success,
+    icon: 'star-outline',
+    iconColor: '#F59E0B',
+    iconBg: '#FEF3C7',
+  },
+  {
+    id: '2',
+    title: 'Senbonzakura',
+    genre: 'Nhạc Nhật Bản',
+    instrument: 'Sáo trúc',
+    level: 'Nâng cao',
+    levelColor: Colors.advanced,
+    icon: 'musical-notes-outline',
+    iconColor: '#EF4444',
+    iconBg: '#FEE2E2',
+  },
+  {
+    id: '3',
+    title: 'Lý Cây Xanh',
     genre: 'Dân ca',
-    instrument: 'Đàn Nguyệt',
-    level: 'Trung cấp',
-    levelColor: Colors.intermediate,
-    icon: 'musical-note-outline',
+    instrument: 'Sáo trúc',
+    level: 'Sơ cấp',
+    levelColor: Colors.success,
+    icon: 'leaf-outline',
     iconColor: Colors.primary,
     iconBg: '#EBF6F0',
   },
   {
-    id: '2',
-    title: 'Hòa tấu quê hương',
-    genre: 'Hòa tấu',
+    id: '4',
+    title: 'Lạc Trôi',
+    genre: 'Nhạc trẻ',
     instrument: 'Sáo trúc',
-    level: 'Nâng cao',
-    levelColor: Colors.advanced,
-    icon: 'radio-button-on-outline',
-    iconColor: Colors.intermediate,
-    iconBg: '#FEF3E8',
-  },
-  {
-    id: '3',
-    title: 'Em ơi Hà Nội phố',
-    genre: 'Nhạc nhẹ',
-    instrument: 'Đàn Tranh',
     level: 'Trung cấp',
     levelColor: Colors.intermediate,
-    icon: 'mic-outline',
-    iconColor: '#4895EF',
-    iconBg: '#EBF2FE',
+    icon: 'flame-outline',
+    iconColor: '#F97316',
+    iconBg: '#FFEDD5',
   },
 ];
 
@@ -56,25 +68,6 @@ const GENRE_FILTERS = ['Dân gian', 'Cổ điển', 'Hiện đại'];
 export default function LibraryScreen() {
   const [activeInstrument, setActiveInstrument] = useState('Tất cả');
   const [activeGenre, setActiveGenre] = useState('Dân gian');
-  const [tab, setTab] = useState('Bản nhạc');
-  const [bpm, setBpm] = useState(80);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playheadLeft, setPlayheadLeft] = useState(30);
-
-  useEffect(() => {
-    let interval: any;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setPlayheadLeft((prev) => {
-          const next = prev + 3;
-          return next > 250 ? 30 : next;
-        });
-      }, 60);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isPlaying]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -114,82 +107,16 @@ export default function LibraryScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Featured Sheet Music Player */}
-        <View style={styles.playerCard}>
-          {/* Song Info */}
-          <View style={styles.playerHeader}>
-            <View>
-              <Text style={styles.playerTitle}>Lý ngựa ô</Text>
-              <Text style={styles.playerMeta}>Dân ca Nam Bộ • Đàn tranh</Text>
-            </View>
-            <View style={styles.playerActions}>
-              <TouchableOpacity style={styles.actionBtn}>
-                <Ionicons name="heart-outline" size={20} color={Colors.light.textSecondary} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn}>
-                <Ionicons name="share-outline" size={20} color={Colors.light.textSecondary} />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Sheet Music Preview */}
-          <View style={styles.sheetMusicPreview}>
-            <View style={styles.staffLines}>
-              {[0, 1, 2, 3, 4].map((i) => (
-                <View key={i} style={styles.staffLine} />
-              ))}
-              {/* Decorative notes */}
-              <View style={[styles.noteHead, { bottom: 32, left: 30 }]} />
-              <View style={[styles.noteHead, { bottom: 48, left: 80 }]} />
-              <View style={[styles.noteHead, { bottom: 56, left: 130 }]} />
-              <View style={[styles.noteHead, { bottom: 40, left: 180 }]} />
-              <View style={[styles.noteHead, { bottom: 64, left: 220 }]} />
-              <View style={[styles.noteStem, { bottom: 40, left: 35 }]} />
-              <View style={[styles.noteStem, { bottom: 56, left: 85 }]} />
-            </View>
-            {/* Active bar indicator */}
-            <View style={[styles.activeBar, { left: playheadLeft }]} />
-          </View>
-
-          {/* Player Controls */}
-          <View style={styles.playerControls}>
-            <TouchableOpacity
-              style={[styles.playBtn, isPlaying && styles.playBtnActive]}
-              onPress={() => setIsPlaying(!isPlaying)}
-            >
-              <Ionicons name={isPlaying ? 'pause' : 'play'} size={20} color="#FFF" />
-            </TouchableOpacity>
-            <View style={styles.bpmControl}>
-              <Ionicons name="sync-outline" size={14} color={Colors.primary} />
-              <Text style={styles.bpmText}>{bpm} BPM</Text>
-            </View>
-            <View style={styles.autoScrollRow}>
-              <Text style={styles.autoScrollLabel}>TỰ ĐỘNG CUỘN</Text>
-              <View style={styles.toggle}>
-                <View style={styles.toggleThumb} />
-              </View>
-            </View>
-          </View>
-
-          {/* Tabs */}
-          <View style={styles.tabsRow}>
-            {['Bản nhạc', 'Hợp âm', 'Video mẫu'].map((t) => (
-              <TouchableOpacity
-                key={t}
-                onPress={() => setTab(t)}
-                style={[styles.tabItem, tab === t && styles.tabItemActive]}
-              >
-                <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
         {/* Suggestions */}
         <View style={styles.suggestSection}>
-          <Text style={styles.suggestTitle}>DANH SÁCH GỢI Ý</Text>
+          <Text style={styles.suggestTitle}>BẢN NHẠC NỔI BẬT</Text>
           {SONGS.map((song) => (
-            <TouchableOpacity key={song.id} style={styles.songRow} activeOpacity={0.7}>
+            <TouchableOpacity 
+              key={song.id} 
+              style={styles.songRow} 
+              activeOpacity={0.7}
+              onPress={() => router.push(`/sheet-music/${song.id}`)}
+            >
               <View style={[styles.songIconWrapper, { backgroundColor: song.iconBg }]}>
                 <Ionicons name={song.icon as any} size={20} color={song.iconColor} />
               </View>
@@ -267,95 +194,6 @@ const styles = StyleSheet.create({
   filterLabel: { fontSize: 13, color: Colors.light.textMuted },
   filterValue: { fontSize: 13, fontWeight: '600', color: Colors.light.text },
 
-  playerCard: {
-    backgroundColor: '#FFF',
-    marginHorizontal: 20,
-    borderRadius: 20,
-    padding: 18,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  playerHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-  playerTitle: { fontSize: 20, fontWeight: '800', color: Colors.light.text, marginBottom: 4 },
-  playerMeta: { fontSize: 13, color: Colors.light.textMuted },
-  playerActions: { flexDirection: 'row', gap: 8 },
-  actionBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: Colors.light.bgElevated,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  sheetMusicPreview: {
-    height: 100,
-    backgroundColor: '#FAFAFA',
-    borderRadius: 12,
-    marginBottom: 16,
-    overflow: 'hidden',
-    position: 'relative',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  staffLines: { position: 'relative', height: 70 },
-  staffLine: { height: 1, backgroundColor: '#CCCCCC', marginBottom: 12 },
-  noteHead: {
-    position: 'absolute',
-    width: 10,
-    height: 8,
-    borderRadius: 5,
-    backgroundColor: Colors.primary,
-  },
-  noteStem: {
-    position: 'absolute',
-    width: 1.5,
-    height: 24,
-    backgroundColor: Colors.primary,
-  },
-  activeBar: {
-    position: 'absolute',
-    left: 45,
-    top: 8,
-    bottom: 8,
-    width: 2,
-    backgroundColor: Colors.primaryLight,
-  },
-
-  playerControls: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 16 },
-  playBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.light.textMuted,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playBtnActive: { backgroundColor: Colors.primary },
-  bpmControl: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  bpmText: { fontSize: 15, fontWeight: '600', color: Colors.light.text },
-  autoScrollRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto' as any },
-  autoScrollLabel: { fontSize: 11, fontWeight: '600', color: Colors.light.textSecondary, letterSpacing: 0.5 },
-  toggle: {
-    width: 44,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    paddingHorizontal: 3,
-    alignItems: 'flex-end',
-  },
-  toggleThumb: { width: 18, height: 18, borderRadius: 9, backgroundColor: '#FFF' },
-
-  tabsRow: { flexDirection: 'row', gap: 0 },
-  tabItem: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
-  tabItemActive: { backgroundColor: Colors.primary },
-  tabText: { fontSize: 14, fontWeight: '500', color: Colors.light.textMuted },
-  tabTextActive: { color: '#FFF', fontWeight: '700' },
 
   suggestSection: { paddingHorizontal: 20 },
   suggestTitle: { fontSize: 11, fontWeight: '600', letterSpacing: 1.5, color: Colors.light.textMuted, marginBottom: 14 },

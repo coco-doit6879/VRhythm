@@ -4,7 +4,7 @@ import React from "react";
 import { View } from "react-native";
 import { STAFF } from "../engine/constants";
 
-export default function Staff() {
+export default function Staff({ width = 3000, staffTop = STAFF.TOP }: { width?: number, staffTop?: number }) {
   const lines = Array.from({ length: STAFF.LINE_COUNT }, (_, i) => i);
 
   return (
@@ -21,8 +21,8 @@ export default function Staff() {
           style={{
             position: "absolute",
             left: STAFF.LEFT,
-            top: STAFF.TOP + i * STAFF.LINE_SPACING,
-            width: 3000,
+            top: staffTop + i * STAFF.LINE_SPACING,
+            width: width,
             height: 1,
             backgroundColor: "#000",
           }}

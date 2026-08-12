@@ -2,21 +2,23 @@
 
 import React from "react";
 import { View } from "react-native";
+import { STAFF } from "../engine/constants";
 
 interface Props {
   x: number;
-  height: number;
+  height?: number; // legacy
+  staffTop?: number;
 }
 
-export default function Cursor({ x, height }: Props) {
+export default function Cursor({ x, staffTop = 40 }: Props) {
   return (
     <View
       style={{
         position: "absolute",
         left: x,
-        top: 40,
+        top: staffTop - 10,
         width: 2,
-        height,
+        height: STAFF.HEIGHT + 20,
         backgroundColor: "red",
       }}
     />

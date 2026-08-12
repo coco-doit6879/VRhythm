@@ -5,11 +5,11 @@ import { LayoutLedgerLine } from "../models/Layout";
 import { Pitch } from "../models/Score";
 import { getStaffPosition } from "../utils/pitch";
 
-export function getNoteY(pitch: Pitch): number {
+export function getNoteY(pitch: Pitch, staffTop: number): number {
   const position = getStaffPosition(pitch);
 
   const bottomLineY =
-    STAFF.TOP + (STAFF.LINE_COUNT - 1) * STAFF.LINE_SPACING;
+    staffTop + (STAFF.LINE_COUNT - 1) * STAFF.LINE_SPACING;
 
   return bottomLineY - position * (STAFF.LINE_SPACING / 2);
 }
@@ -17,14 +17,15 @@ export function getNoteY(pitch: Pitch): number {
 export function getLedgerLines(
   pitch: Pitch,
   noteX: number,
-  ledgerLength: number
+  ledgerLength: number,
+  staffTop: number
 ): LayoutLedgerLine[] {
   const lines: LayoutLedgerLine[] = [];
 
   const position = getStaffPosition(pitch);
 
   const bottomLineY =
-    STAFF.TOP + (STAFF.LINE_COUNT - 1) * STAFF.LINE_SPACING;
+    staffTop + (STAFF.LINE_COUNT - 1) * STAFF.LINE_SPACING;
 
   // Below staff
   if (position < 0) {
