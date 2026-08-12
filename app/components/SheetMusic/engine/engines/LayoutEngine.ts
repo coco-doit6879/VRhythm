@@ -16,6 +16,8 @@ import { Score } from "../models/Score";
 
 import { getNoteHead } from "../utils/duration";
 
+import { getStaffPosition } from "../utils/pitch";
+
 import {
   getLedgerLines,
   getNoteY,
@@ -44,6 +46,20 @@ export function createLayout(
     score.notes,
     score.metadata.timeSignature.beats
   );
+
+  let highestPosition = 8;
+  let lowestPosition = 0;
+  score.notes.forEach(note => {
+    const pos = getStaffPosition(note.pitch);
+    if (pos > highestPosition) highestPosition = pos;
+    if (pos < lowestPosition) lowestPosition = pos;
+  });
+
+  const extraTopMargin = Math.max(0, highestPosition - 8) * (STAFF.LINE_SPACING / 2);
+  const extraBottomMargin = Math.max(0, 0 - lowestPosition) * (STAFF.LINE_SPACING / 2);
+
+  const dynamicStaffTop = STAFF.TOP + extraTopMargin;
+  const dynamicHeight = dynamicStaffTop + STAFF.HEIGHT + 80 + extraBottomMargin;
 
   const layoutMeasures: LayoutMeasure[] = [];
 
@@ -90,7 +106,7 @@ export function createLayout(
 
     const noteWidth = getNoteWidth(note.duration);
 
-    const noteY = getNoteY(note.pitch);
+    const noteY = getNoteY(note.pitch, dynamicStaffTop);
 
     const layoutNote: LayoutNote = {
       id: note.id,
@@ -122,7 +138,8 @@ export function createLayout(
       ledgerLines: getLedgerLines(
         note.pitch,
         currentX,
-        NOTE.LEDGER_LENGTH
+        NOTE.LEDGER_LENGTH,
+        dynamicStaffTop
       ),
 
       highlighted:
@@ -150,10 +167,8 @@ export function createLayout(
       currentX +
       LAYOUT.END_PADDING,
 
-    height:
-      STAFF.TOP +
-      STAFF.HEIGHT +
-      80,
+    height: dynamicHeight,
+    staffTop: dynamicStaffTop,
 
     measures: layoutMeasures,
   };

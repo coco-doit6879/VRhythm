@@ -22,8 +22,15 @@ const STAFF_POSITIONS: Record<Pitch, number> = {
   B5: 11,
 
   C6: 12,
+  D6: 13,
+  E6: 14,
+  F6: 15,
+  G6: 16,
+  A6: 17,
+  B6: 18,
+  C7: 19,
 };
 
 export function getStaffPosition(pitch: Pitch): number {
-  return STAFF_POSITIONS[pitch];
+  return STAFF_POSITIONS[pitch] ?? 0;
 }

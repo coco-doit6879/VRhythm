@@ -35,6 +35,20 @@ export default function Note({ layout }: Props) {
           }}
         />
       )}
+
+      {layout.ledgerLines && layout.ledgerLines.map((line, idx) => (
+        <View
+          key={`ledger-${idx}`}
+          style={{
+            position: "absolute",
+            left: line.x1 - layout.x,
+            top: line.y - layout.y,
+            width: line.x2 - line.x1,
+            height: 2,
+            backgroundColor: "#111",
+          }}
+        />
+      ))}
     </View>
   );
 }
