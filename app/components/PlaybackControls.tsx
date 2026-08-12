@@ -91,9 +91,9 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
+    width: 60,
+    height: 60,
+    borderRadius: 16,
     backgroundColor: "#FFFFFF",
 
     justifyContent: "center",
@@ -111,13 +111,13 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    fontSize: 22,
+    fontSize: 26,
     color: "#222",
   },
 
   text: {
     marginTop: 2,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "600",
     color: "#222",
   },

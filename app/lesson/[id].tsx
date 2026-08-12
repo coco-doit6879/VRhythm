@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "../../constants/Colors";
 import {
@@ -49,16 +49,6 @@ export default function LessonScreen() {
   const player = useVideoPlayer(videoUrl ?? "", (player) => {
     player.loop = false;
   });
-
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        if (player) {
-          player.pause();
-        }
-      };
-    }, [player])
-  );
 
   useEffect(() => {
     fetchLessonData();
@@ -253,28 +243,6 @@ export default function LessonScreen() {
         {!practicalMode && renderMediaHeader()}
 
         <View style={[styles.content, { flex: 1 }, practicalMode ? { padding: 0 } : {}]}>
-          {lessonDetail.type === "Video" && (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>NỘI DUNG BÀI GIẢNG</Text>
-              <Text style={{ fontSize: 18, fontWeight: "700", color: Colors.light.text, marginBottom: 8 }}>
-                {lessonDetail.title}
-              </Text>
-              <Text style={styles.bodyText}>
-                {lessonDetail.content || "Hãy xem kỹ video bài giảng từ giáo viên để nắm bắt kỹ thuật và kiến thức một cách trực quan nhất. Đừng quên chuẩn bị sáo và thực hành lại ngay sau khi xem xong nhé!"}
-              </Text>
-              
-              <TouchableOpacity
-                style={styles.actionBtn}
-                onPress={() => handleCompleteLesson()}
-              >
-                <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.actionBtnGradient}>
-                  <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                  <Text style={styles.actionBtnText}>Tôi đã xem xong</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          )}
-
           {lessonDetail.type === "Theory" && (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>NỘI DUNG LÝ THUYẾT</Text>
