@@ -29,7 +29,7 @@ export const learningApi = {
     scorePercentage: number;
     passed: boolean;
   }>> => {
-    return request(`/pratical/${lessonId}/complete`, {
+    return request(`/api/practical/${lessonId}/complete`, {
       method: "POST",
       body: JSON.stringify({ notes }),
     });

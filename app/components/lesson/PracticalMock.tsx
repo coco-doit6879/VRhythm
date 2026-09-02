@@ -1,11 +1,23 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Audio } from "expo-av";
 
 import SheetMusic from "../SheetMusic/renderer/SheetMusic";
 import FingeringCard from "../../components/FingeringCard";
 import PlaybackControls from "../../components/PlaybackControls";
+import { BambooFluteNotes } from "../../../assets/bamboo_flute/rendered_notes";
 
 const raw = require("./saotruck_holes.json");
+
+function pitchToMidi(pitch: string): number {
+  const match = pitch.match(/^([A-G])(#|s|b)?(\d)$/);
+  if (!match) return 60;
+  const names = ['C', 'Cs', 'D', 'Ds', 'E', 'F', 'Fs', 'G', 'Gs', 'A', 'As', 'B'];
+  const flats: Record<string, string> = { Db: 'Cs', Eb: 'Ds', Gb: 'Fs', Ab: 'Gs', Bb: 'As' };
+  const name = match[2] === 'b' ? flats[`${match[1]}b`] || match[1] : `${match[1]}${match[2] === '#' ? 's' : match[2] || ''}`;
+  const index = names.indexOf(name);
+  return index < 0 ? 60 : (Number(match[3]) + 1) * 12 + index;
+}
 
 const FINGERING_MAP: Record<string, number[]> = {
   "C4": [1, 1, 1, 1, 1, 1],
@@ -62,6 +74,7 @@ export default function PracticeMock() {
   const [playing, setPlaying] = useState(false);
 
   const timer = useRef<number | null>(null);
+  const activeSounds = useRef<Audio.Sound[]>([]);
 
   const currentNote = score.notes[currentIndex];
 
@@ -70,7 +83,36 @@ export default function PracticeMock() {
       clearTimeout(timer.current);
       timer.current = null;
     }
+    void stopAllSounds();
     setPlaying(false);
+  }
+
+  async function stopAllSounds() {
+    const sounds = activeSounds.current;
+    activeSounds.current = [];
+    await Promise.all(sounds.map(async (sound) => {
+      try { await sound.stopAsync(); } catch {}
+      try { await sound.unloadAsync(); } catch {}
+    }));
+  }
+
+  async function playNote(pitch: string, durationMs: number) {
+    const midi = pitchToMidi(pitch);
+    const resource = (BambooFluteNotes as unknown as Record<string, number>)[midi.toString()];
+    if (!resource) return;
+
+    try {
+      const { sound } = await Audio.Sound.createAsync(resource);
+      activeSounds.current.push(sound);
+      await sound.playAsync();
+      setTimeout(async () => {
+        try { await sound.stopAsync(); } catch {}
+        try { await sound.unloadAsync(); } catch {}
+        activeSounds.current = activeSounds.current.filter((item) => item !== sound);
+      }, durationMs);
+    } catch (error) {
+      console.warn("Không thể phát âm thanh sáo trúc:", error);
+    }
   }
 
   function play() {
@@ -87,6 +129,7 @@ export default function PracticeMock() {
       
       const note = score.notes[index];
       const durationMs = getNoteDurationMs(note.duration || 'q', score.metadata.tempo || 90);
+      void playNote(note.pitch, durationMs);
       
       timer.current = setTimeout(() => {
         playNextNote(index + 1);
@@ -104,6 +147,8 @@ export default function PracticeMock() {
     stop();
     setCurrentIndex(0);
   }
+
+  useEffect(() => () => { void stopAllSounds(); }, []);
 
   return (
     <View style={styles.container}>
