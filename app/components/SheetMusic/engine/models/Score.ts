@@ -22,7 +22,14 @@ export type Pitch =
   | "G5"
   | "A5"
   | "B5"
-  | "C6";
+  | "C6"
+  | "D6"
+  | "E6"
+  | "F6"
+  | "G6"
+  | "A6"
+  | "B6"
+  | "C7";
 
 export type Accidental =
   | "#"

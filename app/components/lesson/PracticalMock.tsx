@@ -74,7 +74,7 @@ export default function PracticeMock() {
   const [playing, setPlaying] = useState(false);
 
   const timer = useRef<number | null>(null);
-  const activeSounds = useRef<Audio.Sound[]>([]);
+  const activeSounds = useRef<any[]>([]);
 
   const currentNote = score.notes[currentIndex];
 

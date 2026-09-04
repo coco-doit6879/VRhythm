@@ -165,7 +165,7 @@ export default function LessonScreen() {
 
     if (currentIndex !== -1 && currentIndex + 1 < allLessons.length) {
       const nextLesson = allLessons[currentIndex + 1];
-      router.replace(`/lesson/${nextLesson.id}`);
+      router.replace(`/lesson/${nextLesson.id}` as any);
     } else {
       Alert.alert("Chúc mừng!", "Bạn đã hoàn thành bài học cuối cùng của khóa học này!");
       router.back();

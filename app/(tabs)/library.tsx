@@ -67,14 +67,24 @@ const GENRE_FILTERS = ['Dân gian', 'Cổ điển', 'Hiện đại'];
 
 export default function LibraryScreen() {
   const [activeInstrument, setActiveInstrument] = useState('Tất cả');
-  const [activeGenre, setActiveGenre] = useState('Dân gian');
+  const [activeGenre, setActiveGenre] = useState('Tất cả');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredSongs = SONGS.filter((song) => {
+    const matchesSearch = song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          song.genre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          song.instrument.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesInstrument = activeInstrument === 'Tất cả' || song.instrument.toLowerCase().includes(activeInstrument.toLowerCase());
+    const matchesGenre = activeGenre === 'Tất cả' || song.genre.toLowerCase().includes(activeGenre.toLowerCase());
+    return matchesSearch && matchesInstrument && matchesGenre;
+  });
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Thư viện bản nhạc</Text>
@@ -90,48 +100,77 @@ export default function LibraryScreen() {
             placeholder="Tìm kiếm bài hát, tác giả..."
             placeholderTextColor={Colors.light.textMuted}
             style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
+          {searchQuery !== '' && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={18} color={Colors.light.textMuted} />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Filters Row */}
         <View style={styles.filtersRow}>
-          <TouchableOpacity style={styles.filterDropdown}>
+          <TouchableOpacity 
+            style={styles.filterDropdown}
+            onPress={() => {
+              const idx = INSTRUMENT_FILTERS.indexOf(activeInstrument);
+              const next = INSTRUMENT_FILTERS[(idx + 1) % INSTRUMENT_FILTERS.length];
+              setActiveInstrument(next);
+            }}
+          >
             <Text style={styles.filterLabel}>Nhạc cụ: </Text>
-            <Text style={styles.filterValue}>Tất cả</Text>
+            <Text style={styles.filterValue}>{activeInstrument}</Text>
             <Ionicons name="chevron-down" size={14} color={Colors.light.textSecondary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.filterDropdown}>
+          <TouchableOpacity 
+            style={styles.filterDropdown}
+            onPress={() => {
+              const filters = ['Tất cả', ...GENRE_FILTERS];
+              const idx = filters.indexOf(activeGenre);
+              const next = filters[(idx + 1) % filters.length];
+              setActiveGenre(next);
+            }}
+          >
             <Text style={styles.filterLabel}>Thể loại: </Text>
-            <Text style={styles.filterValue}>Dân gian</Text>
+            <Text style={styles.filterValue}>{activeGenre}</Text>
             <Ionicons name="chevron-down" size={14} color={Colors.light.textSecondary} />
           </TouchableOpacity>
         </View>
 
         {/* Suggestions */}
         <View style={styles.suggestSection}>
-          <Text style={styles.suggestTitle}>BẢN NHẠC NỔI BẬT</Text>
-          {SONGS.map((song) => (
-            <TouchableOpacity 
-              key={song.id} 
-              style={styles.songRow} 
-              activeOpacity={0.7}
-              onPress={() => router.push(`/sheet-music/${song.id}`)}
-            >
-              <View style={[styles.songIconWrapper, { backgroundColor: song.iconBg }]}>
-                <Ionicons name={song.icon as any} size={20} color={song.iconColor} />
-              </View>
-              <View style={styles.songInfo}>
-                <Text style={styles.songTitle}>{song.title}</Text>
-                <Text style={styles.songMeta}>{song.genre} • {song.instrument}</Text>
-              </View>
-              <View style={[styles.levelBadge, { backgroundColor: song.levelColor + '20' }]}>
-                <Text style={[styles.levelText, { color: song.levelColor }]}>{song.level}</Text>
-              </View>
-              <TouchableOpacity style={styles.moreBtn}>
-                <Ionicons name="ellipsis-vertical" size={18} color={Colors.light.textMuted} />
+          <Text style={styles.suggestTitle}>BẢN NHẠC NỔI BẬT ({filteredSongs.length})</Text>
+          {filteredSongs.length === 0 ? (
+            <View style={{ paddingVertical: 30, alignItems: 'center' }}>
+              <Ionicons name="musical-notes-outline" size={40} color={Colors.light.textMuted} />
+              <Text style={{ marginTop: 8, color: Colors.light.textMuted }}>Không tìm thấy bản nhạc nào phù hợp.</Text>
+            </View>
+          ) : (
+            filteredSongs.map((song) => (
+              <TouchableOpacity 
+                key={song.id} 
+                style={styles.songRow} 
+                activeOpacity={0.7}
+                onPress={() => router.push(`/sheet-music/${song.id}` as any)}
+              >
+                <View style={[styles.songIconWrapper, { backgroundColor: song.iconBg }]}>
+                  <Ionicons name={song.icon as any} size={20} color={song.iconColor} />
+                </View>
+                <View style={styles.songInfo}>
+                  <Text style={styles.songTitle}>{song.title}</Text>
+                  <Text style={styles.songMeta}>{song.genre} • {song.instrument}</Text>
+                </View>
+                <View style={[styles.levelBadge, { backgroundColor: song.levelColor + '20' }]}>
+                  <Text style={[styles.levelText, { color: song.levelColor }]}>{song.level}</Text>
+                </View>
+                <TouchableOpacity style={styles.moreBtn}>
+                  <Ionicons name="ellipsis-vertical" size={18} color={Colors.light.textMuted} />
+                </TouchableOpacity>
               </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
+            ))
+          )}
         </View>
         <View style={{ height: 20 }} />
       </ScrollView>

@@ -69,8 +69,8 @@ export default function SheetMusicPlayerScreen() {
     notes: raw.notes,
   };
 
-  const activeSounds = useRef<Audio.Sound[]>([]);
-  const videoRef = useRef<Video>(null);
+  const activeSounds = useRef<any[]>([]);
+  const videoRef = useRef<any>(null);
 
   const stopAllSounds = async () => {
     for (const s of activeSounds.current) {
@@ -110,7 +110,7 @@ export default function SheetMusicPlayerScreen() {
         if (d.includes('d')) durationMs *= 1.5;
 
         let isUnloaded = false;
-        sound.setOnPlaybackStatusUpdate((status) => {
+        sound.setOnPlaybackStatusUpdate((status: any) => {
           if (status.isLoaded && status.didJustFinish) {
             isUnloaded = true;
             sound.unloadAsync();

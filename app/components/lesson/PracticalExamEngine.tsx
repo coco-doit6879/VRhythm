@@ -184,7 +184,7 @@ export default function PracticalExamEngine({ mode, onComplete, practical }: Pro
         await sound.playAsync();
 
         let isUnloaded = false;
-        sound.setOnPlaybackStatusUpdate((status) => {
+        sound.setOnPlaybackStatusUpdate((status: any) => {
           if (status.isLoaded && status.didJustFinish) {
             isUnloaded = true;
             sound.unloadAsync();
