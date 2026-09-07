@@ -27,15 +27,16 @@ export const mockCourses = [
   { id: 1, title: 'Sáo trúc: Những nốt đầu tiên', instrument: 'Sáo trúc', level: 'Beginner', progress: 68, lessons: 12, duration: '3 giờ 20 phút', color: '#4f8f83' },
   { id: 2, title: 'Đàn tranh nhập môn', instrument: 'Đàn tranh', level: 'Beginner', progress: 24, lessons: 16, duration: '4 giờ 10 phút', color: '#d98b46' },
   { id: 3, title: 'Lắng nghe đàn bầu', instrument: 'Đàn bầu', level: 'Beginner', progress: 0, lessons: 10, duration: '2 giờ 45 phút', color: '#b55d39' },
+  { id: 4, title: 'Đàn đáy và âm sắc ca trù', instrument: 'Đàn đáy', level: 'Beginner', progress: 0, lessons: 8, duration: '2 giờ 15 phút', color: '#7e8f68' },
 ];
 
 export const learningPath = [
   { number: '01', title: 'Làm quen', status: 'done', type: 'Video' },
-  { number: '02', title: 'Kiến thức', status: 'done', type: 'Theory' },
-  { number: '03', title: 'Kỹ thuật', status: 'current', type: 'Practice' },
-  { number: '04', title: 'Thực hành', status: 'locked', type: 'Practice' },
-  { number: '05', title: 'Quiz', status: 'locked', type: 'Quiz' },
-  { number: '06', title: 'Challenge', status: 'locked', type: 'Challenge' },
+  { number: '02', title: 'Kiến thức', status: 'done', type: 'Lý thuyết' },
+  { number: '03', title: 'Kỹ thuật', status: 'current', type: 'Thực hành' },
+  { number: '04', title: 'Thực hành', status: 'locked', type: 'Thực hành' },
+  { number: '05', title: 'Trắc nghiệm', status: 'locked', type: 'Trắc nghiệm' },
+  { number: '06', title: 'Thử thách', status: 'locked', type: 'Thử thách' },
 ];
 
 export const bambooFluteScore = {

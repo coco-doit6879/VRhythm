@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5205';
 
 export type CourseSummary = {
   id: number;
@@ -46,10 +46,12 @@ export const authStorage = {
 };
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const auth = authStorage.read();
   const res = await fetch(`${BASE_URL}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
+      ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}),
       ...(init?.headers ?? {}),
     },
   });
@@ -77,5 +79,29 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  },
+  completeTheory(lessonId: number) {
+    return request<object>(`/api/theory/${lessonId}/complete`, { method: 'POST' });
+  },
+  updateLessonProgress(courseId: number, lessonId: number, watchedSeconds: number, totalSeconds: number) {
+    return request<object>(`/api/lessons/${lessonId}/progress?courseId=${courseId}`, {
+      method: 'POST',
+      body: JSON.stringify({ watchedSeconds, totalSeconds }),
+    });
+  },
+  submitQuiz(lessonId: number, answers: Array<{ questionId: number; selectedOptionId: number }>) {
+    return request<{ passed: boolean; scorePercentage: number }>(`/api/quizzes/${lessonId}/submit`, {
+      method: 'POST',
+      body: JSON.stringify({ answers }),
+    });
+  },
+  submitPractical(lessonId: number, notes: string[]) {
+    return request<{ passed: boolean; scorePercentage: number }>(`/api/practical/${lessonId}/complete`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
+  },
+  recalculateCourseCompletion(courseId: number) {
+    return request<boolean>(`/api/courses/${courseId}/completion/recalculate`, { method: 'POST' });
   },
 };
