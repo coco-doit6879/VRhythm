@@ -3,14 +3,14 @@
 import React from "react";
 import { Text } from "react-native";
 
-export default function TimeSignature() {
+export default function TimeSignature({ staffTop = 40 }: { staffTop?: number }) {
   return (
     <>
       <Text
         style={{
           position: "absolute",
           left: 80,
-          top: 40,
+          top: staffTop,
           fontSize: 18,
         }}
       >
@@ -21,7 +21,7 @@ export default function TimeSignature() {
         style={{
           position: "absolute",
           left: 80,
-          top: 60,
+          top: staffTop + 20,
           fontSize: 18,
         }}
       >

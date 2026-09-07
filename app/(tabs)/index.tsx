@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Modal,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,8 +23,8 @@ import { storage } from '../../services/api-storage';
 const { width } = Dimensions.get('window');
 
 const TOOLS = [
-  { id: '1', icon: 'hardware-chip-outline', label: 'Chấm điểm AI', desc: 'Phân tích kỹ thuật gảy', color: '#52B788', bg: '#EBF6F0' },
-  { id: '2', icon: 'musical-notes-outline', label: 'Lên dây điện tử', desc: 'Chuẩn âm truyền thống', color: '#F4A261', bg: '#FEF3E8' },
+  { id: '1', icon: 'hardware-chip-outline', label: 'Chấm điểm AI', desc: 'Phân tích kỹ thuật gảy', color: '#52B788', bg: '#EBF6F0', route: '/ai-scoring' },
+  { id: '2', icon: 'musical-notes-outline', label: 'Lên dây điện tử', desc: 'Chuẩn âm truyền thống', color: '#F4A261', bg: '#FEF3E8', route: '/tuner' },
 ];
 
 const FEATURES = [
@@ -181,6 +182,7 @@ export default function HomeScreen() {
       if (selectedInstrument === 'Đàn Tranh') searchKey = 'tranh';
       else if (selectedInstrument === 'Sáo Trúc') searchKey = 'sáo';
       else if (selectedInstrument === 'Đàn Bầu') searchKey = 'bầu';
+      else if (selectedInstrument === 'Đàn Nguyệt') searchKey = 'nguyệt';
 
       const matchedCourse = courses.find(c => 
         (c.instrument && c.instrument.toLowerCase().includes(searchKey)) ||
@@ -246,7 +248,11 @@ export default function HomeScreen() {
         </View>
 
         {/* Hero Banner */}
-        <TouchableOpacity style={styles.heroBanner} activeOpacity={0.9}>
+        <TouchableOpacity
+          style={styles.heroBanner}
+          activeOpacity={0.9}
+          onPress={() => router.push('/(tabs)/learning')}
+        >
           <LinearGradient
             colors={['#1A3020', '#2D6A4F']}
             start={{ x: 0, y: 0 }}
@@ -258,7 +264,11 @@ export default function HomeScreen() {
               <Text style={styles.heroSubtitle}>
                 Khám phá, học tập và trải nghiệm di sản âm nhạc Việt Nam theo cách hiện đại.
               </Text>
-              <TouchableOpacity style={styles.heroBtn} activeOpacity={0.85}>
+              <TouchableOpacity
+                style={styles.heroBtn}
+                activeOpacity={0.85}
+                onPress={() => router.push('/(tabs)/learning')}
+              >
                 <Text style={styles.heroBtnText}>Khám phá ngay</Text>
               </TouchableOpacity>
             </View>
@@ -277,7 +287,13 @@ export default function HomeScreen() {
                 key={tool.id}
                 style={styles.toolCard}
                 activeOpacity={0.8}
-                onPress={() => tool.id === '1' ? router.push('/ai-scoring') : router.push('/tuner')}
+                onPress={() => {
+                  if (tool.route) {
+                    router.push(tool.route as any);
+                  } else {
+                    Alert.alert('Sắp ra mắt', 'Tính năng này đang trong quá trình phát triển và sẽ sớm được ra mắt. Cảm ơn bạn đã chờ đợi!');
+                  }
+                }}
               >
                 <View style={[styles.toolIcon, { backgroundColor: tool.bg }]}>
                   <Ionicons name={tool.icon as any} size={26} color={tool.color} />
@@ -294,7 +310,18 @@ export default function HomeScreen() {
           <Text style={styles.featuresSectionLabel}>TÍNH NĂNG NỔI BẬT</Text>
           <View style={styles.featuresGrid}>
             {FEATURES.map((feat) => (
-              <TouchableOpacity key={feat.id} style={styles.featureCell} activeOpacity={0.7}>
+              <TouchableOpacity 
+                key={feat.id} 
+                style={styles.featureCell} 
+                activeOpacity={0.7}
+                onPress={() => {
+                  if (feat.label === 'Thư viện') {
+                    router.push('/(tabs)/library');
+                  } else {
+                    Alert.alert('Sắp ra mắt', 'Tính năng này đang trong quá trình phát triển và sẽ sớm được ra mắt. Cảm ơn bạn đã chờ đợi!');
+                  }
+                }}
+              >
                 <View style={[styles.featureCellIcon, { backgroundColor: feat.bg }]}>
                   <Ionicons name={feat.icon as any} size={22} color={feat.color} />
                 </View>
@@ -308,7 +335,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Khóa học phổ biến</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/learning')}>
               <Text style={styles.seeAll}>Xem tất cả</Text>
             </TouchableOpacity>
           </View>
@@ -320,9 +347,10 @@ export default function HomeScreen() {
             </Text>
           ) : (
             courses.map((course) => {
-              const emoji = course.instrument.includes('Tranh') ? '🎵' 
-                          : course.instrument.includes('Nguyệt') ? '🎸' 
-                          : course.instrument.includes('Sáo') ? '🎶' : '🎼';
+              const emoji = course.instrument?.includes('Tranh') ? '🎵' 
+                          : course.instrument?.includes('Nguyệt') ? '🎸' 
+                          : course.instrument?.includes('Sáo') ? '🎶' 
+                          : course.instrument?.includes('Bầu') ? '🪕' : '🎼';
               
               const levelColor = course.accessType === 'Free' || course.accessType === '0'
                 ? Colors.basic 
@@ -349,7 +377,7 @@ export default function HomeScreen() {
                       </View>
                     </View>
                     <Text style={styles.instrumentDesc} numberOfLines={2}>
-                      {course.description || `Khóa học học nhạc cụ ${course.instrument} truyền thống.`}
+                      {course.description || `Khóa học học nhạc cụ ${course.instrument || 'truyền thống'}.`}
                     </Text>
                   </View>
                 </TouchableOpacity>

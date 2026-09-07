@@ -1,8 +1,8 @@
 import { ApiResponse } from "./api-types";
 import { storage } from "./api-storage";
 
-// export const BASE_URL = "http://vrythm.quanglikecookie.io.vn";
-export const BASE_URL = "http://localhost:5205"; 
+export const BASE_URL = "http://vrythm.quanglikecookie.io.vn";
+// export const BASE_URL = "http://localhost:5205"; 
 
 
 export async function request<T>(

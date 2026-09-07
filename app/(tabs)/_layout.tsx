@@ -7,12 +7,26 @@ type TabIconProps = {
   name: React.ComponentProps<typeof Ionicons>['name'];
   color: string;
   focused: boolean;
+  label?: string;
 };
 
-function TabIcon({ name, color, focused }: TabIconProps) {
+function TabIcon({ name, color, focused, label }: TabIconProps) {
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: focused ? color + '20' : 'transparent',
+      paddingVertical: 8,
+      paddingHorizontal: 14,
+      borderRadius: 20,
+    }}>
       <Ionicons name={name} size={22} color={color} />
+      {focused && label && (
+        <Text style={{ color: color, marginLeft: 6, fontSize: 13, fontWeight: '700' }}>
+          {label}
+        </Text>
+      )}
     </View>
   );
 }
@@ -22,21 +36,16 @@ export default function TabsLayout() {
     <>
       <Tabs
       screenOptions={{
-        headerShown: false,
+        tabBarShowLabel: false,
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: '#9CB8A8',
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E0EBE4',
-          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
           paddingTop: 8,
-          height: Platform.OS === 'ios' ? 84 : 64,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-          marginTop: 2,
+          height: Platform.OS === 'ios' ? 84 : 70,
         },
       }}
     >
@@ -45,7 +54,7 @@ export default function TabsLayout() {
         options={{
           title: 'Trang chủ',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'home' : 'home-outline'} color={color} focused={focused} />
+            <TabIcon name={focused ? 'home' : 'home-outline'} color={color} focused={focused} label="Trang chủ" />
           ),
         }}
       />
@@ -54,7 +63,7 @@ export default function TabsLayout() {
         options={{
           title: 'Thư viện',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'book' : 'book-outline'} color={color} focused={focused} />
+            <TabIcon name={focused ? 'book' : 'book-outline'} color={color} focused={focused} label="Thư viện" />
           ),
         }}
       />
@@ -64,24 +73,24 @@ export default function TabsLayout() {
           title: 'Học tập',
           tabBarIcon: ({ color, focused }) => (
             <View style={{
-              width: 52,
-              height: 52,
-              borderRadius: 26,
-              backgroundColor: focused ? Colors.primary : Colors.primaryDark,
+              width: 58,
+              height: 58,
+              borderRadius: 29,
+              backgroundColor: Colors.primary,
               justifyContent: 'center',
               alignItems: 'center',
-              marginBottom: Platform.OS === 'ios' ? 12 : 4,
+              marginBottom: Platform.OS === 'ios' ? 12 : 24,
+              borderWidth: 4,
+              borderColor: '#FFF',
               shadowColor: Colors.primary,
               shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.4,
-              shadowRadius: 8,
-              elevation: 6,
+              shadowOpacity: 0.3,
+              shadowRadius: 6,
+              elevation: 5,
             }}>
-              <Ionicons name="school" size={22} color="#FFF" />
+              <Ionicons name="school" size={26} color="#FFF" />
             </View>
           ),
-          tabBarActiveTintColor: Colors.primary,
-          tabBarInactiveTintColor: Colors.primaryDark,
         }}
       />
       <Tabs.Screen
@@ -89,7 +98,7 @@ export default function TabsLayout() {
         options={{
           title: 'Cộng đồng',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'people' : 'people-outline'} color={color} focused={focused} />
+            <TabIcon name={focused ? 'people' : 'people-outline'} color={color} focused={focused} label="Cộng đồng" />
           ),
         }}
       />
@@ -98,36 +107,13 @@ export default function TabsLayout() {
         options={{
           title: 'Cá nhân',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'person' : 'person-outline'} color={color} focused={focused} />
+            <TabIcon name={focused ? 'person' : 'person-outline'} color={color} focused={focused} label="Cá nhân" />
           ),
         }}
       />
     </Tabs>
 
-      <TouchableOpacity
-        style={styles.mockBtn}
-        onPress={() => router.push('/practical-mock')}
-        accessible
-        accessibilityLabel="Open mock practice"
-      >
-        <Text style={styles.mockBtnText}>Mock Practice</Text>
-      </TouchableOpacity>
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  mockBtn: {
-    position: 'absolute',
-    left: 20,
-    right: 20,
-    bottom: Platform.OS === 'ios' ? 110 : 90,
-    backgroundColor: Colors.primary,
-    paddingVertical: 12,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 8,
-  },
-  mockBtnText: { color: '#FFF', fontWeight: '700' },
-});
