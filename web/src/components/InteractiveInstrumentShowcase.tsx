@@ -46,7 +46,7 @@ export function InteractiveInstrumentShowcase({ onSelect }: { onSelect: (instrum
       {/* Title & Subtitle Centered at Top */}
       <div className="carousel-header">
         <h2>7 nhạc cụ truyền thống</h2>
-        <p>Mỗi nhạc cụ là một bằng độc tấu riêng trong tuyển Sinh viên.</p>
+        <p>Mỗi nhạc cụ là một bản độc tấu riêng của mỗi bạn trẻ.</p>
       </div>
 
       {/* Main Wide 3D Carousel Stage */}

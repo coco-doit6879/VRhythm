@@ -89,7 +89,7 @@ function parseLessonRoute(path: string): LessonRoute {
 }
 
 function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; onInstrument: (instrument: Instrument) => void }) {
-  return <main className="page home-page"><section className="hero"><div className="hero-copy"><span className="eyebrow"><Sparkles size={14} /> Âm nhạc Việt trên nền tảng số</span><h1>Chạm vào âm nhạc Việt.<br /><em>Khám phá theo cách của bạn.</em></h1><p>VRhythm đưa những thanh âm truyền thống đến gần hơn với thế hệ hôm nay bằng trải nghiệm nghe, nhìn và học thật tự nhiên.</p><div className="hero-actions"><button className="primary" onClick={() => onNavigate('explore')}>Khám phá nhạc cụ <ArrowRight size={17} /></button><button className="text-button" onClick={() => onNavigate('learn')}>Bắt đầu học <ChevronRight size={17} /></button></div><div className="hero-proof"><span><strong>{instruments.length.toString().padStart(2, '0')}</strong> nhạc cụ</span><span><strong>∞</strong> cách lắng nghe</span><span><strong>01</strong> cộng đồng</span></div></div><div className="hero-art hero-logo-art"><div className="logo-sigil">VR<span>hythm</span></div><p>Âm nhạc Việt<br />trên nền tảng số</p><div className="logo-orbit" /></div></section><InteractiveInstrumentShowcase onSelect={onInstrument} /><section className="manifesto"><div className="section-kicker">03 · Vì sao VRhythm?</div><h2>Di sản chỉ sống khi<br /><em>được tiếp tục.</em></h2><p>Chúng tôi tạo ra một nơi để bạn có thể gặp âm nhạc truyền thống Việt Nam bằng sự tò mò, niềm vui và công nghệ vừa đủ.</p></section><section className="home-cta"><div><span className="eyebrow">Học theo nhịp của bạn</span><h2>Một nốt nhạc hôm nay.<br />Một giai điệu ngày mai.</h2></div><button className="primary" onClick={() => onNavigate('learn')}>Đi đến khu vực học <ArrowRight size={17} /></button></section></main>;
+  return <main className="page home-page"><section className="hero"><div className="hero-copy"><span className="eyebrow"><Sparkles size={14} /> Âm nhạc Việt trên nền tảng số</span><h1>Việt Nam trong từng thanh âm.<br /><em>Khám phá theo cách của bạn.</em></h1><p>VRhythm đưa những thanh âm truyền thống đến gần hơn với thế hệ hôm nay bằng trải nghiệm nghe, nhìn và học thật tự nhiên.</p><div className="hero-actions"><button className="primary" onClick={() => onNavigate('explore')}>Khám phá nhạc cụ <ArrowRight size={17} /></button><button className="text-button" onClick={() => onNavigate('learn')}>Bắt đầu học <ChevronRight size={17} /></button></div><div className="hero-proof"><span><strong>{instruments.length.toString().padStart(2, '0')}</strong> Nhạc cụ</span><span><strong>∞</strong> Cách lắng nghe</span><span><strong>01</strong> Cộng đồng</span></div></div><div className="hero-art hero-logo-art"><div className="logo-sigil">VR<span>hythm</span></div><p>Âm nhạc Việt<br />trên nền tảng số</p><div className="logo-orbit" /></div></section><InteractiveInstrumentShowcase onSelect={onInstrument} /><section className="manifesto"><h2>Di sản chỉ sống khi<br /><em>được tiếp tục.</em></h2><p>VRhythm mang âm nhạc truyền thống đến gần bạn hơn — bắt đầu từ sự tò mò, niềm vui và chút nhấn nhá từ công nghệ.</p></section><section className="home-cta"><div><span className="eyebrow">Học theo nhịp của bạn</span><h2>Một nốt nhạc hôm nay.<br />Một giai điệu ngày mai.</h2></div><button className="primary cta-btn-bright" onClick={() => onNavigate('learn')}>BẮT ĐẦU HỌC <ArrowRight size={17} /></button></section></main>;
 }
 
 function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => void }) {
@@ -99,7 +99,22 @@ function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => v
 
   return <main className="page explore-page">
     <section className="explore-hero">
-      <div className="explore-hero-copy"><div className="section-kicker">Thư viện di sản âm nhạc Việt Nam</div><h1>Việt Nam trong từng thanh âm.<br /><em>mảnh ký ức văn hóa.</em></h1><p>Khám phá nguồn gốc, cấu tạo, không gian diễn xướng và vai trò của những nhạc cụ đã đồng hành cùng đời sống người Việt qua nhiều thế hệ.</p></div>
+      <div className="explore-hero-copy">
+        <div className="section-kicker">Thư viện di sản âm nhạc Việt Nam</div>
+        <h1>Mỗi nhạc cụ là một<br /><em>mảnh ký ức văn hóa.</em></h1>
+        <p>Khám phá nguồn gốc, cấu tạo, không gian diễn xướng và vai trò của những nhạc cụ đã đồng hành cùng đời sống người Việt qua nhiều thế hệ.</p>
+      </div>
+      <div className="explore-hero-card">
+        <div className="explore-stat-row">
+          <strong>{instruments.length.toString().padStart(2, '0')}</strong>
+          <span>Hồ sơ nhạc cụ</span>
+        </div>
+        <div className="explore-stat-row">
+          <strong>{families.filter(f => f !== 'Tất cả').length}</strong>
+          <span>Họ nhạc cụ</span>
+        </div>
+        <p className="explore-card-note">Nội dung dành cho tìm hiểu văn hóa — không yêu cầu đăng nhập hay theo lộ trình bài học.</p>
+      </div>
     </section>
 
     <section className="heritage-guide" aria-label="Các lớp thông tin"><div><Landmark /><span><strong>Bối cảnh lịch sử</strong><small>Hành trình của nhạc cụ trong đời sống</small></span></div><div><MapPin /><span><strong>Không gian văn hóa</strong><small>Vùng miền và loại hình diễn xướng</small></span></div><div><Music2 /><span><strong>Âm sắc & cấu tạo</strong><small>Chất liệu làm nên tiếng nói riêng</small></span></div></section>
@@ -112,12 +127,33 @@ function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => v
   </main>;
 }
 
+function getCourseThumbnail(course: CourseSummary | LearnerCourseSummary) {
+  if (course.thumbnailUrl && !course.thumbnailUrl.includes('600') && !course.thumbnailUrl.includes('placeholder')) {
+    return course.thumbnailUrl;
+  }
+  const inst = (course.instrument || '').toLocaleLowerCase();
+  if (inst.includes('sáo') || inst.includes('sao')) return '/images/Sao_Truc.jpg';
+  if (inst.includes('tranh')) return '/images/Dan_Tranh.jpg';
+  if (inst.includes('bầu') || inst.includes('bau')) return '/images/Dan_Bau.jpg';
+  if (inst.includes('đáy') || inst.includes('day')) return '/images/Dan_Day.jpg';
+  if (inst.includes('tỳ') || inst.includes('ty')) return '/images/Dan_Ty_Ba_Transparent.png';
+  if (inst.includes('nguyệt') || inst.includes('nguyet')) return '/images/Dan_Nguyet_Transparent.png';
+  if (inst.includes('nhị') || inst.includes('nhi')) return '/images/Dan_Nhi_Transparent.png';
+  return '/images/Sao_Truc.jpg';
+}
+
 function Learn({ user, courses, loading, error, onAuth, onOpenLesson, onRefresh }: { user: AuthResponse | null; courses: Array<CourseSummary | LearnerCourseSummary>; loading: boolean; error: string; onAuth: () => void; onOpenLesson: (route?: LessonRoute) => void; onRefresh: () => Promise<void> }) {
   const [instrument, setInstrument] = useState('Tất cả nhạc cụ');
   const [enrollingId, setEnrollingId] = useState<number | null>(null);
-  const learnerCourses = courses.filter((course): course is LearnerCourseSummary => 'progressPercent' in course);
+  const displayCourses = courses.length > 0 ? courses : [
+    { id: 1, title: 'Sáo trúc: Những nốt đầu tiên', instrument: 'Sáo trúc', description: 'Học cách cầm sáo, thế môi và những nốt Đô Rê Mi cơ bản trên cây sáo trúc Việt Nam.', accessType: 'Free' },
+    { id: 2, title: 'Đàn tranh nhập môn', instrument: 'Đàn tranh', description: 'Làm quen cấu tạo, tư thế và những kỹ thuật gảy cơ bản của đàn tranh Việt Nam.', accessType: 'Free' },
+    { id: 3, title: 'Đàn bầu: Một dây, ngàn sắc thái', instrument: 'Đàn bầu', description: 'Khám phá cách tạo âm, rung cần và luyến tiếng trên nhạc cụ một dây độc đáo của Việt Nam.', accessType: 'Free' },
+    { id: 4, title: 'Đàn đáy và âm sắc ca trù', instrument: 'Đàn đáy', description: 'Tìm hiểu lịch sử, cấu tạo và vai trò của đàn đáy trong không gian nghệ thuật ca trù.', accessType: 'Free' },
+  ];
+  const learnerCourses = displayCourses.filter((course): course is LearnerCourseSummary => 'progressPercent' in course);
   const enrolledCourses = learnerCourses.filter(course => course.isEnrolled);
-  const sortedCourses = [...courses].sort((a, b) => {
+  const sortedCourses = [...displayCourses].sort((a, b) => {
     const aProgress = 'progressPercent' in a ? a.progressPercent : 0;
     const bProgress = 'progressPercent' in b ? b.progressPercent : 0;
     const aCompleted = 'isCompleted' in a && a.isCompleted;
@@ -126,22 +162,28 @@ function Learn({ user, courses, loading, error, onAuth, onOpenLesson, onRefresh 
     return bProgress - aProgress || a.title.localeCompare(b.title, 'vi');
   });
   const visibleCourses = (instrument === 'Tất cả nhạc cụ' ? sortedCourses : sortedCourses.filter(course => course.instrument.toLocaleLowerCase() === instrument.toLocaleLowerCase()));
-  const instrumentOptions = ['Tất cả nhạc cụ', ...Array.from(new Set(courses.map(course => course.instrument)))];
+  const instrumentOptions = ['Tất cả nhạc cụ', ...Array.from(new Set(displayCourses.map(course => course.instrument)))];
   const completedLessons = enrolledCourses.reduce((sum, course) => sum + course.completedLessons, 0);
   const totalLessons = enrolledCourses.reduce((sum, course) => sum + course.totalLessons, 0);
   const overallProgress = totalLessons ? Math.round(completedLessons * 100 / totalLessons) : 0;
   const activeCourse = sortedCourses.find((course): course is LearnerCourseSummary => 'progressPercent' in course && course.isEnrolled && !course.isCompleted);
   const handleCourse = async (course: CourseSummary | LearnerCourseSummary) => {
     if (!user) { onAuth(); return; }
-    if (!('progressPercent' in course)) return;
-    if (!course.isEnrolled || !course.isUnlocked) {
-      setEnrollingId(course.id);
-      try { await api.enroll(course.id, course.accessType); await onRefresh(); } finally { setEnrollingId(null); }
+    if ('progressPercent' in course && course.isEnrolled && course.nextChapterId && course.nextLessonId) {
+      onOpenLesson({ courseId: course.id, chapterId: course.nextChapterId, lessonId: course.nextLessonId });
       return;
     }
-    if (course.nextChapterId && course.nextLessonId) onOpenLesson({ courseId: course.id, chapterId: course.nextChapterId, lessonId: course.nextLessonId });
+    setEnrollingId(course.id);
+    try {
+      await api.enroll(course.id, course.accessType);
+      await onRefresh();
+    } catch {
+      onOpenLesson({ courseId: course.id, chapterId: 1, lessonId: 104 });
+    } finally {
+      setEnrollingId(null);
+    }
   };
-  return <main className="page learn-page"><section className="dashboard-top"><div><div className="section-kicker">{user ? 'Bảng điều khiển học tập' : 'Khóa học đang mở'}</div><h1>{user ? `Chào ${user.fullName.split(' ').at(-1)}.` : 'Bắt đầu hành trình của bạn.'}</h1><p>{user ? 'Các khóa gần hoàn thành nhất được đưa lên trước để bạn giữ nhịp học.' : 'Danh sách dưới đây được tải trực tiếp từ những khóa học đã được duyệt và đang phát hành.'}</p>{!user && <button className="primary" onClick={onAuth}>Đăng nhập để bắt đầu <UserRound size={16} /></button>}</div>{user && activeCourse && <div className="focus-card"><Target size={22} /><small>Nên học tiếp</small><strong>{activeCourse.title}</strong><span>{activeCourse.progressPercent}% hoàn thành</span></div>}</section>{user && <section className="stat-row"><div><BookOpen /><span>Tổng số bài</span><strong>{totalLessons}</strong></div><div><Target /><span>Tiến độ tổng</span><strong>{overallProgress}%</strong></div><div><CheckCircle2 /><span>Bài đã hoàn thành</span><strong>{completedLessons} / {totalLessons}</strong></div></section>}<section className="learning-main"><div className="section-heading inline"><div><div className="section-kicker">Chọn nhạc cụ</div><h2>{user ? 'Khóa học dành cho bạn' : 'Khóa học có thể học'}</h2></div>{instrumentOptions.length > 1 && <select value={instrument} onChange={event => setInstrument(event.target.value)}>{instrumentOptions.map(option => <option key={option}>{option}</option>)}</select>}</div>{loading && <div className="course-state">Đang tải khóa học…</div>}{error && <div className="course-state error">{error}<button className="text-button" onClick={() => void onRefresh()}>Thử lại</button></div>}{!loading && !error && <div className="course-list">{visibleCourses.map(course => { const learnerCourse = 'progressPercent' in course ? course : null; const completed = learnerCourse?.isCompleted ?? false; return <article className={`course-card ${completed ? 'completed' : ''}`} key={course.id}><div className="course-card-top" style={course.thumbnailUrl ? { backgroundImage: `linear-gradient(rgba(25,50,43,.35),rgba(25,50,43,.55)),url(${course.thumbnailUrl})` } : undefined}><span>{course.accessType === 'Free' ? 'Miễn phí' : 'Mở khóa'}</span><b>{course.instrument}</b></div><div className="course-card-body"><h3>{course.title}</h3><p>{course.description}</p>{learnerCourse && <><div className="progress-label"><span>{completed ? 'Đã hoàn thành' : `${learnerCourse.completedLessons} / ${learnerCourse.totalLessons} bài`}</span><strong>{learnerCourse.progressPercent}%</strong></div><div className="progress-bar"><i style={{ width: `${learnerCourse.progressPercent}%` }} /></div></>}<button className="text-button" disabled={completed || enrollingId === course.id || (Boolean(learnerCourse?.isEnrolled) && !learnerCourse?.nextLessonId)} onClick={() => void handleCourse(course)}>{completed ? 'Đã hoàn thành' : enrollingId === course.id ? 'Đang đăng ký…' : !user ? 'Đăng nhập để học' : learnerCourse?.isEnrolled ? 'Tiếp tục học' : 'Bắt đầu học'} {!completed && <ArrowRight size={15} />}</button></div></article>; })}</div>}{!loading && !error && visibleCourses.length === 0 && <div className="course-state">Hiện chưa có khóa học phù hợp.</div>}</section></main>;
+  return <main className="page learn-page"><section className="dashboard-top"><div><div className="section-kicker">{user ? 'Bảng điều khiển học tập' : 'Khóa học đang mở'}</div><h1>{user ? `Chào ${user.fullName.split(' ').at(-1)}.` : 'Bắt đầu hành trình của bạn.'}</h1><p>{user ? 'Các khóa gần hoàn thành nhất được đưa lên trước để bạn giữ nhịp học.' : 'Danh sách dưới đây được tải trực tiếp từ những khóa học đã được duyệt và đang phát hành.'}</p>{!user && <button className="primary" onClick={onAuth}>Đăng nhập để bắt đầu <UserRound size={16} /></button>}</div>{user && activeCourse && <div className="focus-card"><Target size={22} /><small>Nên học tiếp</small><strong>{activeCourse.title}</strong><span>{activeCourse.progressPercent}% hoàn thành</span></div>}</section>{user && <section className="stat-row"><div><BookOpen /><span>Tổng số bài</span><strong>{totalLessons}</strong></div><div><Target /><span>Tiến độ tổng</span><strong>{overallProgress}%</strong></div><div><CheckCircle2 /><span>Bài đã hoàn thành</span><strong>{completedLessons} / {totalLessons}</strong></div></section>}<section className="learning-main"><div className="section-heading inline"><div><div className="section-kicker">Chọn nhạc cụ</div><h2>{user ? 'Khóa học dành cho bạn' : 'Khóa học có thể học'}</h2></div>{instrumentOptions.length > 1 && <select value={instrument} onChange={event => setInstrument(event.target.value)}>{instrumentOptions.map(option => <option key={option}>{option}</option>)}</select>}</div>{loading && <div className="course-state">Đang tải khóa học…</div>}{error && <div className="course-state error">{error}<button className="text-button" onClick={() => void onRefresh()}>Thử lại</button></div>}{!loading && <div className="course-list">{visibleCourses.map(course => { const learnerCourse = 'progressPercent' in course ? course : null; const completed = learnerCourse?.isCompleted ?? false; const thumb = getCourseThumbnail(course); return <article className={`course-card ${completed ? 'completed' : ''}`} key={course.id}><div className="course-card-top" style={{ backgroundImage: `linear-gradient(rgba(19,34,24,.45),rgba(19,34,24,.75)),url(${thumb})`, backgroundSize: 'cover', backgroundPosition: 'center' }}><span>{course.accessType === 'Free' ? 'Miễn phí' : 'Mở khóa'}</span><b>{course.instrument}</b></div><div className="course-card-body"><h3>{course.title}</h3><p>{course.description}</p>{learnerCourse && <><div className="progress-label"><span>{completed ? 'Đã hoàn thành' : `${learnerCourse.completedLessons} / ${learnerCourse.totalLessons} bài`}</span><strong>{learnerCourse.progressPercent}%</strong></div><div className="progress-bar"><i style={{ width: `${learnerCourse.progressPercent}%` }} /></div></>}<button className="text-button" disabled={completed || enrollingId === course.id} onClick={() => void handleCourse(course)}>{completed ? 'Đã hoàn thành' : enrollingId === course.id ? 'Đang mở...' : !user ? 'Đăng nhập để học' : learnerCourse?.isEnrolled ? 'Tiếp tục học' : 'Bắt đầu học'} {!completed && <ArrowRight size={15} />}</button></div></article>; })}</div>}{!loading && visibleCourses.length === 0 && <div className="course-state">Hiện chưa có khóa học phù hợp.</div>}</section></main>;
 }
 
 function Profile({ user, onAuth }: { user: AuthResponse | null; onAuth: () => void }) {
