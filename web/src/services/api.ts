@@ -9,17 +9,30 @@ export type CourseSummary = {
   thumbnailUrl?: string;
 };
 
-export type AuthResponse = {
-  token: string;
-  refreshToken?: string;
-  profile: {
-    userId: number;
-    fullName: string;
-    email: string;
-    role: string;
-    avatarUrl?: string;
-  };
+export type LearnerCourseSummary = CourseSummary & {
+  status: string;
+  isEnrolled: boolean;
+  isUnlocked: boolean;
+  isCompleted: boolean;
+  totalLessons: number;
+  completedLessons: number;
+  progressPercent: number;
+  nextChapterId?: number;
+  nextLessonId?: number;
 };
+
+export type AuthResponse = {
+  userId: number;
+  fullName: string;
+  email: string;
+  role: string;
+  token: string;
+  expiresAt?: string;
+  authProvider?: string;
+  avatarUrl?: string;
+};
+
+export type UserProfile = Pick<AuthResponse, 'userId' | 'fullName' | 'email' | 'role' | 'avatarUrl'>;
 
 export type LoginPayload = {
   email: string;
@@ -32,13 +45,31 @@ export type RegisterPayload = LoginPayload & {
 
 const storageKey = 'vrhythm_web_auth';
 
+function normalizeAuth(value: AuthResponse | (Partial<AuthResponse> & { profile?: UserProfile })): AuthResponse | null {
+  const profile = 'profile' in value ? value.profile : undefined;
+  const token = value.token;
+  const userId = value.userId ?? profile?.userId;
+  const fullName = value.fullName ?? profile?.fullName;
+  const email = value.email ?? profile?.email;
+  const role = value.role ?? profile?.role;
+  if (!token || userId == null || !fullName || !email || !role) return null;
+  return { ...value, userId, fullName, email, role, avatarUrl: value.avatarUrl ?? profile?.avatarUrl } as AuthResponse;
+}
+
 export const authStorage = {
   read(): AuthResponse | null {
     const raw = localStorage.getItem(storageKey);
-    return raw ? (JSON.parse(raw) as AuthResponse) : null;
+    if (!raw) return null;
+    try {
+      return normalizeAuth(JSON.parse(raw));
+    } catch {
+      localStorage.removeItem(storageKey);
+      return null;
+    }
   },
   write(value: AuthResponse) {
-    localStorage.setItem(storageKey, JSON.stringify(value));
+    const normalized = normalizeAuth(value);
+    if (normalized) localStorage.setItem(storageKey, JSON.stringify(normalized));
   },
   clear() {
     localStorage.removeItem(storageKey);
@@ -67,6 +98,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   getCourses() {
     return request<CourseSummary[]>('/api/courses');
+  },
+  getLearnerCourses() {
+    return request<LearnerCourseSummary[]>('/api/courses/learning');
+  },
+  getProfile() {
+    return request<UserProfile>('/api/user/profile');
+  },
+  enroll(courseId: number, accessType: string) {
+    const action = accessType.toLocaleLowerCase() === 'free' ? 'enroll' : 'unlock';
+    return request<object>(`/api/courses/${courseId}/${action}`, { method: 'POST' });
   },
   login(payload: LoginPayload) {
     return request<AuthResponse>('/api/auth/login', {
