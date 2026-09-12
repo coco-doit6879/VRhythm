@@ -21,6 +21,13 @@ export type LearnerCourseSummary = CourseSummary & {
   nextLessonId?: number;
 };
 
+export type CourseDetail = CourseSummary & {
+  isEnrolled: boolean;
+  isUnlocked: boolean;
+  isCompleted: boolean;
+  chapters: Array<{ id: number; title: string; sortOrder: number; lessons: Array<{ id: number; title: string; type: string; sortOrder: number; durationSeconds?: number; isCompleted: boolean }> }>;
+};
+
 export type AuthResponse = {
   userId: number;
   fullName: string;
@@ -96,6 +103,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  getCourse(id: number) {
+    return request<CourseDetail>(`/api/courses/${id}`);
+  },
   getCourses() {
     return request<CourseSummary[]>('/api/courses');
   },

@@ -1,0 +1,32 @@
+.instrument-detail a,.instrument-learning a,.learn-page a { text-decoration:none; }
+.instrument-page-layout { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:48px; margin-top:28px; }
+.instrument-page-layout .modal-art { position:sticky; top:110px; height:480px; min-height:0; border-radius:12px; overflow:hidden; }
+.instrument-page-layout .modal-art img { width:100%; height:100%; object-fit:contain; padding:32px; }
+.instrument-page-layout .heritage-content { padding:0; min-width:0; }
+.instrument-page-layout h1 { font:500 clamp(38px,5vw,64px)/1.15 'Playfair Display',Georgia,serif; margin:16px 0; }
+.instrument-page-layout .story-section p { font-size:15px; }
+.instrument-page-hero { display:grid; grid-template-columns:1.2fr .8fr; gap:48px; align-items:center; padding:48px 0; }
+.instrument-page-hero h1 { font:500 clamp(36px,5vw,64px)/1.15 'Playfair Display',Georgia,serif; margin:16px 0; }
+.instrument-page-hero p,.course-overview p { color:var(--muted); line-height:1.8; }
+.instrument-page-hero img { width:100%; height:300px; object-fit:contain; padding:24px; background:var(--cream); border-radius:12px; }
+.course-overview { margin:32px 0; padding:32px; background:var(--cream); border:1px solid var(--line); border-radius:12px; }
+.course-overview h2 { font-size:32px; line-height:1.25; }
+.course-overview h3 { margin-top:32px; font-size:23px; }
+.course-topics { padding-left:22px; line-height:1.8; }
+.course-roadmap details { border-bottom:1px solid var(--line); }
+.course-roadmap summary { cursor:pointer; padding:20px 0; line-height:1.6; }
+.course-roadmap summary small { margin-left:14px; color:var(--muted); }
+.course-roadmap li { padding:10px 4px; }
+.course-roadmap li small { display:block; color:var(--muted); margin-top:5px; }
+.course-enrollment { margin-top:32px; padding-top:20px; border-top:1px solid var(--line); }
+.course-enrollment button:disabled { opacity:.5; cursor:not-allowed; }
+@media(max-width:760px) {
+  .instrument-page-layout,.instrument-page-hero { grid-template-columns:1fr; gap:28px; }
+  .instrument-page-layout .modal-art { position:relative; top:auto; height:280px; }
+  .instrument-page-hero { padding:32px 0; }
+  .instrument-page-hero img { height:220px; }
+  .course-overview { padding:22px 18px; }
+  .course-overview h2 { font-size:27px; }
+  .course-enrollment .primary { width:100%; min-height:48px; }
+  .instrument-detail .home-cta { margin-top:40px; }
+}
