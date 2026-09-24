@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Patrick+Hand&display=swap');
+
+.flute-article { color:#263d42; background:radial-gradient(ellipse at 100% 0%,#eed1bc 0,transparent 28%),radial-gradient(ellipse at 0% 35%,#d4e8e4 0,transparent 38%),#f0ecde; font-family:'Be Vietnam Pro',sans-serif; padding:32px 0 80px; }
+.flute-wrap { width:min(1220px,calc(100% - 64px)); margin:auto; }
+.flute-article a { color:#305e63; text-underline-offset:4px; }
+.flute-article a:focus-visible,.flute-article [tabindex]:focus-visible { outline:3px solid #a34f2e; outline-offset:5px; }
+.flute-back { display:inline-flex; padding:12px 0; font-size:13px; }
+.flute-heading { padding:54px 0 62px; max-width:940px; }
+.flute-article .flute-eyebrow { color:#596b61; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.8px; margin:0 0 16px; }
+.flute-heading h1 { font:800 clamp(52px,7vw,94px)/1.1 'Be Vietnam Pro',sans-serif; margin:0; letter-spacing:-3px; }
+.flute-heading h1 span { display:block; font-size:clamp(22px,3vw,35px); font-weight:500; letter-spacing:-1px; line-height:1.5; color:#9d5239; margin-top:17px; }
+.flute-subtitle { max-width:690px; font-size:16px; line-height:1.9; margin:22px 0 0; color:#526665; }
+.flute-layout { display:grid; grid-template-columns:210px minmax(0,1fr); gap:54px; align-items:start; border-top:1px solid #bbc8bf; padding-top:40px; }
+.flute-toc { position:sticky; top:108px; }
+.flute-toc>p { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; font-weight:700; }
+.flute-toc ol { list-style:none; padding:0; margin:22px 0; }
+.flute-toc a { display:flex; gap:13px; align-items:baseline; padding:12px 0; text-decoration:none; font-size:12px; line-height:1.6; }
+.flute-toc a:hover { text-decoration:underline; }
+.flute-toc a span { color:#987257; font-size:10px; }
+.flute-content { min-width:0; }
+.flute-content>section { scroll-margin-top:105px; margin-bottom:70px; }
+.flute-content h2 { font:700 clamp(25px,3vw,36px)/1.35 'Be Vietnam Pro',sans-serif; letter-spacing:-1px; margin:0 0 24px; }
+.flute-content h3 { font:600 20px/1.5 'Be Vietnam Pro',sans-serif; margin:24px 0 12px; }
+.flute-content p { font-size:15px; line-height:1.95; margin:0 0 20px; }
+.flute-cite { margin-left:4px; font:600 11px 'Be Vietnam Pro',sans-serif; white-space:nowrap; }
+.flute-cite a { padding:3px 1px; }
+.flute-photo { margin:30px 0; }
+.flute-photo img { width:100%; height:auto; aspect-ratio:3/2; object-fit:cover; display:block; border-radius:4px; }
+.flute-article figcaption { font-size:11px; color:#58695f; line-height:1.8; margin-top:12px; }
+.flute-content .flute-note { border-left:2px solid #ab8062; padding-left:20px; margin:28px 0; color:#4e635f; }
+.flute-note strong { display:block; margin-bottom:4px; }
+.flute-diagram { margin:28px 0; padding:22px; background:linear-gradient(130deg,#dae7dd,#e8e0c7); border:1px solid #c1cdbc; border-radius:4px; }
+.flute-diagram-scroll { overflow-x:auto; }
+.flute-diagram svg { display:block; width:100%; min-width:650px; font:16px 'Be Vietnam Pro',sans-serif; fill:#4a5146; }
+.flute-content .flute-scroll-hint { font-size:11px; color:#596b61; margin:0 0 12px; }
+.flute-paper::after { content:'Vuốt ngang để xem đủ hai cột so sánh →'; display:block; margin-top:16px; font:11px/1.7 'Be Vietnam Pro',sans-serif; color:#6a5943; }
+@media(min-width:1100px) { .flute-scroll-hint,.flute-paper::after { display:none; } }
+.flute-parts { display:grid; grid-template-columns:1fr 1fr; gap:25px 32px; margin:32px 0 0; }
+.flute-parts>div { border-top:1px solid #c5cec0; padding-top:18px; }
+.flute-parts dt { font-size:16px; font-weight:600; }
+.flute-parts dt span { font-size:11px; color:#906a4e; margin-right:12px; }
+.flute-parts dd { margin:12px 0 0; font-size:14px; line-height:1.9; }
+.flute-culture { display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start; }
+.flute-culture .flute-photo { margin:0; }
+.flute-culture img { aspect-ratio:4/5; object-position:44% center; }
+.flute-paper { margin:32px 0; padding:30px; background:radial-gradient(ellipse at top left,#d9c09870,transparent 65%),repeating-linear-gradient(0deg,transparent 0 31px,#98845b10 31px 32px),#f0e1bd; box-shadow:0 8px 25px #76604015; border:1px solid #d8c69f; border-radius:3px 14px 4px 8px; color:#504736; }
+.flute-paper .flute-paper-title { font:30px 'Patrick Hand',cursive; text-align:center; margin:0 0 12px; }
+.flute-table-scroll { overflow-x:auto; }
+.flute-paper table { width:100%; min-width:530px; border-collapse:collapse; font:20px/1.5 'Patrick Hand',cursive; }
+.flute-paper caption { font:11px/1.8 'Be Vietnam Pro',sans-serif; text-align:center; margin-bottom:24px; }
+.flute-paper th,.flute-paper td { padding:15px 12px; text-align:left; vertical-align:top; border-bottom:1px solid #a9957159; }
+.flute-paper th { font-weight:400; }
+.flute-paper thead th { font-size:24px; border-bottom:2px solid #a99571; }
+.flute-paper th:first-child { width:23%; }
+.flute-paper td { width:38.5%; }
+.flute-timeline { margin-top:30px; padding-left:25px; border-left:1px solid #abbeb1; }
+.flute-timeline>div { position:relative; padding:0 0 25px 10px; }
+.flute-timeline>div:before { content:''; position:absolute; left:-30px; top:5px; width:9px; height:9px; background:#a46848; border-radius:50%; }
+.flute-timeline span { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#855239; }
+.flute-timeline h3 { margin:10px 0; }
+.flute-sources { padding-top:32px; border-top:1px solid #bbc8bf; }
+.flute-sources ol { list-style:none; padding:0; }
+.flute-sources li { display:flex; gap:16px; padding:20px 0; border-bottom:1px solid #cbd0c1; }
+.flute-source-number { font-size:12px; color:#865d44; padding-top:3px; }
+.flute-sources li a { font-size:14px; font-weight:600; line-height:1.8; }
+.flute-sources li p { font-size:12px; margin:7px 0 3px; }
+.flute-sources small { font-size:11px; line-height:1.8; color:#5b6962; }
+.flute-sources .flute-image-credit { font-size:11px; color:#5b6962; margin-top:25px; }
+.flute-content .flute-learn { padding:42px; background:linear-gradient(120deg,#cce1db,#e6d4be); border:1px solid #bdccbf; margin-bottom:0; }
+.flute-learn a { display:inline-flex; align-items:center; justify-content:center; gap:24px; padding:15px 22px; background:#305a59; color:#f4ecd9; border-radius:4px; text-decoration:none; font-size:14px; font-weight:600; }
+.flute-learn a:hover { background:#244443; }
+.flute-sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+@media(max-width:1000px) { .flute-layout { grid-template-columns:170px minmax(0,1fr); gap:28px; }.flute-culture { grid-template-columns:1fr; }.flute-culture img { aspect-ratio:8/5; }.flute-culture .flute-photo { margin-bottom:20px; } }
+@media(max-width:720px) { .flute-wrap { width:calc(100% - 36px); }.flute-heading { padding:30px 0 36px; }.flute-heading h1 { letter-spacing:-2px; }.flute-layout { display:block; padding-top:20px; }.flute-toc { position:static; margin-bottom:40px; border-bottom:1px solid #bbc8bf; }.flute-toc ol { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; margin:10px 0 22px; }.flute-toc a { font-size:11px; gap:8px; padding:10px 0; }.flute-content>section { margin-bottom:48px; }.flute-content p { font-size:14px; line-height:1.9; }.flute-content h2 { letter-spacing:-.6px; }.flute-parts { grid-template-columns:1fr; gap:20px; }.flute-diagram { padding:14px; }.flute-paper { padding:20px 12px; }.flute-paper table { min-width:540px; }.flute-content .flute-learn { padding:27px 22px; }.flute-learn a { width:100%; }.flute-photo { margin:24px 0; } }
