@@ -83,6 +83,23 @@ export const authStorage = {
   },
 };
 
+class ApiError extends Error {
+  constructor(public status: number, message: string) { super(message); }
+}
+
+export function courseErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 401) return 'Vui lòng đăng nhập lại để tiếp tục.';
+    if (error.status === 403) return 'Bạn chưa có quyền truy cập nội dung này.';
+    if (error.status === 404) return 'Khóa học không còn khả dụng. Vui lòng chọn khóa học khác.';
+    if (error.status === 429) return 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng đợi một lát rồi thử lại.';
+    if (error.status >= 500) return 'Máy chủ đang gặp sự cố. Vui lòng thử lại sau.';
+    return 'Yêu cầu chưa thực hiện được. Vui lòng kiểm tra và thử lại.';
+  }
+  if (error instanceof Error && error.name === 'TimeoutError') return 'Tải khóa học quá lâu. Vui lòng kiểm tra kết nối và thử lại.';
+  return 'Không thể kết nối để tải khóa học. Vui lòng kiểm tra mạng và thử lại.';
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const auth = authStorage.read();
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -96,21 +113,39 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   const data = await res.json().catch(() => null);
   if (!res.ok) {
-    throw new Error(data?.message ?? 'Request failed');
+    throw new ApiError(res.status, data?.message ?? 'Request failed');
   }
 
   return (data?.data ?? data) as T;
 }
 
+// Course reads are safe to cancel; never automatically retry enrollment writes.
+async function readCourse<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const controller = new AbortController();
+  let timedOut = false;
+  const cancel = () => controller.abort();
+  if (signal?.aborted) cancel();
+  signal?.addEventListener('abort', cancel, { once: true });
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 20000);
+  try { return await request<T>(path, { signal: controller.signal }); }
+  catch (error) {
+    if (timedOut) throw new DOMException('Course request timed out', 'TimeoutError');
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener('abort', cancel);
+  }
+}
+
 export const api = {
-  getCourse(id: number) {
-    return request<CourseDetail>(`/api/courses/${id}`);
+  getCourse(id: number, signal?: AbortSignal) {
+    return readCourse<CourseDetail>(`/api/courses/${id}`, signal);
   },
-  getCourses() {
-    return request<CourseSummary[]>('/api/courses');
+  getCourses(signal?: AbortSignal) {
+    return readCourse<CourseSummary[]>('/api/courses', signal);
   },
   getLearnerCourses() {
-    return request<LearnerCourseSummary[]>('/api/courses/learning');
+    return readCourse<LearnerCourseSummary[]>('/api/courses/learning');
   },
   getProfile() {
     return request<UserProfile>('/api/user/profile');
