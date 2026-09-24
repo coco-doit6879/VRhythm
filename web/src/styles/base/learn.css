@@ -1,0 +1,3 @@
+/* learn: base. Keep page/component layout within its boundary. */
+.learning-main:where(.learn-page, .learn-page *) h2 { margin:0; font:500 clamp(28px,3.3vw,44px)/1.1 'Playfair Display'; letter-spacing:-1px; }.learning-layout:where(.learn-page, .learn-page *) { display:grid; grid-template-columns:1fr 330px; gap:32px; }
+@media (max-width:900px) {.learning-layout:where(.learn-page, .learn-page *) { grid-template-columns:1fr; gap:40px; } }

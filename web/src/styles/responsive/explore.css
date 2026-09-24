@@ -1,0 +1,28 @@
+/* explore: responsive. Keep page/component layout within its boundary. */
+
+@media(max-width:760px) {
+  .app-shell .heritage-guide:where(.explore-page, .explore-page *) { display:grid; grid-template-columns:minmax(0,1fr); grid-auto-flow:row; grid-auto-columns:auto; gap:0; overflow:visible; padding:0; scroll-snap-type:none; }
+  .app-shell .heritage-guide:where(.explore-page, .explore-page *) span { min-width:0; }
+  .app-shell .heritage-guide:where(.explore-page, .explore-page *) strong { font-size:16px; }
+  .app-shell .heritage-guide:where(.explore-page, .explore-page *) small { font-size:14px; line-height:1.6; }
+  .app-shell .heritage-guide:where(.explore-page, .explore-page *)>div { width:100%; padding:24px 0; border-right:0; border-bottom:1px solid var(--line); }
+  .app-shell .heritage-guide:where(.explore-page, .explore-page *)>div:last-child { border-bottom:0; }
+}
+@media(max-width:620px) {
+  .app-shell .explore-page .heritage-guide {
+    width:calc(100% - 32px);
+    margin:0 auto 48px;
+    gap:12px;
+    border:0;
+  }
+  .app-shell .explore-page .heritage-guide>div,
+  .app-shell .explore-page .heritage-guide>div:last-child {
+    padding:20px 16px;
+    gap:16px;
+    min-height:96px;
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+}
+.app-shell .explore-hero:where(.explore-page, .explore-page *) { grid-template-columns:1fr; }
+.explore-hero-copy:where(.explore-page, .explore-page *) { max-width:860px; }

@@ -1,0 +1,11 @@
+/* instrument-learning: theme. Keep page/component layout within its boundary. */
+
+.instrument-learning .instrument-page-hero { background:#edf2e8; border:1px solid var(--line); border-radius:20px; padding:32px; margin-top:24px; }
+.instrument-learning .instrument-page-hero img { background:transparent; }
+.instrument-learning .course-overview { background:#f5f7f0; border-radius:18px; }
+.instrument-learning :is(.course-overview, .course-state, .course-roadmap summary span, .course-roadmap li span) { min-width:0; overflow-wrap:anywhere; }
+.instrument-learning .course-state.error { display:flex; align-items:center; flex-wrap:wrap; gap:12px 24px; }
+.instrument-learning .course-state .text-button { min-height:44px; flex-shrink:0; }
+@media(max-width:620px) {
+  .instrument-learning .instrument-page-hero { padding:22px; gap:20px; }
+}

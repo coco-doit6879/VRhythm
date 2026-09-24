@@ -1,0 +1,7 @@
+/* auth: theme. Keep page/component layout within its boundary. */
+
+.app-shell .auth-card:where(.auth-layout, .auth-layout *) input { background:#eff4e9; color:var(--ink); border-color:#a5b99b; }
+.app-shell .auth-card:where(.auth-layout, .auth-layout *) input::placeholder { color:#5b7056; }
+.app-shell .divider:where(.auth-layout, .auth-layout *):before,
+.app-shell .divider:where(.auth-layout, .auth-layout *):after { background:var(--line); }
+.app-shell .auth-quote:where(.auth-layout, .auth-layout *) { font-family:'Be Vietnam Pro',sans-serif; }

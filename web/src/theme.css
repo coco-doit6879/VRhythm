@@ -1,0 +1,12 @@
+/* Ordered theme styles. Do not add page rules to this entry point. */
+@import './styles/theme/shared.css';
+@import './styles/theme/instrument-features.css';
+@import './styles/theme/bamboo-flute.css';
+@import './styles/theme/home.css';
+@import './styles/theme/explore.css';
+@import './styles/theme/learn.css';
+@import './styles/theme/instrument-learning.css';
+@import './styles/theme/auth.css';
+@import './styles/theme/header.css';
+@import './styles/theme/carousel.css';
+@import './styles/theme/lesson.css';

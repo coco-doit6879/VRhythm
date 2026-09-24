@@ -1,0 +1,6 @@
+/* carousel: responsive. Keep page/component layout within its boundary. */
+
+.app-shell .carousel-arrow-btn:where(.instrument-carousel-section, .instrument-carousel-section *) { min-width:44px; min-height:44px; }
+@media(max-width:760px) {
+  .app-shell .carousel-header:where(.instrument-carousel-section, .instrument-carousel-section *) h2 { font-size:clamp(26px,6.5vw,38px); }
+}

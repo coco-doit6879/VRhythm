@@ -1,0 +1,17 @@
+/* shared: responsive. Keep page/component layout within its boundary. */
+
+.app-shell .page h1 {
+  font-family:'Be Vietnam Pro',sans-serif;
+  font-size:clamp(32px,4.5vw,60px);
+  font-weight:700;
+  line-height:1.25;
+  letter-spacing:-.035em;
+  text-wrap:balance;
+}
+.app-shell .page h1 em { font-style:normal; color:var(--orange); }
+.app-shell .page h2 { font-family:'Be Vietnam Pro',sans-serif; font-weight:700; line-height:1.3; text-wrap:balance; }
+.keep-together { white-space:nowrap; }
+.app-shell :is(button,a):focus-visible { outline:3px solid var(--teal); outline-offset:4px; }
+.app-shell .family-filters { flex-wrap:wrap; gap:8px; }
+.app-shell .family-filters button { min-height:44px; }
+.app-shell :is(a,button)>svg { flex-shrink:0; vertical-align:middle; }

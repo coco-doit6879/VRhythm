@@ -1,0 +1,5 @@
+/* learn: responsive. Keep page/component layout within its boundary. */
+
+@media(max-width:620px) {
+  .app-shell .learning-card-content:where(.learn-page, .learn-page *)>p:not(.learning-tone) { font-size:16px; }
+}

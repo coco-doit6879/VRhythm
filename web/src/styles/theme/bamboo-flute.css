@@ -1,0 +1,7 @@
+/* bamboo-flute: theme. Keep page/component layout within its boundary. */
+
+.app-shell .flute-article { background:var(--page-gradient); color:var(--ink); }
+.app-shell .flute-heading:where(.flute-article, .flute-article *) h1 span { color:var(--orange); }
+.app-shell .flute-diagram:where(.flute-article, .flute-article *) { background:var(--panel-gradient); border-color:var(--line); }
+.app-shell .flute-content:where(.flute-article, .flute-article *) .flute-learn { background:var(--panel-gradient); border-color:var(--line); }
+.app-shell .flute-learn:where(.flute-article, .flute-article *) a { background:var(--teal); color:#f3f7ed; }

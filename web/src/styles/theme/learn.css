@@ -1,0 +1,49 @@
+/* learn: theme. Keep page/component layout within its boundary. */
+
+.learning-intro:where(.learn-page, .learn-page *) { display:grid; grid-template-columns:1.25fr 1fr; gap:64px; align-items:center; padding:36px 0 52px; }
+.learning-intro:where(.learn-page, .learn-page *) h1 { font-size:clamp(32px,4vw,54px); letter-spacing:-1.6px; margin:18px 0; }
+.learning-intro:where(.learn-page, .learn-page *) h1 em { color:var(--orange); font-style:normal; }
+.learning-intro:where(.learn-page, .learn-page *) p { color:var(--muted); line-height:1.8; max-width:560px; }
+.learning-intro:where(.learn-page, .learn-page *) .primary { display:inline-flex; align-items:center; gap:12px; margin-top:14px; text-decoration:none; }
+.learning-steps:where(.learn-page, .learn-page *) { list-style:none; margin:0; padding:12px 28px; background:#edf2e8; border:1px solid var(--line); border-radius:20px; }
+.learning-steps:where(.learn-page, .learn-page *) li { display:flex; align-items:center; gap:20px; padding:22px 0; }
+.learning-steps:where(.learn-page, .learn-page *) li+li { border-top:1px solid var(--line); }
+.learning-steps:where(.learn-page, .learn-page *) li>span { color:var(--orange); font-size:22px; font-weight:600; }
+.learning-steps:where(.learn-page, .learn-page *) h2 { font-size:17px; margin:0 0 6px; }
+.learning-steps:where(.learn-page, .learn-page *) p { font-size:13px; margin:0; }
+.learning-catalog:where(.learn-page, .learn-page *) { scroll-margin-top:110px; }
+.learning-catalog-heading:where(.learn-page, .learn-page *) { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-bottom:28px; }
+.learning-catalog-heading:where(.learn-page, .learn-page *) h2 { font-size:clamp(24px,3vw,32px); margin:10px 0 0; }
+.learning-notice:where(.learn-page, .learn-page *) { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 20px; background:#f3e4d7; border:1px solid #d8baa4; border-radius:12px; font-size:14px; line-height:1.6; margin-bottom:24px; }
+.learning-notice:where(.learn-page, .learn-page *) button { flex-shrink:0; min-height:44px; }
+.learning-grid:where(.learn-page, .learn-page *) { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; }
+.learning-card:where(.learn-page, .learn-page *) { min-width:0; background:#f5f7f0; border:1px solid var(--line); border-radius:18px; overflow:hidden; display:flex; flex-direction:column; }
+.learning-card-art:where(.learn-page, .learn-page *) { height:250px; padding:28px; position:relative; background:#e6eddf; }
+.learning-card:where(.learn-page, .learn-page *):nth-child(even) .learning-card-art { background:#efe2d6; }
+.learning-card-art:where(.learn-page, .learn-page *)>span { position:absolute; top:16px; left:16px; padding:6px 10px; border-radius:20px; background:#f5f7f0; font-size:11px; color:var(--muted); }
+.learning-card-art:where(.learn-page, .learn-page *) img { display:block; width:100%; height:100%; object-fit:contain; }
+.learning-card-content:where(.learn-page, .learn-page *) { padding:24px; display:flex; flex-direction:column; flex:1; }
+.learning-card-content:where(.learn-page, .learn-page *) .learning-tone { color:var(--orange); font-size:12px; margin:0 0 8px; }
+.learning-card-content:where(.learn-page, .learn-page *) h3 { font-size:25px; margin:0 0 12px; }
+.learning-card-content:where(.learn-page, .learn-page *)>p { font-size:14px; color:var(--muted); line-height:1.8; margin:0 0 22px; }
+.learning-card-footer:where(.learn-page, .learn-page *) { margin-top:auto; }
+.learning-card-footer:where(.learn-page, .learn-page *) small { display:block; color:var(--muted); margin-bottom:14px; }
+.learning-card-footer:where(.learn-page, .learn-page *) a { display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--teal); color:#fff; border-radius:8px; padding:13px 16px; text-decoration:none; font-size:14px; font-weight:600; }
+.learning-card-footer:where(.learn-page, .learn-page *) a:hover { background:#304f38; }
+.learning-image-note:where(.learn-page, .learn-page *) { color:var(--muted); font-size:12px; margin:18px 0 0; }
+.learn-page :is(a,button):focus-visible { outline:3px solid var(--orange); outline-offset:4px; }
+@media(max-width:1000px) {
+  .learning-intro:where(.learn-page, .learn-page *) { gap:30px; }
+  .learning-grid:where(.learn-page, .learn-page *) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .learning-catalog-heading:where(.learn-page, .learn-page *) { align-items:flex-start; flex-direction:column; }
+}
+@media(max-width:620px) {
+  .learning-intro:where(.learn-page, .learn-page *) { grid-template-columns:1fr; padding:16px 0 36px; gap:28px; }
+  .learning-intro:where(.learn-page, .learn-page *) h1 { letter-spacing:-1px; }
+  .learning-steps:where(.learn-page, .learn-page *) { padding:6px 20px; }
+  .learning-steps:where(.learn-page, .learn-page *) li { padding:16px 0; }
+  .learning-grid:where(.learn-page, .learn-page *) { grid-template-columns:1fr; gap:20px; }
+  .learning-card-art:where(.learn-page, .learn-page *) { height:230px; }
+  .learning-card-content:where(.learn-page, .learn-page *) { padding:22px; }
+  .learning-notice:where(.learn-page, .learn-page *) { align-items:flex-start; flex-direction:column; gap:4px; }
+}

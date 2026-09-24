@@ -1,0 +1,2 @@
+/* bamboo-flute: base. Keep page/component layout within its boundary. */
+.flute-learn:where(.flute-article, .flute-article *) { margin-top:22px; }

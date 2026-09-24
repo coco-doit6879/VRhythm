@@ -1,0 +1,63 @@
+/* shared: theme. Keep page/component layout within its boundary. */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+:root {
+  color-scheme:light;
+  --ink:#293e32;
+  --muted:#566859;
+  --paper:#e0e8da;
+  --cream:#eaf0e3;
+  --line:#bdcdb7;
+  --teal:#456b4d;
+  --orange:#a65131;
+  --shadow:0 18px 50px #3b573414;
+  --page-gradient:radial-gradient(ellipse at 100% 0%,#efbb99 0,transparent 48%),radial-gradient(ellipse at 0% 65%,#c0d4b4 0,transparent 55%),linear-gradient(120deg,#d5e2cb,#e2e9dc 52%,#ecd8c6);
+  --panel-gradient:linear-gradient(130deg,#dce7d3,#e7eddf 55%,#f0d9c5);
+  font-family:'Be Vietnam Pro',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+}
+body,
+.app-shell { background:var(--page-gradient); color:var(--ink); }
+body { background-attachment:fixed; }
+.app-shell { background:transparent; }
+body,
+button,
+input,
+select,
+textarea { font-family:'Be Vietnam Pro',sans-serif; }
+.app-shell :is(h1,h2,h3,h4,.brand-mark,.logo-sigil,.logo-sigil span,.hero-proof strong,.stat-row strong,.streak-card strong,.focus-card strong,.target-note strong,.score-number,.quiz-prompt,.flute-controls strong,.chapter-group h3,.chapter-group h3 small,.pitch-readout strong,.practice-top strong,.story-number,.fact-column b,.instrument-switch>span,.carousel-active-label) { font-family:'Be Vietnam Pro',sans-serif; }
+.app-shell :is(h1,h2,h3) { line-height:1.3; }
+.app-shell :is(h1,h2) { font-weight:700; }
+.app-shell :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid var(--orange); outline-offset:4px; }
+.app-shell a { text-underline-offset:4px; }
+.app-shell .primary,
+.app-shell .play-note { background:var(--teal); color:#f3f7ed; box-shadow:0 8px 20px #456b4d20; }
+.app-shell .primary:hover { background:#314f38; }
+.app-shell .cta-btn-bright { background:#f6af86!important; color:#293e32!important; }
+.app-shell .cta-btn-bright:hover { background:#ffbf98!important; color:#293e32!important; }
+.app-shell .text-button { color:var(--teal); }
+.app-shell :is(.instrument-card,.course-card,.auth-card,.sheet-panel,.practice-card,.lesson-sidebar,.instrument-modal,.course-overview,.profile-details,.explore-hero-card,.quiz-card,.quiz-result-card,.video-lesson-card,.theory-lesson-card) { background:var(--cream); color:var(--ink); border-color:var(--line); }
+.app-shell :is(.instrument-art,.modal-art,.hero-art,.instrument-page-hero img,.flute-visual,.parallax-scene) { background:var(--panel-gradient); }
+.app-shell :is(.instrument-showcase,.showcase-stage) { background:var(--panel-gradient); border-color:var(--line); }
+.app-shell :is(.showcase-copy h2,.home-page>.instrument-showcase .showcase-copy h2,.carousel-header h2,.streak-card strong) { color:var(--ink); }
+.app-shell :is(.showcase-copy>p,.home-page>.instrument-showcase .showcase-copy>p:not(.showcase-tone),.home-page>.instrument-showcase .showcase-side .showcase-history,.showcase-history,.hero-logo-art p,.explore-note,.streak-card small,.switcher-hint,.showcase-carousel .switcher-hint) { color:var(--muted); }
+.app-shell :is(.showcase-copy .showcase-tone,.fact-column b,.logo-sigil span) { color:var(--orange); }
+.app-shell :is(.fact-column span,.home-page>.instrument-showcase .fact-column span,.home-page>.instrument-showcase .section-kicker) { color:var(--teal); }
+.app-shell :is(.showcase-side,.home-page>.instrument-showcase .showcase-side,.stat-row,.stat-row>div,.lesson-item,.explore-stat-row) { border-color:var(--line); }
+.app-shell :is(.instrument-switch,.carousel-arrow,.carousel-arrow-btn,.home-page>.instrument-showcase .showcase-arrow,.social-button,.icon-button,.section-heading select,.family-filters button) { background:#e5eddd; color:var(--teal); border-color:var(--line); }
+.app-shell :is(.instrument-switch:hover,.instrument-switch.active,.family-filters button.active,.carousel-arrow:hover,.carousel-arrow-btn:hover,.home-page>.instrument-showcase .showcase-arrow:hover) { background:#cbdcbd; color:var(--ink); border-color:var(--teal); }
+.app-shell .instrument-switch small { color:var(--muted); }
+.app-shell :is(.stage-label,.carousel-active-label,.fact-row span) { color:var(--ink); background:#e6eddef2; border-color:var(--line); }
+.app-shell :is(.home-cta,.path-card,.focus-card,.profile-hero,.streak-card,.modal-cultural-note) { background:var(--panel-gradient); color:var(--ink); border:1px solid var(--line); }
+.app-shell :is(.home-cta .eyebrow,.profile-hero .section-kicker,.modal-cultural-note svg,.focus-card svg) { color:var(--orange); }
+.app-shell :is(.path-card p,.path-card small,.focus-card small,.focus-card span,.profile-hero p,.modal-cultural-note small) { color:var(--muted); }
+.app-shell .home-cta .primary { background:var(--teal); color:#f3f7ed; }
+.app-shell :is(.divider,.auth-footer,.auth-card label) { color:var(--muted); }
+.app-shell :is(.lesson-progress,.progress-bar,.sheet-progress) { background:#c8d8bd; }
+.app-shell :is(.sheet-canvas,.real-sheet,.sheet-svg-wrap,.web-staff,.flute-interactive) { background:#eef3e7; border-color:var(--line); }
+.app-shell .note-head { fill:#eef3e7; }
+.app-shell .note-head.filled { fill:currentColor; }
+.app-shell .course-state.error { color:#993d2e; }
+.app-shell .modal-backdrop { background:#243b2b70; }
+.app-shell .path-item small { color:var(--muted); }
+.app-shell .path-card .section-kicker { color:var(--orange); }

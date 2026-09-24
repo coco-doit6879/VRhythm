@@ -1,0 +1,6 @@
+/* Lesson-player layout, isolated from the catalog and articles. */
+
+.app-shell .record-button:where(.lesson-page, .lesson-page *) { background:var(--teal); color:#f3f7ed; box-shadow:0 8px 20px #456b4d20; }
+.app-shell .record-button:where(.lesson-page, .lesson-page *).active { background:#a33e28; }
+.app-shell .recorder-error:where(.lesson-page, .lesson-page *),
+.app-shell .quiz-feedback:where(.lesson-page, .lesson-page *).incorrect { color:#993d2e; }

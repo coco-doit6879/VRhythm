@@ -1,0 +1,19 @@
+/* instrument-features: responsive. Keep page/component layout within its boundary. */
+
+.app-shell .feature-actions:where(.instrument-features, .instrument-features *) { display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:24px; }
+.app-shell .feature-actions:where(.instrument-features, .instrument-features *) :is(.primary,.feature-detail) { margin:0; }
+.app-shell .feature-copy:where(.instrument-features, .instrument-features *) :is(.primary,.feature-detail) { min-height:44px; }
+.app-shell .feature-copy:where(.instrument-features, .instrument-features *) .primary { white-space:nowrap; }
+.app-shell .feature-copy:where(.instrument-features, .instrument-features *) :is(.primary,.feature-detail) { display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+.app-shell .instrument-feature:where(.instrument-features, .instrument-features *) figure { position:relative; display:block; align-self:center; margin:0; }
+.app-shell .instrument-feature:where(.instrument-features, .instrument-features *) figure img { display:block; width:100%; }
+.app-shell .instrument-feature:where(.instrument-features, .instrument-features *) figcaption { position:absolute; left:10px; bottom:10px; padding:4px 7px; font-size:10px; border-radius:4px; background:#edf2e8e6; color:#566859; }
+@media(max-width:380px) {
+  .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .primary { padding:10px 8px; gap:4px; }
+}
+@media(max-width:620px) {
+  .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .primary { font-size:12px; padding:10px 8px; gap:4px; }
+  .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .feature-detail { font-size:12px; line-height:1.5; gap:4px; }
+  .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .feature-caption { font-size:14px; line-height:1.6; }
+  .app-shell .instrument-feature:where(.instrument-features, .instrument-features *) figcaption { font-size:12px; bottom:8px; left:8px; }
+}

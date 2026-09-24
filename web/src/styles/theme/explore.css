@@ -1,0 +1,6 @@
+/* explore: theme. Keep page/component layout within its boundary. */
+
+@media(max-width:900px) {
+  .app-shell .explore-hero:where(.explore-page, .explore-page *) { grid-template-columns:minmax(0,1fr); gap:28px; }
+  .app-shell .explore-hero-card:where(.explore-page, .explore-page *) { min-width:0; }
+}

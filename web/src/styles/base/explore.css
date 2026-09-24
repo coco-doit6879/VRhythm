@@ -1,0 +1,65 @@
+/* explore: base. Keep page/component layout within its boundary. */
+.explore-grid:where(.explore-page, .explore-page *) { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }.explore-grid:where(.explore-page, .explore-page *) { grid-template-columns:repeat(2,1fr); }.explore-grid:where(.explore-page, .explore-page *) .instrument-art { height:280px; }.explore-note:where(.explore-page, .explore-page *) { display:flex; align-items:center; gap:12px; margin-top:26px; color:var(--muted); font-size:13px; }
+@media (max-width:620px) {.explore-grid:where(.explore-page, .explore-page *) { grid-template-columns:1fr; }.explore-grid:where(.explore-page, .explore-page *) .instrument-art { height:220px; } }.explore-note:where(.explore-page, .explore-page *) { color:#9CB8A8; }
+.explore-page { padding-top:0; }
+.explore-hero:where(.explore-page, .explore-page *) { min-height:440px; display:grid; grid-template-columns:1fr 340px; gap:40px; align-items:center; padding:64px 0 54px; }
+.explore-hero-copy:where(.explore-page, .explore-page *) { width:100%; }
+.explore-hero-copy:where(.explore-page, .explore-page *) h1 { max-width:900px; margin:18px 0 22px; font:500 clamp(44px,5.5vw,72px)/1.25 'Playfair Display',Georgia,serif; letter-spacing:-1.2px; text-wrap:balance; }
+.explore-hero-copy:where(.explore-page, .explore-page *) h1 em { color:var(--orange); }
+.explore-hero-copy:where(.explore-page, .explore-page *) p { max-width:650px; margin:0; color:var(--muted); font-size:16px; line-height:1.75; }
+
+.explore-hero-card:where(.explore-page, .explore-page *) { padding:30px; border-radius:12px; background:#132218; border:1px solid #2A4035; color:#fff; box-shadow:var(--shadow); display:grid; gap:18px; }
+.explore-stat-row:where(.explore-page, .explore-page *) { display:flex; align-items:baseline; gap:14px; padding-bottom:16px; border-bottom:1px solid rgba(82,183,136,0.18); }
+.explore-stat-row:where(.explore-page, .explore-page *) strong { font:600 36px/1 'DM Sans',sans-serif; color:var(--orange); font-variant-numeric:lining-nums tabular-nums; }
+.explore-stat-row:where(.explore-page, .explore-page *) span { font-size:16px; font-weight:700; color:var(--ink); }
+.explore-card-note:where(.explore-page, .explore-page *) { margin:0; color:var(--muted); font-size:13px; line-height:1.65; }
+
+.heritage-guide:where(.explore-page, .explore-page *) { display:grid; grid-template-columns:repeat(3,1fr); margin-bottom:76px; border-block:1px solid var(--line); }
+.heritage-guide:where(.explore-page, .explore-page *)>div { display:flex; align-items:center; gap:18px; padding:28px 30px; border-right:1px solid var(--line); }
+.heritage-guide:where(.explore-page, .explore-page *)>div:last-child { border-right:0; }
+.heritage-guide:where(.explore-page, .explore-page *) svg { flex:0 0 auto; width:24px; height:24px; color:var(--orange); }
+.heritage-guide:where(.explore-page, .explore-page *) span { display:grid; gap:6px; }
+.heritage-guide:where(.explore-page, .explore-page *) strong { font-size:16px; font-weight:700; }
+.heritage-guide:where(.explore-page, .explore-page *) small { color:var(--muted); font-size:13px; line-height:1.45; }
+.archive-heading:where(.explore-page, .explore-page *) { display:flex; align-items:end; justify-content:space-between; gap:30px; margin-bottom:30px; }
+.archive-heading:where(.explore-page, .explore-page *) h2 { margin:10px 0 0; font:500 clamp(30px,4vw,44px)/1.2 'Playfair Display',Georgia,serif; letter-spacing:-.5px; }
+.explore-page .explore-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.explore-page .instrument-card { display:grid; grid-template-columns:46% 54%; height:320px; min-height:320px; }
+.explore-page .instrument-art { height:320px; min-height:320px; background:linear-gradient(135deg,#2D6A4F,#1A2E22); }
+.explore-page .instrument-art img,
+.explore-page .instrument-art img.transparent-instrument { width:100%; height:100%; padding:14px; object-fit:contain!important; object-position:center; transform:none; transition:transform .45s ease; image-rendering:-webkit-optimize-contrast; }
+.explore-page .instrument-card:hover .instrument-art img { transform:scale(1.06); }
+.explore-page .instrument-card-copy { display:flex; flex-direction:column; align-items:flex-start; padding:34px 30px 28px; }
+.explore-page .instrument-card-copy small { max-width:85%; font:700 11px/1.55 'DM Sans','Segoe UI',sans-serif; letter-spacing:1.1px; }
+.explore-page .instrument-card h3 { margin:14px 0 13px; font:600 31px/1.12 'Playfair Display',Georgia,serif; letter-spacing:-.3px; }
+.explore-page .instrument-card p { display:-webkit-box; overflow:hidden; margin:0; color:var(--muted); font:400 13px/1.7 'DM Sans','Segoe UI',sans-serif; -webkit-box-orient:vertical; -webkit-line-clamp:3; }
+
+@media (max-width:900px) {
+  .explore-hero:where(.explore-page, .explore-page *) { min-height:420px; }
+  .heritage-guide:where(.explore-page, .explore-page *) { grid-template-columns:1fr; }
+  .heritage-guide:where(.explore-page, .explore-page *)>div { border-right:0; border-bottom:1px solid var(--line); }
+  .heritage-guide:where(.explore-page, .explore-page *)>div:last-child { border-bottom:0; }
+  .explore-page .explore-grid { grid-template-columns:1fr; }
+}
+@media (max-width:620px) {
+  .explore-page { width:100%; padding-bottom:64px; }
+  .explore-hero:where(.explore-page, .explore-page *),
+.explore-archive:where(.explore-page, .explore-page *) { width:calc(100% - 32px); margin-inline:auto; }
+  .explore-hero:where(.explore-page, .explore-page *) { min-height:0; padding:48px 0 42px; }
+  .explore-hero-copy:where(.explore-page, .explore-page *) h1 { margin:14px 0 20px; font-size:clamp(37px,11.4vw,46px); line-height:1.07; letter-spacing:-1px; }
+  .explore-hero-copy:where(.explore-page, .explore-page *) p { font-size:14px; line-height:1.72; }
+  .explore-page .section-kicker { font-size:10px; line-height:1.45; letter-spacing:1.15px; }
+  .heritage-guide:where(.explore-page, .explore-page *) { width:100%; display:grid; grid-auto-flow:column; grid-template-columns:none; grid-auto-columns:82%; gap:10px; margin:0 0 58px; padding:0 16px 12px; overflow-x:auto; border:0; scroll-snap-type:x proximity; scrollbar-width:none; }
+  .heritage-guide:where(.explore-page, .explore-page *)::-webkit-scrollbar { display:none; }
+  .heritage-guide:where(.explore-page, .explore-page *)>div { min-height:88px; padding:18px; border:1px solid var(--line); border-radius:6px; background:var(--cream); scroll-snap-align:start; }
+  .heritage-guide:where(.explore-page, .explore-page *)>div:last-child { border:1px solid var(--line); }
+  .heritage-guide:where(.explore-page, .explore-page *) strong { font-size:12px; }
+  .heritage-guide:where(.explore-page, .explore-page *) small { font-size:10px; line-height:1.45; }
+  .archive-heading:where(.explore-page, .explore-page *) { align-items:flex-start; flex-direction:column; }
+  .archive-heading:where(.explore-page, .explore-page *) h2 { font-size:32px; line-height:1.12; }
+  .explore-page .instrument-card { grid-template-columns:1fr; height:auto; min-height:0; }
+  .explore-page .instrument-art { min-height:220px; height:220px; }
+  .explore-page .instrument-card-copy { min-height:218px; padding:24px 22px 22px; }
+  .explore-page .instrument-card h3 { margin:11px 0 10px; font-size:28px; }
+  .explore-page .instrument-card p { font-size:13px; line-height:1.62; }
+}

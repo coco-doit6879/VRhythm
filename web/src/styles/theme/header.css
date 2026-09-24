@@ -1,0 +1,15 @@
+/* header: theme. Keep page/component layout within its boundary. */
+
+.app-shell .topbar { background:#edf2e8; border-color:#c9d5c2; backdrop-filter:none; }
+.app-shell .brand-mark:where(.topbar, .topbar *) { background:var(--teal); color:#eff5e9; }
+.app-shell .brand:where(.topbar, .topbar *) small { color:var(--muted); }
+.app-shell .nav:where(.topbar, .topbar *) button { color:var(--muted); }
+.app-shell .nav:where(.topbar, .topbar *) button:hover,
+.app-shell .nav:where(.topbar, .topbar *) button.active { color:var(--ink); border-bottom-color:var(--orange); }
+.app-shell .nav-account:where(.topbar, .topbar *) { color:var(--teal)!important; }
+.header-tools:where(.topbar, .topbar *) { margin-left:auto; margin-right:28px; }
+@media(max-width:620px) {
+  .header-tools:where(.topbar, .topbar *) { margin-right:0; }
+  .app-shell .nav:where(.topbar, .topbar *) { background:#edf2e8; }
+  .app-shell .nav:where(.topbar, .topbar *) button { min-height:44px; }
+}

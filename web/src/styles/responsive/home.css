@@ -1,0 +1,3 @@
+/* home: responsive. Keep page/component layout within its boundary. */
+
+.app-shell .hero-brand-art:where(.home-page, .home-page *) img { width:100%; height:100%; object-fit:contain; padding:24px; }

@@ -1,0 +1,29 @@
+/* bamboo-flute: responsive. Keep page/component layout within its boundary. */
+
+.flute-responsive-diagram:where(.flute-article, .flute-article *) { display:block; }
+.flute-responsive-diagram:where(.flute-article, .flute-article *) h4 { margin:16px 0 8px; font-size:16px; }
+.flute-responsive-diagram:where(.flute-article, .flute-article *) svg { min-width:0; width:100%; max-width:640px; font:16px 'Be Vietnam Pro',sans-serif; }
+.flute-responsive-diagram:where(.flute-article, .flute-article *) ol { padding-left:24px; font-size:14px; line-height:1.8; }
+.flute-mobile-label:where(.flute-article, .flute-article *),
+.flute-mobile-diagram:where(.flute-article, .flute-article *) { display:none; }
+.flute-sources:where(.flute-article, .flute-article *) li { scroll-margin-top:110px; }
+.flute-sources:where(.flute-article, .flute-article *) li:target { background:var(--cream); outline:2px solid var(--teal); outline-offset:8px; }
+@media(max-width:720px) {
+  .flute-paper:where(.flute-article, .flute-article *)::after,
+.flute-diagram-scroll:where(.flute-article, .flute-article *) { display:none; }
+  .flute-mobile-diagram:where(.flute-article, .flute-article *) { display:block; }
+  .flute-mobile-diagram:where(.flute-article, .flute-article *) h4 { margin:16px 0 8px; font-size:16px; }
+  .flute-mobile-diagram:where(.flute-article, .flute-article *) svg { min-width:0; width:100%; font-size:16px; }
+  .flute-mobile-diagram:where(.flute-article, .flute-article *) ol { padding-left:24px; font-size:14px; line-height:1.8; }
+  .flute-table-scroll:where(.flute-article, .flute-article *) { overflow:visible; }
+  .flute-paper:where(.flute-article, .flute-article *) table { display:block; min-width:0; font:14px/1.7 'Be Vietnam Pro',sans-serif; }
+  .flute-paper:where(.flute-article, .flute-article *) caption { display:block; text-align:left; }
+  .flute-paper:where(.flute-article, .flute-article *) thead { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  .flute-paper:where(.flute-article, .flute-article *) tbody,
+.flute-paper:where(.flute-article, .flute-article *) tr { display:block; }
+  .flute-paper:where(.flute-article, .flute-article *) tr { padding:16px 0; border-bottom:1px solid var(--line); }
+  .flute-paper:where(.flute-article, .flute-article *) th:first-child,
+.flute-paper:where(.flute-article, .flute-article *) td { display:block; width:100%; border:0; padding:8px 4px; }
+  .flute-paper:where(.flute-article, .flute-article *) th:first-child { font-weight:700; font-size:16px; }
+  .flute-mobile-label:where(.flute-article, .flute-article *) { display:block; font-size:12px; font-weight:600; color:var(--orange); margin-bottom:4px; }
+}
