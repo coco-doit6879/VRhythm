@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import './instrument-pages.css';
+import { BambooFluteArticle } from './components/BambooFluteArticle';
+import { InstrumentFeatures } from './components/InstrumentFeatures';
 import { ArrowRight, ChevronRight, Landmark, Mail, MapPin, Music2, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
 import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
@@ -8,7 +10,7 @@ import { InstrumentCard } from './components/InstrumentCard';
 import { LessonPlayer } from './components/LessonPlayer';
 import { InteractiveInstrumentShowcase } from './components/InteractiveInstrumentShowcase';
 import { instruments, type Instrument } from './data/mock';
-import { api, authStorage, type AuthResponse, type CourseSummary, type LearnerCourseSummary } from './services/api';
+import { api, authStorage, courseErrorMessage, type AuthResponse, type CourseSummary, type LearnerCourseSummary } from './services/api';
 
 type View = 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson';
 type LessonRoute = { courseId: number; chapterId: number; lessonId: number };
@@ -32,7 +34,6 @@ const viewFromPath = (path: string): { view: View; authMode: 'login' | 'register
 export default function App() {
   const initialRoute = viewFromPath(window.location.pathname);
   const [view, setView] = useState<View>(initialRoute.view);
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('vrhythm_theme') as 'light' | 'dark' | null) ?? 'light');
   const [authMode, setAuthMode] = useState<'login' | 'register'>(initialRoute.authMode);
   const [pathname, setPathname] = useState(window.location.pathname);
   const selectedInstrument = instruments.find(item => item.id === pathname.split('/')[2]);
@@ -64,7 +65,7 @@ export default function App() {
       setCourses(authUser ? await api.getLearnerCourses() : await api.getCourses());
     } catch (error) {
       setCourses([]);
-      setCoursesError(error instanceof Error ? error.message : 'Không thể tải khóa học.');
+      setCoursesError(courseErrorMessage(error));
     } finally {
       setCoursesLoading(false);
     }
@@ -78,8 +79,7 @@ export default function App() {
   const openAuth = (mode: 'login' | 'register' = 'login') => navigate('auth', mode);
   const signIn = async (data: { fullName?: string; email: string; password: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && instruments.some(item => returnTo === `/learn/${item.id}`)) window.location.assign(returnTo); else navigate('learn'); };
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
-  const toggleTheme = () => setTheme(current => { const next = current === 'dark' ? 'light' : 'dark'; localStorage.setItem('vrhythm_theme', next); return next; });
-  return <div className={`app-shell theme-${theme}`}><Header active={view} loggedIn={Boolean(authUser)} theme={theme} onToggleTheme={toggleTheme} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
+  return <div className="app-shell"><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'home' && <Home onNavigate={navigate} onInstrument={setSelectedInstrument} />}
     {isInstrumentRoute && !selectedInstrument && <main className="page"><h1>Không tìm thấy nhạc cụ</h1><a href="/explore">Quay lại Khám phá</a></main>}
     {view === 'explore' && !isInstrumentRoute && <Explore onInstrument={setSelectedInstrument} />}
@@ -98,7 +98,27 @@ function parseLessonRoute(path: string): LessonRoute {
 }
 
 function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; onInstrument: (instrument: Instrument) => void }) {
-  return <main className="page home-page"><section className="hero"><div className="hero-copy"><span className="eyebrow"><Sparkles size={14} /> Âm nhạc Việt trên nền tảng số</span><h1>Việt Nam trong từng thanh âm.<br /><em>Khám phá theo cách của bạn.</em></h1><p>VRhythm đưa những thanh âm truyền thống đến gần hơn với thế hệ hôm nay bằng trải nghiệm nghe, nhìn và học thật tự nhiên.</p><div className="hero-actions"><button className="primary" onClick={() => onNavigate('explore')}>Khám phá nhạc cụ <ArrowRight size={17} /></button><button className="text-button" onClick={() => onNavigate('learn')}>Bắt đầu học <ChevronRight size={17} /></button></div><div className="hero-proof"><span><strong>{instruments.length.toString().padStart(2, '0')}</strong> Nhạc cụ</span><span><strong>∞</strong> Cách lắng nghe</span><span><strong>01</strong> Cộng đồng</span></div></div><div className="hero-art hero-logo-art"><div className="logo-sigil">VR<span>hythm</span></div><p>Âm nhạc Việt<br />trên nền tảng số</p><div className="logo-orbit" /></div></section><InteractiveInstrumentShowcase onSelect={onInstrument} /><section className="manifesto"><h2>Di sản chỉ sống khi<br /><em>được tiếp tục.</em></h2><p>VRhythm mang âm nhạc truyền thống đến gần bạn hơn — bắt đầu từ sự tò mò, niềm vui và chút nhấn nhá từ công nghệ.</p></section><section className="home-cta"><div><span className="eyebrow">Học theo nhịp của bạn</span><h2>Một nốt nhạc hôm nay.<br />Một giai điệu ngày mai.</h2></div><button className="primary cta-btn-bright" onClick={() => onNavigate('learn')}>BẮT ĐẦU HỌC <ArrowRight size={17} /></button></section></main>;
+  return <main className="page home-page">
+    <section className="hero">
+      <div className="hero-copy">
+        <span className="eyebrow"><Sparkles size={14} /> Âm nhạc Việt trên nền tảng số</span>
+        <h1>Việt Nam trong từng thanh âm.<br /><em>Khám phá theo cách của bạn.</em></h1>
+        <p>Bắt đầu học nhạc cụ truyền thống cùng VRhythm — chọn nhạc cụ bạn yêu thích, tìm hiểu lộ trình và thực hành từng bước.</p>
+        <div className="hero-actions">
+          <button className="primary hero-learn-button" onClick={() => onNavigate('learn')}>Bắt đầu học <ArrowRight size={19} /></button>
+          <button className="text-button hero-explore-link" onClick={() => onNavigate('explore')}>Tìm hiểu nhạc cụ <ChevronRight size={15} /></button>
+        </div>
+      </div>
+      <div className="hero-art hero-brand-art"><img src="/images/generated/vrhythm-logo-full.png" alt="VRhythm — biểu tượng sáo và dây đàn cách điệu" width="1254" height="1254" fetchPriority="high" /></div>
+    </section>
+    <InteractiveInstrumentShowcase onSelect={onInstrument} />
+    <InstrumentFeatures />
+    <section className="manifesto">
+      <h2>Di sản chỉ sống khi<br /><em>được tiếp tục.</em></h2>
+      <div><p>Mỗi lần bạn tập một nốt nhạc, tiếng đàn truyền thống lại có thêm một người tiếp nối.</p><p>Chọn nhạc cụ mình yêu thích và bắt đầu từ bài học đầu tiên. VRhythm đồng hành cùng bạn trên hành trình ấy.</p></div>
+    </section>
+    <section className="home-cta"><div><span className="eyebrow">Học theo nhịp của bạn</span><h2>Một nốt nhạc hôm nay.<br />Một giai điệu ngày mai.</h2></div><button className="primary cta-btn-bright" onClick={() => onNavigate('learn')}>BẮT ĐẦU HỌC <ArrowRight size={17} /></button></section>
+  </main>;
 }
 
 function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => void }) {
@@ -113,17 +133,6 @@ function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => v
         <h1>Mỗi nhạc cụ là một<br /><em>mảnh ký ức văn hóa.</em></h1>
         <p>Khám phá nguồn gốc, cấu tạo, không gian diễn xướng và vai trò của những nhạc cụ đã đồng hành cùng đời sống người Việt qua nhiều thế hệ.</p>
       </div>
-      <div className="explore-hero-card">
-        <div className="explore-stat-row">
-          <strong>{instruments.length.toString().padStart(2, '0')}</strong>
-          <span>Hồ sơ nhạc cụ</span>
-        </div>
-        <div className="explore-stat-row">
-          <strong>{families.filter(f => f !== 'Tất cả').length}</strong>
-          <span>Họ nhạc cụ</span>
-        </div>
-        <p className="explore-card-note">Nội dung dành cho tìm hiểu văn hóa — không yêu cầu đăng nhập hay theo lộ trình bài học.</p>
-      </div>
     </section>
 
     <section className="heritage-guide" aria-label="Các lớp thông tin"><div><Landmark /><span><strong>Bối cảnh lịch sử</strong><small>Hành trình của nhạc cụ trong đời sống</small></span></div><div><MapPin /><span><strong>Không gian văn hóa</strong><small>Vùng miền và loại hình diễn xướng</small></span></div><div><Music2 /><span><strong>Âm sắc & cấu tạo</strong><small>Chất liệu làm nên tiếng nói riêng</small></span></div></section>
@@ -136,23 +145,33 @@ function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => v
   </main>;
 }
 
-function getCourseThumbnail(course: CourseSummary | LearnerCourseSummary) {
-  if (course.thumbnailUrl && !course.thumbnailUrl.includes('600') && !course.thumbnailUrl.includes('placeholder')) {
-    return course.thumbnailUrl;
-  }
-  const inst = (course.instrument || '').toLocaleLowerCase();
-  if (inst.includes('sáo') || inst.includes('sao')) return '/images/Sao_Truc.jpg';
-  if (inst.includes('tranh')) return '/images/Dan_Tranh.jpg';
-  if (inst.includes('bầu') || inst.includes('bau')) return '/images/Dan_Bau.jpg';
-  if (inst.includes('đáy') || inst.includes('day')) return '/images/Dan_Day.jpg';
-  if (inst.includes('tỳ') || inst.includes('ty')) return '/images/Dan_Ty_Ba_Transparent.png';
-  if (inst.includes('nguyệt') || inst.includes('nguyet')) return '/images/Dan_Nguyet_Transparent.png';
-  if (inst.includes('nhị') || inst.includes('nhi')) return '/images/Dan_Nhi_Transparent.png';
-  return '/images/Sao_Truc.jpg';
-}
-
 function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | null; courses: Array<CourseSummary | LearnerCourseSummary>; loading: boolean; error: string; onAuth: () => void; onOpenLesson: (route?: LessonRoute) => void; onRefresh: () => Promise<void> }) {
-  return <main className="page learn-page"><div className="section-kicker">Học nhạc cụ Việt Nam</div><h1>Chọn một nhạc cụ để bắt đầu.</h1><p>Xem nội dung, lộ trình và các khóa học dành cho từng nhạc cụ.</p>{loading && <p role="status">Đang tải khóa học…</p>}{error && <div role="alert">{error} <button className="text-button" onClick={() => void onRefresh()}>Thử lại</button></div>}<div className="course-list">{instruments.map(instrument => <article className="course-card" key={instrument.id}><div className="course-card-top" style={{ backgroundImage: `linear-gradient(transparent,rgba(0,0,0,.4)),url(${getCourseThumbnail({ id: 0, title: '', description: '', accessType: '', instrument: instrument.name })})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: 200 }} /><div className="course-card-body"><h2>{instrument.name}</h2><p>{instrument.description}</p>{!loading && !error && <small>{courses.filter(course => course.instrument.toLocaleLowerCase() === instrument.name.toLocaleLowerCase()).length} khóa học đang mở</small>}<p><a className="text-button" href={`/learn/${instrument.id}`}>Xem lộ trình & đăng ký học →</a></p></div></article>)}</div></main>;
+  const [family, setFamily] = useState('Tất cả');
+  const visible = instruments.filter(instrument => family === 'Tất cả' || instrument.family === family);
+  const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
+  return <main className="page learn-page">
+    <section className="learning-intro">
+      <div><span className="section-kicker">Học nhạc cụ Việt Nam</span><h1>Thanh âm bạn yêu.<br /><em>Hành trình bạn chọn.</em></h1><p>Chọn nhạc cụ, xem lộ trình và tìm khóa học phù hợp. Bắt đầu từ một nốt nhạc, theo nhịp của riêng bạn.</p><a className="primary" href="#chon-nhac-cu">Chọn nhạc cụ để học <ArrowRight size={18} /></a></div>
+      <ol className="learning-steps" aria-label="Cách bắt đầu học">
+        <li><span>01</span><div><h2>Chọn nhạc cụ</h2><p>Tìm thanh âm khiến bạn muốn thử.</p></div></li>
+        <li><span>02</span><div><h2>Xem lộ trình</h2><p>Đọc nội dung từng chương trước khi chọn khóa.</p></div></li>
+        <li><span>03</span><div><h2>Bắt đầu học</h2><p>Đăng ký khóa phù hợp và vào bài học đầu tiên.</p></div></li>
+      </ol>
+    </section>
+    <section id="chon-nhac-cu" className="learning-catalog">
+      <div className="learning-catalog-heading"><div><span className="section-kicker">Từ yêu thích đến thực hành</span><h2>Bạn muốn học nhạc cụ nào?</h2></div><div className="family-filters" role="group" aria-label="Lọc nhạc cụ học tập">{['Tất cả', 'Họ dây', 'Họ hơi'].map(item => <button key={item} aria-pressed={family === item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div></div>
+      {loading && <p className="learning-notice" role="status">Đang cập nhật danh sách khóa học…</p>}
+      {error && <div className="learning-notice" role="alert"><span>{error} Bạn vẫn có thể chọn nhạc cụ bên dưới.</span><button className="text-button" onClick={() => void onRefresh()}>Thử lại</button></div>}
+      <div className="learning-grid">{visible.map(instrument => {
+        const count = courses.filter(course => normalize(course.instrument) === normalize(instrument.name)).length;
+        return <article className="learning-card" key={instrument.id}>
+          <div className="learning-card-art"><span>{instrument.family}</span><img src={`/images/generated/carousel-${instrument.id}.png`} alt={`${instrument.name} — minh họa`} loading="lazy" /></div>
+          <div className="learning-card-content"><p className="learning-tone">{instrument.tone}</p><h3>{instrument.name}</h3><p>{instrument.description}</p><div className="learning-card-footer">{!loading && !error && <small>{count > 0 ? `${count} khóa học đang mở` : 'Chưa có khóa học đang mở'}</small>}<a href={`/learn/${instrument.id}`} aria-label={`Xem lộ trình học ${instrument.name}`}>Xem lộ trình <ArrowRight size={18} /></a></div></div>
+        </article>;
+      })}</div>
+      <p className="learning-image-note">Ảnh nhạc cụ là minh họa, không dùng làm sơ đồ cấu tạo.</p>
+    </section>
+  </main>;
 }
 
 function Profile({ user, onAuth }: { user: AuthResponse | null; onAuth: () => void }) {
@@ -162,6 +181,7 @@ function Profile({ user, onAuth }: { user: AuthResponse | null; onAuth: () => vo
 }
 
 function InstrumentPage({ instrument }: { instrument: Instrument }) {
+  if (instrument.id === 'sao') return <BambooFluteArticle />;
   return <main className="page instrument-detail"><a href="/explore" className="text-button">← Khám phá nhạc cụ</a><article className="instrument-page-layout">
     <div className="modal-art" style={{ '--instrument-accent': instrument.accent } as React.CSSProperties}><img className={instrument.transparentImage ? 'transparent-instrument' : ''} src={instrument.transparentImage ?? instrument.image} alt={instrument.name} /><span>{instrument.symbol}</span><div className="modal-image-caption">Hiện vật · {instrument.family}</div></div>
     <div className="modal-content heritage-content">
