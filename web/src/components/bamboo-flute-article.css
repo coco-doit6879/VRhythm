@@ -6,8 +6,8 @@
 .flute-article a:focus-visible,.flute-article [tabindex]:focus-visible { outline:3px solid #a34f2e; outline-offset:5px; }
 .flute-back { display:inline-flex; padding:12px 0; font-size:13px; }
 .flute-heading { padding:54px 0 62px; max-width:940px; }
-.flute-article .flute-eyebrow { color:#596b61; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.8px; margin:0 0 16px; }
-.flute-heading h1 { font:800 clamp(52px,7vw,94px)/1.1 'Be Vietnam Pro',sans-serif; margin:0; letter-spacing:-3px; }
+.flute-article .flute-eyebrow { color:#596b61; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.8px; margin:0 0 6px; }
+.flute-heading h1 { font:700 clamp(38px, 5vw, 60px)/1.18 'Be Vietnam Pro',sans-serif; margin:0; letter-spacing:-3px; }
 .flute-heading h1 span { display:block; font-size:clamp(22px,3vw,35px); font-weight:500; letter-spacing:-1px; line-height:1.5; color:#9d5239; margin-top:17px; }
 .flute-subtitle { max-width:690px; font-size:16px; line-height:1.9; margin:22px 0 0; color:#526665; }
 .flute-layout { display:grid; grid-template-columns:210px minmax(0,1fr); gap:54px; align-items:start; border-top:1px solid #bbc8bf; padding-top:40px; }
@@ -19,7 +19,7 @@
 .flute-toc a span { color:#987257; font-size:10px; }
 .flute-content { min-width:0; }
 .flute-content>section { scroll-margin-top:105px; margin-bottom:70px; }
-.flute-content h2 { font:700 clamp(25px,3vw,36px)/1.35 'Be Vietnam Pro',sans-serif; letter-spacing:-1px; margin:0 0 24px; }
+.flute-content h2 { font:700 clamp(25px,3vw,36px)/1.3 'Be Vietnam Pro',sans-serif; letter-spacing:-1px; margin:6px 0 8px; }
 .flute-content h3 { font:600 20px/1.5 'Be Vietnam Pro',sans-serif; margin:24px 0 12px; }
 .flute-content p { font-size:15px; line-height:1.95; margin:0 0 20px; }
 .flute-cite { margin-left:4px; font:600 11px 'Be Vietnam Pro',sans-serif; white-space:nowrap; }

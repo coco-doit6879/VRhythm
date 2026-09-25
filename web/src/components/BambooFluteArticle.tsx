@@ -1,3 +1,4 @@
+import { ArrowLeft, Sparkles } from 'lucide-react';
 import './bamboo-flute-article.css';
 
 const sources = [
@@ -42,24 +43,27 @@ function FluteDiagram({ comparison = false }: { comparison?: boolean }) {
 export function BambooFluteArticle() {
   return <main className="flute-article">
     <div className="flute-wrap">
-      <a className="flute-back" href="/explore">← Tất cả nhạc cụ</a>
+      <a className="flute-back" href="/explore"><ArrowLeft size={16} /> Tất cả nhạc cụ</a>
       <header className="flute-heading">
-        <p className="flute-eyebrow">Nhạc cụ Việt Nam / Bộ hơi</p>
+        <p className="flute-eyebrow"><Sparkles size={14} /> Nhạc cụ Việt Nam / Bộ hơi</p>
         <h1>Sáo trúc<span>Một hơi thở, một miền văn hóa.</span></h1>
-        <p className="flute-subtitle">Từ ống trúc mộc mạc đến sân khấu biểu diễn, tìm hiểu cấu tạo, bản sắc và hành trình của một nhạc cụ quen thuộc trong âm nhạc Việt.</p>
+        <p className="flute-subtitle">Từ ống trúc mộc mạc đến sân khấu biểu diễn, tiếng sáo giữ một vị trí đặc biệt trong di sản âm nhạc Việt Nam.</p>
       </header>
       <div className="flute-layout">
-        <nav className="flute-toc" aria-label="Mục lục bài viết"><p>Trong bài viết</p><ol>{sections.map(([id, label], index) => <li key={id}><a href={`#${id}`}><span>0{index + 1}</span>{label}</a></li>)}</ol></nav>
-        <article className="flute-content" aria-label="Tìm hiểu sáo trúc">
+        <aside className="flute-toc">
+          <h3>Nội dung chính</h3>
+          <ol>{sections.map(([id, title]) => <li key={id}><a href={`#${id}`}>{title}</a></li>)}</ol>
+        </aside>
+        <article className="flute-content">
           <section id="tong-quan">
-            <p className="flute-eyebrow">01 / Làm quen</p><h2>Ống trúc nhỏ, tiếng ngân xa</h2>
+            <p className="flute-eyebrow"><Sparkles size={14} /> 01 / Tổng quan</p><h2>Ống trúc nhỏ, tiếng ngân xa</h2>
             <p>Sáo trúc là nhạc cụ hơi thuộc nhóm sáo ngang, thường được chế tác từ tre, trúc hoặc nứa. Dạng sáu lỗ bấm truyền thống hiện diện trong sinh hoạt dân gian, sân khấu truyền thống và biểu diễn chuyên nghiệp.<Cite n={1}/></p>
             <figure className="flute-photo"><img src="/images/girl_playing_flute.jpg" alt="Một người chơi sáo ngang trong không gian ngoài trời" width="1200" height="800" fetchPriority="high"/><figcaption>Sáo được đặt ngang khi diễn tấu. Ảnh minh họa do nhóm cung cấp.</figcaption></figure>
             <p>Theo Viện Âm nhạc Việt Nam, mẫu sáo truyền thống được mô tả có chiều dài khoảng 40–55 cm, đường kính 1,5–2 cm. Đây là kích thước tham khảo của một dạng sáo, không phải quy chuẩn chung cho mọi cây sáo trúc.<Cite n={1}/></p>
             <p className="flute-note"><strong>Một tên gọi, nhiều biến thể.</strong> Bên cạnh sáo sáu lỗ còn có sáo cải tiến mười lỗ. Số lỗ, kích thước và cao độ có thể thay đổi theo nhu cầu biểu diễn.<Cite n={1}/></p>
           </section>
           <section id="cau-tao">
-            <p className="flute-eyebrow">02 / Nhìn gần hơn</p><h2>Cấu tạo của sáo ngang sáu lỗ</h2>
+            <p className="flute-eyebrow"><Sparkles size={14} /> 02 / Cấu tạo</p><h2>Cấu tạo của sáo ngang sáu lỗ</h2>
             <FluteDiagram/>
             <dl className="flute-parts">
               <div><dt><span>01</span>Lỗ thổi</dt><dd>Nằm bên thân ống. Luồng hơi đi qua cạnh lỗ thổi làm cột không khí bên trong dao động.<Cite n={1}/></dd></div>
@@ -69,12 +73,12 @@ export function BambooFluteArticle() {
             </dl>
           </section>
           <section id="van-hoa">
-            <p className="flute-eyebrow">03 / Không gian văn hóa</p><h2>Không chỉ là tiếng sáo độc tấu</h2>
+            <p className="flute-eyebrow"><Sparkles size={14} /> 03 / Trong âm nhạc Việt</p><h2>Không chỉ là tiếng sáo độc tấu</h2>
             <div className="flute-culture"><div><p>Trong Chèo, sáo có thể gợi hơi, lấy giọng cho diễn viên, đệm theo giai điệu hát và hòa tấu cùng dàn nhạc. Tiếng sáo còn góp phần diễn tả tâm trạng nhân vật, kết nối phần hát với diễn biến trên sân khấu.<Cite n={2}/></p><p>Người nhạc công không chỉ chơi đúng nốt: họ cần lắng nghe, theo sát giọng hát và xử lý âm sắc phù hợp với từng tình huống biểu diễn.<Cite n={2}/></p></div><figure className="flute-photo"><img src="/images/sao_truc_dan_nhac_cheo.jpg" alt="Nghệ sĩ thổi sáo trên sân khấu, bên cạnh người chơi đàn tranh" width="888" height="555" loading="lazy"/><figcaption>Biểu diễn sáo cùng nhạc cụ dân tộc. Ảnh do nhóm cung cấp; không dùng ảnh để xác định một tiết mục Chèo cụ thể.</figcaption></figure></div>
             <p>Sáo cũng xuất hiện trong hát Văn và dàn nhạc cung đình. Nghiên cứu được Học viện Âm nhạc Quốc gia Việt Nam công bố cho thấy các làn điệu Chầu Văn tiếp tục được khai thác trong giảng dạy sáo trúc.<Cite n={1}/><Cite n={3}/></p>
           </section>
           <section id="doi-chieu">
-            <p className="flute-eyebrow">04 / Đối chiếu hai truyền thống</p><h2>Sáo trúc Việt Nam & Dizi Trung Quốc</h2>
+            <p className="flute-eyebrow"><Sparkles size={14} /> 04 / Sáo trúc & Dizi</p><h2>Sáo trúc Việt Nam & Dizi Trung Quốc</h2>
             <p>Cùng thuộc nhóm sáo ngang và thường làm từ tre, hai nhạc cụ có nét tương đồng về hình dáng. Tuy vậy, cấu tạo và cách xử lý âm thanh tạo nên những bản sắc riêng.<Cite n={1}/><Cite n={5}/></p>
             <div className="flute-paper"><p className="flute-paper-title">Ghi chép bên tiếng sáo</p><div className="flute-table-scroll" role="region" aria-label="Bảng so sánh sáo trúc và dizi"><table><caption>Những điểm nhận biết chính <Cite n={1}/><Cite n={5}/></caption><thead><tr><th scope="col">Đặc điểm</th><th scope="col">Sáo trúc Việt Nam</th><th scope="col">Dizi Trung Quốc</th></tr></thead><tbody>
               <tr><th scope="row">Họ nhạc cụ</th><td><span className="flute-mobile-label">Sáo trúc Việt Nam</span>Sáo ngang</td><td><span className="flute-mobile-label">Dizi Trung Quốc</span>Sáo ngang</td></tr>
@@ -90,12 +94,12 @@ export function BambooFluteArticle() {
             <p>Vì vậy, hình dáng gần nhau không đồng nghĩa với cùng một thẩm mỹ âm thanh. So sánh cấu tạo là cách để hiểu sự đa dạng, không phải để xếp hạng hai truyền thống.</p>
           </section>
           <section id="hanh-trinh">
-            <p className="flute-eyebrow">05 / Di sản đang sống</p><h2>Một hành trình vẫn tiếp diễn</h2>
+            <p className="flute-eyebrow"><Sparkles size={14} /> 05 / Hành trình tiếp nối</p><h2>Một hành trình vẫn tiếp diễn</h2>
             <p>Sáo trúc không dừng lại ở một hình mẫu bất biến. Sự phát triển của nhạc cụ gắn với công việc biểu diễn, sáng tác, cải tiến và truyền dạy qua nhiều thế hệ.</p>
             <div className="flute-timeline"><div><span>Cải tiến nhạc cụ</span><h3>Từ sáu đến mười lỗ</h3><p>Viện Âm nhạc Việt Nam ghi nhận vào cuối thập niên 1970, Đinh Thìn và Ngô Nam cải tiến sáo sáu lỗ thành mười lỗ để mở rộng âm vực, tạo thuận lợi khi diễn tấu tác phẩm mới.<Cite n={1}/></p></div><div><span>Tác phẩm & nghệ sĩ</span><h3>Mở rộng ngôn ngữ biểu diễn</h3><p><em>Tiếng gọi mùa xuân</em> của Đinh Thìn và <em>Tình quê</em> của Hoàng Đạm được Viện Âm nhạc nhắc đến khi giới thiệu khả năng của sáo cải tiến.<Cite n={1}/></p></div><div><span>Nghiên cứu & truyền dạy</span><h3>Tiếp nối trong đào tạo</h3><p>Danh mục nghiên cứu của Học viện Âm nhạc Quốc gia Việt Nam ghi nhận luận văn năm 2019 của Dương Ngọc Tú về giảng dạy mười tác phẩm mới cho sinh viên đại học sáo trúc. Bên cạnh bài bản cổ truyền, tác phẩm mới tiếp tục là một hướng nghiên cứu và đào tạo.<Cite n={4}/></p></div></div>
           </section>
-          <section id="nguon" className="flute-sources"><p className="flute-eyebrow">06 / Đọc thêm từ nguồn gốc</p><h2>Tài liệu tham khảo</h2><p>Bấm số trích dẫn để đến tài liệu tương ứng tại đây; bấm tên tài liệu để mở nguồn ở thẻ mới. Nội dung được biên tập từ tài liệu nhóm cung cấp và đối chiếu với các nguồn dưới đây.</p><ol>{sources.map((source, index) => <li key={source.url} id={`nguon-${index + 1}`} tabIndex={-1}><span className="flute-source-number">[{index + 1}]</span><div><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title} <span aria-hidden="true">↗</span><span className="flute-sr-only"> (mở thẻ mới)</span></a><p>{source.publisher}</p><small>{source.note}</small></div></li>)}</ol><p className="flute-image-credit">Ảnh: tư liệu do nhóm cung cấp. Chưa có thông tin tác giả hoặc giấy phép kèm theo; cần bổ sung ghi công và xác nhận quyền sử dụng trước khi xuất bản chính thức.</p></section>
-          <section className="flute-learn"><p className="flute-eyebrow">Từ tìm hiểu đến thực hành</p><h2>Để tiếng sáo bắt đầu từ bạn.</h2><p>Xem nội dung và lộ trình học sáo trúc trước khi bắt đầu.</p><a href="/learn/sao">Bắt đầu học sáo trúc <span aria-hidden="true">↗</span></a></section>
+          <section id="nguon" className="flute-sources"><p className="flute-eyebrow"><Sparkles size={14} /> 06 / Đọc thêm từ nguồn gốc</p><h2>Tài liệu tham khảo</h2><p>Bấm số trích dẫn để đến tài liệu tương ứng tại đây; bấm tên tài liệu để mở nguồn ở thẻ mới. Nội dung được biên tập từ tài liệu nhóm cung cấp và đối chiếu với các nguồn dưới đây.</p><ol>{sources.map((source, index) => <li key={source.url} id={`nguon-${index + 1}`} tabIndex={-1}><span className="flute-source-number">[{index + 1}]</span><div><a href={source.url} target="_blank" rel="noopener noreferrer">{source.title} <span aria-hidden="true">↗</span><span className="flute-sr-only"> (mở thẻ mới)</span></a><p>{source.publisher}</p><small>{source.note}</small></div></li>)}</ol><p className="flute-image-credit">Ảnh: tư liệu do nhóm cung cấp. Chưa có thông tin tác giả hoặc giấy phép kèm theo; cần bổ sung ghi công và xác nhận quyền sử dụng trước khi xuất bản chính thức.</p></section>
+          <section className="flute-learn"><p className="flute-eyebrow"><Sparkles size={14} /> Từ tìm hiểu đến thực hành</p><h2>Để tiếng sáo bắt đầu từ bạn.</h2><p>Xem nội dung và lộ trình học sáo trúc trước khi bắt đầu.</p><a href="/learn/sao">Bắt đầu học sáo trúc <span aria-hidden="true">↗</span></a></section>
         </article>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Sparkles } from 'lucide-react';
 
 type Props = { mode: 'login' | 'register'; onModeChange: (mode: 'login' | 'register') => void; onSubmit: (data: { fullName?: string; email: string; password: string }) => Promise<void> };
 
@@ -20,8 +21,8 @@ export function AuthPanel({ mode, onModeChange, onSubmit }: Props) {
   };
   return <section className="auth-layout">
     <div className="auth-story">
-      <span className="eyebrow">Một hành trình · Vạn giai điệu</span>
-      <h1>Học bằng tai.<br /><em>Nhớ bằng tim.</em></h1>
+      <span className="eyebrow"><Sparkles size={14} /> Một hành trình · Vạn giai điệu</span>
+      <h1>Học bằng tai<br /><em>Nhớ bằng tim</em></h1>
       <p>Để VRhythm đi cùng bạn từ nốt nhạc đầu tiên đến giai điệu của riêng mình.</p>
       <p className="quote">“Âm nhạc truyền thống không ở phía sau chúng ta.<br />Di sản ấy đang chờ được nghe lại.”</p>
     </div>
@@ -30,7 +31,7 @@ export function AuthPanel({ mode, onModeChange, onSubmit }: Props) {
         <button className={mode === 'login' ? 'active' : ''} onClick={() => onModeChange('login')}>Đăng nhập</button>
         <button className={mode === 'register' ? 'active' : ''} onClick={() => onModeChange('register')}>Tạo tài khoản</button>
       </div>
-      <h2>{mode === 'login' ? 'Chào mừng trở lại' : 'Bắt đầu hành trình'}</h2>
+      <h2><Sparkles size={20} style={{ color: 'var(--teal)', display: 'inline-block', verticalAlign: 'middle', marginRight: '8px' }} />{mode === 'login' ? 'Chào mừng trở lại' : 'Bắt đầu hành trình'}</h2>
       <p className="muted">{mode === 'login' ? 'Tiếp tục nơi bạn đã dừng lại.' : 'Chọn nhạc cụ và học theo nhịp của bạn.'}</p>
       {error && <div className="auth-error" style={{ color: '#c85c48', fontSize: '12px', margin: '8px 0' }}>{error}</div>}
       <form onSubmit={submit}>
@@ -47,7 +48,7 @@ export function AuthPanel({ mode, onModeChange, onSubmit }: Props) {
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
         </svg>
-        <span>Tiếp tục với Google</span>
+        <span>Đăng nhập bằng Google</span>
       </button>
     </div>
   </section>;

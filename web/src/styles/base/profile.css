@@ -4,7 +4,7 @@
 .profile-avatar:where(.profile-page, .profile-page *) { width:104px; height:104px; flex:0 0 auto; display:grid; place-items:center; overflow:hidden; color:var(--ink); border-radius:50%; background:#f1b66d; font-size:30px; font-weight:700; }
 .profile-avatar:where(.profile-page, .profile-page *) img { width:100%; height:100%; object-fit:cover; }
 .profile-hero:where(.profile-page, .profile-page *) .section-kicker { color:#f1b66d; }
-.profile-hero:where(.profile-page, .profile-page *) h1 { margin:10px 0 8px; font:500 clamp(34px,5vw,56px)/1.05 'Playfair Display',Georgia,serif; }
+.profile-hero:where(.profile-page, .profile-page *) h1 { margin:10px 0 8px; font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',Georgia,serif; letter-spacing:-1.2px; }
 .profile-hero:where(.profile-page, .profile-page *) p { margin:0; color:#d5e8e2; }
 .profile-details:where(.profile-page, .profile-page *) { display:grid; grid-template-columns:repeat(3,1fr); margin-top:28px; border:1px solid var(--line); border-radius:10px; background:var(--cream); }
 .profile-details:where(.profile-page, .profile-page *)>div { display:grid; grid-template-columns:30px 1fr; gap:6px 12px; padding:24px; border-right:1px solid var(--line); }

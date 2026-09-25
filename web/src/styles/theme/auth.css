@@ -5,3 +5,6 @@
 .app-shell .divider:where(.auth-layout, .auth-layout *):before,
 .app-shell .divider:where(.auth-layout, .auth-layout *):after { background:var(--line); }
 .app-shell .auth-quote:where(.auth-layout, .auth-layout *) { font-family:'Be Vietnam Pro',sans-serif; }
+
+.app-shell .social-button:where(.auth-layout, .auth-layout *) { background:#e6edde; color:var(--ink)!important; border-color:var(--line); font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; }
+.app-shell .social-button:where(.auth-layout, .auth-layout *):hover { background:#d9e6d0; border-color:var(--teal); }

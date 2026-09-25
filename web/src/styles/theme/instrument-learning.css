@@ -9,3 +9,14 @@
 @media(max-width:620px) {
   .instrument-learning .instrument-page-hero { padding:22px; gap:20px; }
 }
+
+.instrument-learning .hero-explore-btn { display:inline-flex; align-items:center; gap:10px; padding:12px 22px; border-radius:8px; background:var(--teal); color:var(--paper)!important; font-weight:700; font-size:14px; text-decoration:none; margin-top:16px; box-shadow:0 6px 18px rgba(82,183,136,.25); transition:all .2s ease; }
+.instrument-learning .hero-explore-btn:hover { background:#40916C; color:#fff!important; }
+.instrument-learning .course-overview { background:#f5f7f0; border-radius:18px; padding:28px 32px; margin-top:20px; }
+.instrument-learning .course-overview header h2 { font-size:clamp(24px,3.2vw,34px); margin:0 0 8px; line-height:1.2; }
+.instrument-learning .course-overview header p { color:var(--muted); font-size:15px; line-height:1.6; margin:0 0 14px; }
+.instrument-learning .course-overview h3 { margin-top:16px; margin-bottom:8px; font-size:19px; font-weight:700; }
+.instrument-learning .course-topics { padding-left:20px; margin:6px 0 14px; display:flex; flex-direction:column; gap:5px; line-height:1.55; }
+.instrument-learning .course-topics li { font-size:15px; color:var(--ink); }
+.instrument-learning .course-roadmap summary { padding:10px 0; cursor:pointer; }
+.instrument-learning .course-roadmap { margin-top:6px; }

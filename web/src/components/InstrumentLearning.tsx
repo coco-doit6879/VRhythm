@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import type { Instrument } from '../data/mock';
 import { api, courseErrorMessage, type AuthResponse, type CourseDetail } from '../services/api';
 
@@ -32,8 +33,8 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
   };
 
   return <main className="page instrument-learning">
-    <a className="text-button" href="/learn">← Danh mục học tập</a>
-    <section className="instrument-page-hero"><div><span className="section-kicker">Từ tìm hiểu đến thực hành</span><h1>Học {instrument.name.toLocaleLowerCase('vi')}</h1><p>Khám phá nội dung và lộ trình từng khóa học trước khi đăng ký. Chọn khóa phù hợp để bắt đầu hành trình cùng {instrument.name.toLocaleLowerCase('vi')}.</p><a href={`/explore/${instrument.id}`} className="text-button">Tìm hiểu văn hóa của nhạc cụ →</a></div><img src={`/images/generated/carousel-${instrument.id}.webp`} alt={`${instrument.name} — minh họa`} /></section>
+    <a className="text-button" href="/learn"><ArrowLeft size={18} /> Danh mục học tập</a>
+    <section className="instrument-page-hero"><div><span className="section-kicker"><Sparkles size={14} /> Từ tìm hiểu đến thực hành</span><h1>Học {instrument.name.toLocaleLowerCase('vi')}</h1><p>Khám phá nội dung và lộ trình từng khóa học trước khi đăng ký. Chọn khóa phù hợp để bắt đầu hành trình cùng {instrument.name.toLocaleLowerCase('vi')}.</p><a href={`/explore/${instrument.id}`} className="primary hero-explore-btn">Tìm hiểu văn hóa nhạc cụ <ArrowRight size={18} /></a></div><img src={`/images/generated/carousel-${instrument.id}.webp`} alt={`${instrument.name} — minh họa`} /></section>
     {loading && <p role="status">Đang tải nội dung khóa học…</p>}
     {error && <div role="alert" className="course-state error">{error} <button className="text-button" onClick={() => setRevision(value => value + 1)}>Thử lại</button></div>}
     {!loading && !error && courses.length === 0 && <div className="course-state"><h2>Chưa có khóa học đang mở</h2><p>Các khóa học {instrument.name.toLocaleLowerCase('vi')} sẽ xuất hiện tại đây khi được phát hành.</p><a href="/learn" className="text-button">Xem những khóa học khác →</a></div>}
@@ -42,7 +43,7 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
       const lessons = chapters.flatMap(chapter => [...chapter.lessons].sort((a, b) => a.sortOrder - b.sortOrder).map(lesson => ({ ...lesson, chapterId: chapter.id })));
       const next = lessons.find(lesson => !lesson.isCompleted) ?? lessons[0];
       return <section className="course-overview" key={course.id}>
-        <header><span className="section-kicker">{course.accessType === 'Free' ? 'Miễn phí' : 'Khóa học cần mở khóa'} · {chapters.length} chương · {lessons.length} bài</span><h2>{course.title}</h2><p>{course.description}</p></header>
+        <header><span className="section-kicker"><Sparkles size={14} /> {course.accessType === 'Free' ? 'Miễn phí' : 'Khóa học cần mở khóa'} · {chapters.length} chương · {lessons.length} bài</span><h2>{course.title}</h2><p>{course.description}</p></header>
         <h3>Bạn sẽ học những gì?</h3><ul className="course-topics">{chapters.map(chapter => <li key={chapter.id}>{chapter.title}</li>)}</ul>
         <h3>Lộ trình học</h3>
         {chapters.length === 0 && <p>Nội dung chi tiết đang được cập nhật.</p>}

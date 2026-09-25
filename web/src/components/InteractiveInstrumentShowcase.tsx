@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { instruments, type Instrument } from '../data/mock';
 
@@ -71,7 +71,8 @@ export function InteractiveInstrumentShowcase({ onSelect }: { onSelect: (instrum
       }}>
       {/* Title & Subtitle Centered at Top */}
       <div className="carousel-header">
-        <h2>7 nhạc cụ <span className="keep-together">truyền thống</span></h2>
+        <span className="section-kicker"><Sparkles size={14} /> Bộ sưu tập di sản</span>
+        <h2><span style={{ whiteSpace: 'nowrap' }}>7 nhạc cụ truyền thống</span></h2>
         <p>Mỗi nhạc cụ là một bản độc tấu riêng của mỗi bạn trẻ.</p>
       </div>
 

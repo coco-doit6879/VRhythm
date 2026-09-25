@@ -1,12 +1,16 @@
 .instrument-detail a,.instrument-learning a,.learn-page a { text-decoration:none; }
-.instrument-page-layout { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:48px; margin-top:28px; }
-.instrument-page-layout .modal-art { position:sticky; top:110px; height:480px; min-height:0; border-radius:12px; overflow:hidden; }
-.instrument-page-layout .modal-art img { width:100%; height:100%; object-fit:contain; padding:32px; }
+.instrument-page-layout { display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr); gap:clamp(32px,5vw,56px); margin-top:28px; align-items:start; }
+.instrument-page-layout .modal-art { position:sticky; top:90px; align-self:start; height:clamp(420px,calc(100vh - 130px),560px); min-height:380px; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); will-change:transform; z-index:2; }
+.instrument-page-layout .modal-art img { width:100%; height:100%; object-fit:contain; padding:clamp(24px,4vw,40px); filter:drop-shadow(0 16px 22px rgba(0,0,0,.25)); }
 .instrument-page-layout .heritage-content { padding:0; min-width:0; }
-.instrument-page-layout h1 { font:500 clamp(38px,5vw,64px)/1.15 'Playfair Display',Georgia,serif; margin:16px 0; }
-.instrument-page-layout .story-section p { font-size:15px; }
+.instrument-page-layout h1 { font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',Georgia,serif; letter-spacing:-1.2px; margin:16px 0; }
+.instrument-page-layout .story-section p { font-size: 17px; line-height: 1.8; color: var(--muted); }
+.instrument-page-layout .story-section h3 { font-size: 21px; line-height: 1.35; margin-bottom: 8px; }
+.instrument-page-layout .modal-lead { font-size: 18px; line-height: 1.75; }
+.instrument-page-layout .story-section ul li { font-size: 16px; line-height: 1.8; }
+.text-button svg { display: inline-block; vertical-align: middle; }
 .instrument-page-hero { display:grid; grid-template-columns:1.2fr .8fr; gap:48px; align-items:center; padding:48px 0; }
-.instrument-page-hero h1 { font:500 clamp(36px,5vw,64px)/1.15 'Playfair Display',Georgia,serif; margin:16px 0; }
+.instrument-page-hero h1 { font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',Georgia,serif; letter-spacing:-1.2px; margin:16px 0; }
 .instrument-page-hero p,.course-overview p { color:var(--muted); line-height:1.8; }
 .instrument-page-hero img { width:100%; height:300px; object-fit:contain; padding:24px; background:var(--cream); border-radius:12px; }
 .course-overview { margin:32px 0; padding:32px; background:var(--cream); border:1px solid var(--line); border-radius:12px; }

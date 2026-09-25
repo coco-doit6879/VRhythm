@@ -9,10 +9,10 @@
 .app-shell .instrument-feature:where(.instrument-features, .instrument-features *) figure img { display:block; width:100%; }
 .app-shell .instrument-feature:where(.instrument-features, .instrument-features *) figcaption { position:absolute; left:10px; bottom:10px; padding:4px 7px; font-size:10px; border-radius:4px; background:#edf2e8e6; color:#566859; }
 @media(max-width:380px) {
-  .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .primary { padding:10px 8px; gap:4px; }
+  .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .primary { padding:10px 18px; gap:8px; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; }
 }
 @media(max-width:620px) {
-  .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .primary { font-size:12px; padding:10px 8px; gap:4px; }
+  .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .primary { font-size:13px; padding:10px 18px; gap:8px; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; }
   .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .feature-detail { font-size:12px; line-height:1.5; gap:4px; }
   .app-shell .feature-copy:where(.instrument-features, .instrument-features *) .feature-caption { font-size:14px; line-height:1.6; }
   .app-shell .instrument-feature:where(.instrument-features, .instrument-features *) figcaption { font-size:12px; bottom:8px; left:8px; }

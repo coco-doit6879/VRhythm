@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "deploy:pages": "npm run build && wrangler pages deploy dist --project-name vrhythm-student --branch main",
+    "deploy:pages": "npm run build && npx wrangler pages deploy dist --project-name vrhythm-student --branch main",
     "preview": "vite preview"
   },
   "dependencies": {

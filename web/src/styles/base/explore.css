@@ -4,7 +4,7 @@
 .explore-page { padding-top:0; }
 .explore-hero:where(.explore-page, .explore-page *) { min-height:440px; display:grid; grid-template-columns:1fr 340px; gap:40px; align-items:center; padding:64px 0 54px; }
 .explore-hero-copy:where(.explore-page, .explore-page *) { width:100%; }
-.explore-hero-copy:where(.explore-page, .explore-page *) h1 { max-width:900px; margin:18px 0 22px; font:500 clamp(44px,5.5vw,72px)/1.25 'Playfair Display',Georgia,serif; letter-spacing:-1.2px; text-wrap:balance; }
+.explore-hero-copy:where(.explore-page, .explore-page *) h1 { max-width:900px; margin:18px 0 22px; font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',Georgia,serif; letter-spacing:-1.2px; text-wrap:balance; }
 .explore-hero-copy:where(.explore-page, .explore-page *) h1 em { color:var(--orange); }
 .explore-hero-copy:where(.explore-page, .explore-page *) p { max-width:650px; margin:0; color:var(--muted); font-size:16px; line-height:1.75; }
 
@@ -47,8 +47,7 @@
 .explore-archive:where(.explore-page, .explore-page *) { width:calc(100% - 32px); margin-inline:auto; }
   .explore-hero:where(.explore-page, .explore-page *) { min-height:0; padding:48px 0 42px; }
   .explore-hero-copy:where(.explore-page, .explore-page *) h1 { margin:14px 0 20px; font-size:clamp(37px,11.4vw,46px); line-height:1.07; letter-spacing:-1px; }
-  .explore-hero-copy:where(.explore-page, .explore-page *) p { font-size:14px; line-height:1.72; }
-  .explore-page .section-kicker { font-size:10px; line-height:1.45; letter-spacing:1.15px; }
+  .explore-page .section-kicker { line-height:1.45; letter-spacing:1.4px; }
   .heritage-guide:where(.explore-page, .explore-page *) { width:100%; display:grid; grid-auto-flow:column; grid-template-columns:none; grid-auto-columns:82%; gap:10px; margin:0 0 58px; padding:0 16px 12px; overflow-x:auto; border:0; scroll-snap-type:x proximity; scrollbar-width:none; }
   .heritage-guide:where(.explore-page, .explore-page *)::-webkit-scrollbar { display:none; }
   .heritage-guide:where(.explore-page, .explore-page *)>div { min-height:88px; padding:18px; border:1px solid var(--line); border-radius:6px; background:var(--cream); scroll-snap-align:start; }

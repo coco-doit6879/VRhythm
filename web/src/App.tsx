@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './instrument-pages.css';
 import { BambooFluteArticle } from './components/BambooFluteArticle';
 import { InstrumentFeatures } from './components/InstrumentFeatures';
-import { ArrowRight, ChevronRight, Landmark, Mail, MapPin, Music2, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronRight, Landmark, Mail, MapPin, Music2, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
 import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
@@ -81,7 +81,7 @@ export default function App() {
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
   return <div className="app-shell"><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'home' && <Home onNavigate={navigate} onInstrument={setSelectedInstrument} />}
-    {isInstrumentRoute && !selectedInstrument && <main className="page"><h1>Không tìm thấy nhạc cụ</h1><a href="/explore">Quay lại Khám phá</a></main>}
+    {isInstrumentRoute && !selectedInstrument && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>Không tìm thấy nhạc cụ</h1><a href="/explore">Quay lại Khám phá</a></main>}
     {view === 'explore' && !isInstrumentRoute && <Explore onInstrument={setSelectedInstrument} />}
     {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
     {view === 'learn' && selectedInstrument && <InstrumentLearning instrument={selectedInstrument} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} onLesson={openLesson} />}
@@ -102,7 +102,7 @@ function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; 
     <section className="hero">
       <div className="hero-copy">
         <span className="eyebrow"><Sparkles size={14} /> Âm nhạc Việt trên nền tảng số</span>
-        <h1>Việt Nam trong từng thanh âm.<br /><em>Khám phá theo cách của bạn.</em></h1>
+        <h1>Việt Nam trong từng thanh âm<br /><em>Khám phá theo cách của bạn</em></h1>
         <p>Bắt đầu học nhạc cụ truyền thống cùng VRhythm — chọn nhạc cụ bạn yêu thích, tìm hiểu lộ trình và thực hành từng bước.</p>
         <div className="hero-actions">
           <button className="primary hero-learn-button" onClick={() => onNavigate('learn')}>Bắt đầu học <ArrowRight size={19} /></button>
@@ -114,10 +114,20 @@ function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; 
     <InteractiveInstrumentShowcase onSelect={onInstrument} />
     <InstrumentFeatures />
     <section className="manifesto">
-      <h2>Di sản chỉ sống khi<br /><em>được tiếp tục.</em></h2>
-      <div><p>Mỗi lần bạn tập một nốt nhạc, tiếng đàn truyền thống lại có thêm một người tiếp nối.</p><p>Chọn nhạc cụ mình yêu thích và bắt đầu từ bài học đầu tiên. VRhythm đồng hành cùng bạn trên hành trình ấy.</p></div>
+      <h2 className="manifesto-title">DI SẢN CHỈ SỐNG KHI ĐƯỢC TIẾP TỤC</h2>
+      <div className="manifesto-body">
+        <p>Mỗi lần bạn tập một nốt nhạc, giai điệu truyền thống sẽ có thêm một người tiếp nối.</p>
+        <p>Chọn nhạc cụ mình yêu thích và bắt đầu từ bài học đầu tiên.</p>
+        <p>VRhythm đồng hành cùng bạn trên hành trình này.</p>
+      </div>
     </section>
-    <section className="home-cta"><div><span className="eyebrow">Học theo nhịp của bạn</span><h2>Một nốt nhạc hôm nay.<br />Một giai điệu ngày mai.</h2></div><button className="primary cta-btn-bright" onClick={() => onNavigate('learn')}>BẮT ĐẦU HỌC <ArrowRight size={17} /></button></section>
+    <section className="home-cta">
+      <div>
+        <span className="eyebrow"><Sparkles size={14} /> Học theo nhịp của bạn</span>
+        <h2>Một nốt nhạc hôm nay<br /><em>Một giai điệu ngày mai</em></h2>
+      </div>
+      <button className="primary cta-btn-bright" onClick={() => onNavigate('learn')}>BẮT ĐẦU HỌC <ArrowRight size={17} /></button>
+    </section>
   </main>;
 }
 
@@ -129,8 +139,8 @@ function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => v
   return <main className="page explore-page">
     <section className="explore-hero">
       <div className="explore-hero-copy">
-        <div className="section-kicker">Thư viện di sản âm nhạc Việt Nam</div>
-        <h1>Mỗi nhạc cụ là một<br /><em>mảnh ký ức văn hóa.</em></h1>
+        <div className="section-kicker"><Sparkles size={14} /> Thư viện di sản âm nhạc Việt Nam</div>
+        <h1>Mỗi nhạc cụ là một<br /><em>mảnh ký ức văn hóa</em></h1>
         <p>Khám phá nguồn gốc, cấu tạo, không gian diễn xướng và vai trò của những nhạc cụ đã đồng hành cùng đời sống người Việt qua nhiều thế hệ.</p>
       </div>
     </section>
@@ -138,7 +148,7 @@ function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => v
     <section className="heritage-guide" aria-label="Các lớp thông tin"><div><Landmark /><span><strong>Bối cảnh lịch sử</strong><small>Hành trình của nhạc cụ trong đời sống</small></span></div><div><MapPin /><span><strong>Không gian văn hóa</strong><small>Vùng miền và loại hình diễn xướng</small></span></div><div><Music2 /><span><strong>Âm sắc & cấu tạo</strong><small>Chất liệu làm nên tiếng nói riêng</small></span></div></section>
 
     <section className="explore-archive">
-      <div className="archive-heading"><div><div className="section-kicker">Danh mục nhạc cụ</div><h2>Tra cứu theo họ nhạc cụ</h2></div><div className="family-filters" role="group" aria-label="Lọc theo họ nhạc cụ">{families.map(item => <button key={item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div></div>
+      <div className="archive-heading"><div><div className="section-kicker"><Sparkles size={14} /> Danh mục nhạc cụ</div><h2>Tra cứu theo họ nhạc cụ</h2></div><div className="family-filters" role="group" aria-label="Lọc theo họ nhạc cụ">{families.map(item => <button key={item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div></div>
       <div className="explore-grid">{visibleInstruments.map(instrument => <InstrumentCard key={instrument.id} instrument={instrument} onSelect={onInstrument} />)}</div>
     </section>
 
@@ -151,7 +161,7 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
   const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
   return <main className="page learn-page">
     <section className="learning-intro">
-      <div><span className="section-kicker">Học nhạc cụ Việt Nam</span><h1>Thanh âm bạn yêu.<br /><em>Hành trình bạn chọn.</em></h1><p>Chọn nhạc cụ, xem lộ trình và tìm khóa học phù hợp. Bắt đầu từ một nốt nhạc, theo nhịp của riêng bạn.</p><a className="primary" href="#chon-nhac-cu">Chọn nhạc cụ để học <ArrowRight size={18} /></a></div>
+      <div><span className="section-kicker"><Sparkles size={14} /> Học nhạc cụ Việt Nam</span><h1>Thanh âm bạn yêu<br /><em>Hành trình bạn chọn</em></h1><p>Chọn nhạc cụ, xem lộ trình và tìm khóa học phù hợp. Bắt đầu từ một nốt nhạc, theo nhịp của riêng bạn.</p><a className="primary" href="#chon-nhac-cu">Chọn nhạc cụ để học <ArrowRight size={18} /></a></div>
       <ol className="learning-steps" aria-label="Cách bắt đầu học">
         <li><span>01</span><div><h2>Chọn nhạc cụ</h2><p>Tìm thanh âm khiến bạn muốn thử.</p></div></li>
         <li><span>02</span><div><h2>Xem lộ trình</h2><p>Đọc nội dung từng chương trước khi chọn khóa.</p></div></li>
@@ -159,7 +169,7 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
       </ol>
     </section>
     <section id="chon-nhac-cu" className="learning-catalog">
-      <div className="learning-catalog-heading"><div><span className="section-kicker">Từ yêu thích đến thực hành</span><h2>Bạn muốn học nhạc cụ nào?</h2></div><div className="family-filters" role="group" aria-label="Lọc nhạc cụ học tập">{['Tất cả', 'Họ dây', 'Họ hơi'].map(item => <button key={item} aria-pressed={family === item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div></div>
+      <div className="learning-catalog-heading"><div><span className="section-kicker"><Sparkles size={14} /> Từ yêu thích đến thực hành</span><h2>Bạn muốn học nhạc cụ nào?</h2></div><div className="family-filters" role="group" aria-label="Lọc nhạc cụ học tập">{['Tất cả', 'Họ dây', 'Họ hơi'].map(item => <button key={item} aria-pressed={family === item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div></div>
       {loading && <p className="learning-notice" role="status">Đang cập nhật danh sách khóa học…</p>}
       {error && <div className="learning-notice" role="alert"><span>{error} Bạn vẫn có thể chọn nhạc cụ bên dưới.</span><button className="text-button" onClick={() => void onRefresh()}>Thử lại</button></div>}
       <div className="learning-grid">{visible.map(instrument => {
@@ -175,22 +185,22 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
 }
 
 function Profile({ user, onAuth }: { user: AuthResponse | null; onAuth: () => void }) {
-  if (!user) return <main className="page profile-page"><section className="profile-empty"><UserRound size={38} /><h1>Hồ sơ người học</h1><p>Đăng nhập để xem thông tin tài khoản của bạn.</p><button className="primary" onClick={onAuth}>Đăng nhập</button></section></main>;
+  if (!user) return <main className="page profile-page"><section className="profile-empty"><div className="section-kicker"><Sparkles size={14} /> Hồ sơ người học</div><UserRound size={38} /><h1>Hồ sơ người học</h1><p>Đăng nhập để xem thông tin tài khoản của bạn.</p><button className="primary" onClick={onAuth}>Đăng nhập</button></section></main>;
   const initials = user.fullName.split(' ').filter(Boolean).slice(-2).map(part => part[0]).join('').toLocaleUpperCase('vi');
-  return <main className="page profile-page"><section className="profile-hero"><div className="profile-avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="Ảnh đại diện" /> : initials}</div><div><div className="section-kicker">Hồ sơ người học</div><h1>{user.fullName}</h1><p>Thông tin tài khoản được đồng bộ trực tiếp từ VRhythm.</p></div></section><section className="profile-details"><div><Mail /><span>Email</span><strong>{user.email}</strong></div><div><ShieldCheck /><span>Vai trò</span><strong>{user.role === 'Learner' ? 'Người học' : user.role}</strong></div><div><UserRound /><span>Mã người dùng</span><strong>#{user.userId}</strong></div></section></main>;
+  return <main className="page profile-page"><section className="profile-hero"><div className="profile-avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="Ảnh đại diện" /> : initials}</div><div><div className="section-kicker"><Sparkles size={14} /> Hồ sơ người học</div><h1>{user.fullName}</h1><p>Thông tin tài khoản được đồng bộ trực tiếp từ VRhythm.</p></div></section><section className="profile-details"><div><Mail /><span>Email</span><strong>{user.email}</strong></div><div><ShieldCheck /><span>Vai trò</span><strong>{user.role === 'Learner' ? 'Người học' : user.role}</strong></div><div><UserRound /><span>Mã người dùng</span><strong>#{user.userId}</strong></div></section></main>;
 }
 
 function InstrumentPage({ instrument }: { instrument: Instrument }) {
   if (instrument.id === 'sao') return <BambooFluteArticle />;
-  return <main className="page instrument-detail"><a href="/explore" className="text-button">← Khám phá nhạc cụ</a><article className="instrument-page-layout">
+  return <main className="page instrument-detail"><a href="/explore" className="text-button"><ArrowLeft size={18} /> Khám phá nhạc cụ</a><article className="instrument-page-layout">
     <div className="modal-art" style={{ '--instrument-accent': instrument.accent } as React.CSSProperties}><img className={instrument.transparentImage ? 'transparent-instrument' : ''} src={instrument.transparentImage ?? instrument.image} alt={instrument.name} /><span>{instrument.symbol}</span><div className="modal-image-caption">Hiện vật · {instrument.family}</div></div>
     <div className="modal-content heritage-content">
-      <div className="section-kicker">Hồ sơ di sản · {instrument.latinName}</div><h1 id={`instrument-${instrument.id}`}>{instrument.name}</h1><p className="modal-tone">{instrument.tone}</p><p className="modal-lead">{instrument.description}</p>
+      <div className="section-kicker"><Sparkles size={14} /> Hồ sơ di sản · {instrument.latinName}</div><h1 id={`instrument-${instrument.id}`}>{instrument.name}</h1><p className="modal-tone">{instrument.tone}</p><p className="modal-lead">{instrument.description}</p>
       <div className="heritage-metadata"><span><small>Họ nhạc cụ</small><strong>{instrument.family}</strong></span><span><small>Không gian văn hóa</small><strong>{instrument.origin}</strong></span><span><small>Chất liệu chính</small><strong>{instrument.materials}</strong></span><span><small>Cách tạo âm</small><strong>{instrument.playingStyle}</strong></span></div>
       <section className="story-section"><div className="story-number">01</div><div><h3>Lịch sử & hành trình</h3><p>{instrument.history}</p></div></section>
       <section className="story-section"><div className="story-number">02</div><div><h3>Trong đời sống văn hóa</h3><p>{instrument.culturalContext}</p></div></section>
       <section className="story-section"><div className="story-number">03</div><div><h3>Dấu hiệu nhận biết</h3><ul>{instrument.facts.map(fact => <li key={fact}>{fact}</li>)}</ul></div></section>
       <div className="modal-cultural-note"><Landmark size={18} /><span><small>Giá trị văn hóa</small><strong>{instrument.culturalValue}</strong></span></div>
     </div>
-  </article><section className="home-cta"><div><span className="eyebrow">Tiếp nối câu chuyện bằng tiếng đàn của bạn</span><h2>Học {instrument.name.toLocaleLowerCase('vi')}</h2><p>Xem nội dung khóa học, lộ trình và đăng ký học.</p></div><a className="primary" href={`/learn/${instrument.id}`}>Bắt đầu học <ArrowRight size={17} /></a></section></main>;
+  </article><section className="home-cta"><div><span className="eyebrow"><Sparkles size={14} /> Tiếp nối câu chuyện bằng tiếng đàn của bạn</span><h2>Học {instrument.name.toLocaleLowerCase('vi')}</h2><p>Xem nội dung khóa học, lộ trình và đăng ký học.</p></div><a className="primary" href={`/learn/${instrument.id}`}>Bắt đầu học <ArrowRight size={17} /></a></section></main>;
 }
