@@ -149,7 +149,7 @@ export function InteractiveInstrumentShowcase({ onSelect }: { onSelect: (instrum
                   title={isActive ? `Bấm để xem chi tiết ${inst.name}` : `Chuyển sang ${inst.name}`}
                 >
                   <img
-                    src={`/images/generated/carousel-${inst.id}.png`}
+                    src={`/images/generated/carousel-${inst.id}.webp`}
                     alt={`${inst.name} — minh họa`}
                     className="carousel-instrument-img"
                     draggable={false}

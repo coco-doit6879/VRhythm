@@ -1,9 +1,9 @@
 import { ArrowUpRight, ArrowRight } from 'lucide-react';
 
 const features = [
-  { id: 'sao', name: 'Sáo trúc', title: 'Gửi giai điệu vào một hơi thở.', description: 'Một ống trúc mộc mạc, một thế giới thanh âm. Làm quen với hơi thổi, cách đặt tay và những giai điệu đầu tiên.', image: 'sao-truc-editorial.png', tag: 'Bộ hơi · Mộc mạc & trong trẻo' },
-  { id: 'nguyet', name: 'Đàn nguyệt', title: 'Chạm dây đàn, ngân nét Việt.', description: 'Từ dáng đàn tròn đến tiếng ngân sáng rõ, tìm hiểu đàn nguyệt và khám phá lộ trình học dành cho bạn.', image: 'dan-nguyet-editorial.png', tag: 'Bộ dây · Vang sáng & giàu biểu cảm' },
-  { id: 'tranh', name: 'Đàn tranh', title: 'Từng dây đàn, một sắc thái.', description: 'Khám phá tiếng đàn thanh thoát cùng nghệ thuật nhấn, rung và luyến. Bắt đầu từ những chuyển động nhỏ của đôi tay.', image: 'dan-tranh-editorial.png', tag: 'Bộ dây · Mềm mại & tinh tế' },
+  { id: 'sao', name: 'Sáo trúc', title: 'Gửi giai điệu vào một hơi thở.', description: 'Một ống trúc mộc mạc, một thế giới thanh âm. Làm quen với hơi thổi, cách đặt tay và những giai điệu đầu tiên.', image: 'sao-truc-editorial.webp', tag: 'Bộ hơi · Mộc mạc & trong trẻo' },
+  { id: 'nguyet', name: 'Đàn nguyệt', title: 'Chạm dây đàn, ngân nét Việt.', description: 'Từ dáng đàn tròn đến tiếng ngân sáng rõ, tìm hiểu đàn nguyệt và khám phá lộ trình học dành cho bạn.', image: 'dan-nguyet-editorial.webp', tag: 'Bộ dây · Vang sáng & giàu biểu cảm' },
+  { id: 'tranh', name: 'Đàn tranh', title: 'Từng dây đàn, một sắc thái.', description: 'Khám phá tiếng đàn thanh thoát cùng nghệ thuật nhấn, rung và luyến. Bắt đầu từ những chuyển động nhỏ của đôi tay.', image: 'dan-tranh-editorial.webp', tag: 'Bộ dây · Mềm mại & tinh tế' },
 ];
 
 export function InstrumentFeatures() {

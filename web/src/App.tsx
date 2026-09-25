@@ -109,7 +109,7 @@ function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; 
           <button className="text-button hero-explore-link" onClick={() => onNavigate('explore')}>Tìm hiểu nhạc cụ <ChevronRight size={15} /></button>
         </div>
       </div>
-      <div className="hero-art hero-brand-art"><img src="/images/generated/vrhythm-logo-full.png" alt="VRhythm — biểu tượng sáo và dây đàn cách điệu" width="1254" height="1254" fetchPriority="high" /></div>
+      <div className="hero-art hero-brand-art"><img src="/images/generated/vrhythm-logo-full.webp" alt="VRhythm — biểu tượng sáo và dây đàn cách điệu" width="1254" height="1254" fetchPriority="high" /></div>
     </section>
     <InteractiveInstrumentShowcase onSelect={onInstrument} />
     <InstrumentFeatures />
@@ -165,7 +165,7 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
       <div className="learning-grid">{visible.map(instrument => {
         const count = courses.filter(course => normalize(course.instrument) === normalize(instrument.name)).length;
         return <article className="learning-card" key={instrument.id}>
-          <div className="learning-card-art"><span>{instrument.family}</span><img src={`/images/generated/carousel-${instrument.id}.png`} alt={`${instrument.name} — minh họa`} loading="lazy" /></div>
+          <div className="learning-card-art"><span>{instrument.family}</span><img src={`/images/generated/carousel-${instrument.id}.webp`} alt={`${instrument.name} — minh họa`} loading="lazy" /></div>
           <div className="learning-card-content"><p className="learning-tone">{instrument.tone}</p><h3>{instrument.name}</h3><p>{instrument.description}</p><div className="learning-card-footer">{!loading && !error && <small>{count > 0 ? `${count} khóa học đang mở` : 'Chưa có khóa học đang mở'}</small>}<a href={`/learn/${instrument.id}`} aria-label={`Xem lộ trình học ${instrument.name}`}>Xem lộ trình <ArrowRight size={18} /></a></div></div>
         </article>;
       })}</div>

@@ -8,7 +8,7 @@ export function Header({ active, loggedIn, onNavigate, onSignOut }: Props) {
   const go = (view: string) => { onNavigate(view); setOpen(false); };
   return <header className="topbar">
     <button className="brand" onClick={() => go('home')} aria-label="VRhythm trang chủ">
-      <span className="brand-mark"><img src="/images/generated/vrhythm-logo-mark.png" alt="" width="44" height="44" /></span><span><strong>VRhythm</strong><small>Di sản · Nhịp điệu · Công nghệ</small></span>
+      <span className="brand-mark"><img src="/images/generated/vrhythm-logo-mark.webp" alt="" width="44" height="44" /></span><span><strong>VRhythm</strong><small>Di sản · Nhịp điệu · Công nghệ</small></span>
     </button>
     <div className="header-tools"><button className="menu-toggle" onClick={() => setOpen(!open)} aria-label={open ? 'Đóng menu' : 'Mở menu'} aria-expanded={open} aria-controls="main-navigation">{open ? <X /> : <Menu />}</button></div>
     <nav id="main-navigation" className={open ? 'nav open' : 'nav'}>
