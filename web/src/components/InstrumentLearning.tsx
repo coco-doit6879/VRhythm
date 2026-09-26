@@ -3,6 +3,42 @@ import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import type { Instrument } from '../data/mock';
 import { api, courseErrorMessage, type AuthResponse, type CourseDetail } from '../services/api';
 
+function refineCourseTitle(title: string): string {
+  return title.replace(/:\s*Từ Cơ Bản Đến Bèo Dạt Mây Trôi/gi, '').trim();
+}
+
+function refineCourseDescription(desc: string): string {
+  if (/bèo dạt mây trôi/i.test(desc) && /người mới bắt đầu/i.test(desc)) {
+    return 'Lộ trình học sáo trúc bài bản và dễ tiếp cận, đưa bạn từ những nốt nhạc đầu tiên đến khi tự tin chinh phục giai điệu dân ca kinh điển Bèo Dạt Mây Trôi.';
+  }
+  return desc;
+}
+
+function refineChapterTitle(title: string): string {
+  if (/Làm quen nốt nhạc/i.test(title)) {
+    return 'Làm quen nốt nhạc (Đô, Rê, Mi, Fa, Sol, La, Si)';
+  }
+  if (/Kỹ thuật trang trí/i.test(title)) {
+    return 'Kỹ thuật rung hơi và luyến ngón';
+  }
+  if (/Chinh phục Bèo Dạt Mây Trôi/i.test(title)) {
+    return 'Chinh phục giai điệu dân ca kinh điển Bèo Dạt Mây Trôi';
+  }
+  return title;
+}
+
+function refineCourse(course: CourseDetail): CourseDetail {
+  return {
+    ...course,
+    title: refineCourseTitle(course.title),
+    description: refineCourseDescription(course.description),
+    chapters: course.chapters.map(chapter => ({
+      ...chapter,
+      title: refineChapterTitle(chapter.title),
+    })),
+  };
+}
+
 export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { instrument: Instrument; user: AuthResponse | null; onAuth: () => void; onLesson: (route: { courseId: number; chapterId: number; lessonId: number }) => void }) {
   const [courses, setCourses] = useState<CourseDetail[]>([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +51,7 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
     setLoading(true); setError(''); setCourses([]);
     const normalize = (name: string) => name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
     api.getCourses(controller.signal).then(list => Promise.all(list.filter(course => normalize(course.instrument) === normalize(instrument.name)).map(course => api.getCourse(course.id, controller.signal))))
-      .then(result => { if (active) setCourses(result); })
+      .then(result => { if (active) setCourses(result.map(refineCourse)); })
       .catch(err => { if (active) setError(courseErrorMessage(err)); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; controller.abort(); };
@@ -27,7 +63,7 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
     try {
       await api.enroll(course.id, course.accessType);
       const updated = await api.getCourse(course.id);
-      setCourses(current => current.map(item => item.id === updated.id ? updated : item));
+      setCourses(current => current.map(item => item.id === updated.id ? refineCourse(updated) : item));
     } catch (err) { setError(courseErrorMessage(err)); }
     finally { setBusy(null); }
   };

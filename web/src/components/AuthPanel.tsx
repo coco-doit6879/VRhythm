@@ -22,8 +22,10 @@ export function AuthPanel({ mode, onModeChange, onSubmit }: Props) {
   return <section className="auth-layout">
     <div className="auth-story">
       <span className="eyebrow"><Sparkles size={14} /> Một hành trình · Vạn giai điệu</span>
-      <h1>Học bằng tai<br /><em>Nhớ bằng tim</em></h1>
-      <p>Để VRhythm đi cùng bạn từ nốt nhạc đầu tiên đến giai điệu của riêng mình.</p>
+      <h1 className="auth-script-title">
+        <span className="script-title-green">Học bằng tai</span>
+        <span className="script-title-orange">Nhớ bằng tim</span>
+      </h1>
       <p className="quote">“Âm nhạc truyền thống không ở phía sau chúng ta.<br />Di sản ấy đang chờ được nghe lại.”</p>
     </div>
     <div className="auth-card">

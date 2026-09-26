@@ -102,19 +102,22 @@ function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; 
     <section className="hero">
       <div className="hero-copy">
         <span className="eyebrow"><Sparkles size={14} /> Âm nhạc Việt trên nền tảng số</span>
-        <h1>Việt Nam trong từng thanh âm<br /><em>Khám phá theo cách của bạn</em></h1>
+        <h1 className="hero-script-title">
+          <span className="hero-title-vietnam">Việt Nam</span>
+          <span className="hero-title-sub">trong từng thanh âm</span>
+        </h1>
         <p>Bắt đầu học nhạc cụ truyền thống cùng VRhythm — chọn nhạc cụ bạn yêu thích, tìm hiểu lộ trình và thực hành từng bước.</p>
         <div className="hero-actions">
           <button className="primary hero-learn-button" onClick={() => onNavigate('learn')}>Bắt đầu học <ArrowRight size={19} /></button>
           <button className="text-button hero-explore-link" onClick={() => onNavigate('explore')}>Tìm hiểu nhạc cụ <ChevronRight size={15} /></button>
         </div>
       </div>
-      <div className="hero-art hero-brand-art"><img src="/images/generated/vrhythm-logo-full.webp" alt="VRhythm — biểu tượng sáo và dây đàn cách điệu" width="1254" height="1254" fetchPriority="high" /></div>
+      <div className="hero-brand-art"><img src="/images/generated/vrhythm-logo-full.webp" alt="VRhythm — biểu tượng sáo và dây đàn cách điệu" width="1254" height="1254" fetchPriority="high" /></div>
     </section>
     <InteractiveInstrumentShowcase onSelect={onInstrument} />
     <InstrumentFeatures />
     <section className="manifesto">
-      <h2 className="manifesto-title">DI SẢN CHỈ SỐNG KHI ĐƯỢC TIẾP TỤC</h2>
+      <h2 className="manifesto-script-title">Di sản chỉ sống khi được tiếp tục</h2>
       <div className="manifesto-body">
         <p>Mỗi lần bạn tập một nốt nhạc, giai điệu truyền thống sẽ có thêm một người tiếp nối.</p>
         <p>Chọn nhạc cụ mình yêu thích và bắt đầu từ bài học đầu tiên.</p>
@@ -124,9 +127,12 @@ function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; 
     <section className="home-cta">
       <div>
         <span className="eyebrow"><Sparkles size={14} /> Học theo nhịp của bạn</span>
-        <h2>Một nốt nhạc hôm nay<br /><em>Một giai điệu ngày mai</em></h2>
+        <h2 className="cta-script-title">
+          <span className="script-title-green">Một nốt nhạc hôm nay</span>
+          <span className="script-title-orange">Một giai điệu ngày mai</span>
+        </h2>
       </div>
-      <button className="primary cta-btn-bright" onClick={() => onNavigate('learn')}>BẮT ĐẦU HỌC <ArrowRight size={17} /></button>
+      <button className="primary" onClick={() => onNavigate('learn')}>BẮT ĐẦU HỌC <ArrowRight size={18} /></button>
     </section>
   </main>;
 }
@@ -140,15 +146,24 @@ function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => v
     <section className="explore-hero">
       <div className="explore-hero-copy">
         <div className="section-kicker"><Sparkles size={14} /> Thư viện di sản âm nhạc Việt Nam</div>
-        <h1>Mỗi nhạc cụ là một<br /><em>mảnh ký ức văn hóa</em></h1>
-        <p>Khám phá nguồn gốc, cấu tạo, không gian diễn xướng và vai trò của những nhạc cụ đã đồng hành cùng đời sống người Việt qua nhiều thế hệ.</p>
+        <h1 className="explore-script-title">
+          <span className="script-title-green">Mỗi nhạc cụ</span>
+          <span className="script-title-orange">Một câu chuyện văn hóa</span>
+        </h1>
+        <p className="explore-hero-desc">Khám phá nguồn gốc, cấu tạo, không gian diễn xướng và vai trò của những nhạc cụ đã đồng hành cùng đời sống người Việt qua nhiều thế hệ.</p>
       </div>
     </section>
 
     <section className="heritage-guide" aria-label="Các lớp thông tin"><div><Landmark /><span><strong>Bối cảnh lịch sử</strong><small>Hành trình của nhạc cụ trong đời sống</small></span></div><div><MapPin /><span><strong>Không gian văn hóa</strong><small>Vùng miền và loại hình diễn xướng</small></span></div><div><Music2 /><span><strong>Âm sắc & cấu tạo</strong><small>Chất liệu làm nên tiếng nói riêng</small></span></div></section>
 
     <section className="explore-archive">
-      <div className="archive-heading"><div><div className="section-kicker"><Sparkles size={14} /> Danh mục nhạc cụ</div><h2>Tra cứu theo họ nhạc cụ</h2></div><div className="family-filters" role="group" aria-label="Lọc theo họ nhạc cụ">{families.map(item => <button key={item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div></div>
+      <div className="archive-heading">
+        <div>
+          <div className="section-kicker"><Sparkles size={14} /> Danh mục nhạc cụ</div>
+          <h2 className="archive-script-title">Tra cứu theo họ nhạc cụ</h2>
+        </div>
+        <div className="family-filters" role="group" aria-label="Lọc theo họ nhạc cụ">{families.map(item => <button key={item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div>
+      </div>
       <div className="explore-grid">{visibleInstruments.map(instrument => <InstrumentCard key={instrument.id} instrument={instrument} onSelect={onInstrument} />)}</div>
     </section>
 
@@ -161,7 +176,15 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
   const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
   return <main className="page learn-page">
     <section className="learning-intro">
-      <div><span className="section-kicker"><Sparkles size={14} /> Học nhạc cụ Việt Nam</span><h1>Thanh âm bạn yêu<br /><em>Hành trình bạn chọn</em></h1><p>Chọn nhạc cụ, xem lộ trình và tìm khóa học phù hợp. Bắt đầu từ một nốt nhạc, theo nhịp của riêng bạn.</p><a className="primary" href="#chon-nhac-cu">Chọn nhạc cụ để học <ArrowRight size={18} /></a></div>
+      <div>
+        <span className="section-kicker"><Sparkles size={14} /> Học nhạc cụ Việt Nam</span>
+        <h1 className="learn-script-title">
+          <span className="script-title-green">Thanh âm bạn yêu</span>
+          <span className="script-title-orange">Hành trình bạn chọn</span>
+        </h1>
+        <p>Chọn nhạc cụ, xem lộ trình và tìm khóa học phù hợp. Bắt đầu từ một nốt nhạc, theo nhịp của riêng bạn.</p>
+        <a className="primary" href="#chon-nhac-cu">Chọn nhạc cụ để học <ArrowRight size={18} /></a>
+      </div>
       <ol className="learning-steps" aria-label="Cách bắt đầu học">
         <li><span>01</span><div><h2>Chọn nhạc cụ</h2><p>Tìm thanh âm khiến bạn muốn thử.</p></div></li>
         <li><span>02</span><div><h2>Xem lộ trình</h2><p>Đọc nội dung từng chương trước khi chọn khóa.</p></div></li>

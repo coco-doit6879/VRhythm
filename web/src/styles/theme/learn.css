@@ -3,6 +3,31 @@
 .learning-intro:where(.learn-page, .learn-page *) { display:grid; grid-template-columns:1.25fr 1fr; gap:64px; align-items:center; padding:36px 0 52px; }
 .learning-intro:where(.learn-page, .learn-page *) h1 { font-size:clamp(38px, 5vw, 60px); line-height:1.18; letter-spacing:-1.2px; margin:18px 0; }
 .learning-intro:where(.learn-page, .learn-page *) h1 em { color:var(--orange); font-style:normal; }
+.app-shell .learning-intro:where(.learn-page, .learn-page *) h1.learn-script-title,
+.learn-script-title {
+  max-width: 100%;
+  text-align: center;
+  font-family: 'Bachelorette', cursive, 'Playfair Display', serif !important;
+  font-weight: 700 !important;
+  font-style: italic !important;
+  letter-spacing: 0;
+  margin: 16px 0 20px;
+}
+.learn-script-title .script-title-green {
+  display: block;
+  color: #234827 !important;
+  font-size: clamp(48px, 6.2vw, 78px);
+  line-height: 1.15;
+  text-align: center;
+}
+.learn-script-title .script-title-orange {
+  display: block;
+  color: #ff4400 !important;
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1.2;
+  text-align: center;
+  margin-top: 2px;
+}
 .learning-intro:where(.learn-page, .learn-page *) p { color:var(--muted); line-height:1.8; max-width:560px; }
 .learning-intro:where(.learn-page, .learn-page *) .primary { display:inline-flex; align-items:center; gap:12px; margin-top:14px; text-decoration:none; }
 .learning-steps:where(.learn-page, .learn-page *) { list-style:none; margin:0; padding:12px 28px; background:#edf2e8; border:1px solid var(--line); border-radius:20px; }

@@ -18,5 +18,10 @@
 .instrument-learning .course-overview h3 { margin-top:16px; margin-bottom:8px; font-size:19px; font-weight:700; }
 .instrument-learning .course-topics { padding-left:20px; margin:6px 0 14px; display:flex; flex-direction:column; gap:5px; line-height:1.55; }
 .instrument-learning .course-topics li { font-size:15px; color:var(--ink); }
-.instrument-learning .course-roadmap summary { padding:10px 0; cursor:pointer; }
 .instrument-learning .course-roadmap { margin-top:6px; }
+.instrument-learning .course-roadmap summary { padding:10px 0 4px; cursor:pointer; }
+.instrument-learning .course-roadmap details[open] summary { padding-bottom:2px; }
+.instrument-learning .course-roadmap ol { margin:2px 0 12px; padding-left:22px; }
+.instrument-learning .course-roadmap li { padding:4px 2px; }
+.instrument-learning .course-roadmap li:first-child { padding-top:1px; }
+.instrument-learning .course-roadmap li small { margin-top:2px; line-height:1.4; }

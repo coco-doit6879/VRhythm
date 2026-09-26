@@ -28,7 +28,25 @@ export default function LearningDetailScreen() {
     try {
       const response = await api.getCourseDetail(courseId);
       if (response.success && response.data) {
-        setCourse(response.data);
+        const raw = response.data;
+        const refined: CourseDetailDto = {
+          ...raw,
+          title: raw.title ? raw.title.replace(/:\s*Từ Cơ Bản Đến Bèo Dạt Mây Trôi/gi, '').trim() : raw.title,
+          description: raw.description && /bèo dạt mây trôi/i.test(raw.description) && /người mới bắt đầu/i.test(raw.description)
+            ? 'Lộ trình học sáo trúc bài bản và dễ tiếp cận, đưa bạn từ những nốt nhạc đầu tiên đến khi tự tin chinh phục giai điệu dân ca kinh điển Bèo Dạt Mây Trôi.'
+            : raw.description,
+          chapters: raw.chapters?.map(chap => ({
+            ...chap,
+            title: /Làm quen nốt nhạc/i.test(chap.title)
+              ? 'Làm quen nốt nhạc (Đô, Rê, Mi, Fa, Sol, La, Si)'
+              : /Kỹ thuật trang trí/i.test(chap.title)
+              ? 'Kỹ thuật rung hơi và luyến ngón'
+              : /Chinh phục Bèo Dạt Mây Trôi/i.test(chap.title)
+              ? 'Chinh phục giai điệu dân ca kinh điển Bèo Dạt Mây Trôi'
+              : chap.title,
+          })),
+        };
+        setCourse(refined);
       }
     } catch (error) {
       console.error('Error fetching course detail:', error);

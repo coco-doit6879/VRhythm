@@ -1,7 +1,72 @@
 /* auth: base. Keep page/component layout within its boundary. */
-.auth-story:where(.auth-layout, .auth-layout *) h1 { max-width:650px; margin:18px 0 22px; font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',serif; letter-spacing:-1.2px; }.auth-story:where(.auth-layout, .auth-layout *) h1 em { color:var(--orange); }.auth-layout { min-height:620px; display:grid; grid-template-columns:1fr 440px; align-items:center; gap:100px; }.auth-story:where(.auth-layout, .auth-layout *) h1 { font-size:clamp(38px, 5vw, 60px); line-height:1.18; letter-spacing:-1.2px; }.auth-story:where(.auth-layout, .auth-layout *)>p { max-width:440px; color:var(--muted); line-height:1.8; }.quote-mark:where(.auth-layout, .auth-layout *) { color:var(--orange); font:80px 'Playfair Display'; line-height:.7; margin-top:60px; }.quote:where(.auth-layout, .auth-layout *) { font-family:'Be Vietnam Pro','Playfair Display',sans-serif!important; font-weight:400!important; font-style:italic!important; font-size:16px; line-height:1.65; color:var(--orange)!important; margin-top:24px; }.auth-card:where(.auth-layout, .auth-layout *) { padding:35px; background:var(--cream); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); }.auth-tabs:where(.auth-layout, .auth-layout *) { display:flex; gap:20px; border-bottom:1px solid var(--line); margin-bottom:28px; }.auth-tabs:where(.auth-layout, .auth-layout *) button { padding:0 0 14px; background:transparent; color:var(--muted); font-weight:700; border-bottom:2px solid transparent; }.auth-tabs:where(.auth-layout, .auth-layout *) button.active { color:var(--teal); border-bottom-color:var(--orange); }.auth-card:where(.auth-layout, .auth-layout *) h2 { margin:0; font:500 30px 'Playfair Display'; }.auth-card:where(.auth-layout, .auth-layout *) form { display:grid; gap:16px; margin-top:25px; }.auth-card:where(.auth-layout, .auth-layout *) label { display:grid; gap:7px; font-size:12px; font-weight:700; }.auth-card:where(.auth-layout, .auth-layout *) input { width:100%; padding:12px 13px; border:1px solid var(--line); border-radius:4px; background:#fffdfa; outline:0; }.auth-card:where(.auth-layout, .auth-layout *) input:focus { border-color:var(--teal); }.divider:where(.auth-layout, .auth-layout *) { display:flex; align-items:center; gap:10px; margin:23px 0 16px; color:var(--muted); font-size:11px; }.divider:where(.auth-layout, .auth-layout *):before,
-.divider:where(.auth-layout, .auth-layout *):after { content:''; height:1px; flex:1; background:var(--line); }.social-button:where(.auth-layout, .auth-layout *) { width:100%; padding:12px 18px; border:1px solid var(--line); border-radius:8px; background:#e6edde; color:var(--ink)!important; font-family:'Be Vietnam Pro','DM Sans',sans-serif; font-weight:600; font-size:14px; display:flex; align-items:center; justify-content:center; gap:10px; transition:all .2s ease; }.social-button:where(.auth-layout, .auth-layout *):hover { background:#d9e6d0; border-color:var(--teal); }
-@media (max-width:900px) {.auth-layout { grid-template-columns:1fr; gap:40px; }.auth-layout { padding:20px 0; }.auth-story:where(.auth-layout, .auth-layout *) { text-align:center; }.auth-story:where(.auth-layout, .auth-layout *)>p { margin-inline:auto; }.quote-mark:where(.auth-layout, .auth-layout *) { margin-top:30px; }.auth-card:where(.auth-layout, .auth-layout *) { width:min(480px,100%); margin:auto; } }
-@media (max-width:620px) {.auth-story:where(.auth-layout, .auth-layout *) h1 { font-size:44px; } }.auth-card:where(.auth-layout, .auth-layout *) { background:#132218; border-color:#2A4035; }.auth-card:where(.auth-layout, .auth-layout *) input { color:#fff; background:#0F2017; border-color:#2A4035; }.auth-card:where(.auth-layout, .auth-layout *) input::placeholder { color:#6B8F7C; }.divider:where(.auth-layout, .auth-layout *) { color:#6B8F7C; }.divider:where(.auth-layout, .auth-layout *):before,
-.divider:where(.auth-layout, .auth-layout *):after { background:#2A4035; }
-.auth-story:where(.auth-layout, .auth-layout *) h1 { font-family:'Playfair Display', Georgia, 'Times New Roman', serif; }
+.auth-layout { min-height:620px; display:grid; grid-template-columns:1fr 440px; align-items:center; gap:100px; }
+.auth-story:where(.auth-layout, .auth-layout *) h1 { max-width:650px; margin:18px 0 22px; font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',serif; letter-spacing:-1.2px; }
+.auth-story:where(.auth-layout, .auth-layout *) h1 em { color:var(--orange); }
+
+.app-shell .auth-story:where(.auth-layout, .auth-layout *) h1.auth-script-title,
+.auth-script-title {
+  max-width: 100%;
+  text-align: center;
+  font-family: 'Bachelorette', cursive, 'Playfair Display', serif !important;
+  font-weight: 700 !important;
+  font-style: italic !important;
+  letter-spacing: 0;
+  margin: 16px 0 24px;
+}
+
+.auth-script-title .script-title-green {
+  display: block;
+  color: #234827 !important;
+  font-size: clamp(48px, 6vw, 76px);
+  line-height: 1.15;
+  text-align: center;
+}
+
+.auth-script-title .script-title-orange {
+  display: block;
+  color: #ff4400 !important;
+  font-size: clamp(48px, 6vw, 76px);
+  line-height: 1.2;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.auth-story:where(.auth-layout, .auth-layout *)>p { max-width:440px; color:var(--muted); line-height:1.8; }
+.quote-mark:where(.auth-layout, .auth-layout *) { color:var(--orange); font:80px 'Playfair Display'; line-height:.7; margin-top:60px; }
+.quote:where(.auth-layout, .auth-layout *) {
+  font-family: 'Be Vietnam Pro', 'Playfair Display', sans-serif !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+  font-size: 16px;
+  line-height: 1.65;
+  color: #ff4400 !important;
+  margin-top: 24px;
+}
+
+.auth-card:where(.auth-layout, .auth-layout *) { padding:35px; background:var(--cream); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); }
+.auth-tabs:where(.auth-layout, .auth-layout *) { display:flex; gap:20px; border-bottom:1px solid var(--line); margin-bottom:28px; }
+.auth-tabs:where(.auth-layout, .auth-layout *) button { padding:0 0 14px; background:transparent; color:var(--muted); font-weight:700; border-bottom:2px solid transparent; }
+.auth-tabs:where(.auth-layout, .auth-layout *) button.active { color:var(--teal); border-bottom-color:var(--orange); }
+.auth-card:where(.auth-layout, .auth-layout *) h2 { margin:0; font:500 30px 'Playfair Display'; }
+.auth-card:where(.auth-layout, .auth-layout *) form { display:grid; gap:16px; margin-top:25px; }
+.auth-card:where(.auth-layout, .auth-layout *) label { display:grid; gap:7px; font-size:12px; font-weight:700; }
+.auth-card:where(.auth-layout, .auth-layout *) input { width:100%; padding:12px 13px; border:1px solid var(--line); border-radius:4px; background:#fffdfa; outline:0; }
+.auth-card:where(.auth-layout, .auth-layout *) input:focus { border-color:var(--teal); }
+.divider:where(.auth-layout, .auth-layout *) { display:flex; align-items:center; gap:10px; margin:23px 0 16px; color:var(--muted); font-size:11px; }
+.divider:where(.auth-layout, .auth-layout *):before,
+.divider:where(.auth-layout, .auth-layout *):after { content:''; height:1px; flex:1; background:var(--line); }
+.social-button:where(.auth-layout, .auth-layout *) { width:100%; padding:12px 18px; border:1px solid var(--line); border-radius:8px; background:#e6edde; color:var(--ink)!important; font-family:'Be Vietnam Pro','DM Sans',sans-serif; font-weight:600; font-size:14px; display:flex; align-items:center; justify-content:center; gap:10px; transition:all .2s ease; }
+.social-button:where(.auth-layout, .auth-layout *):hover { background:#d9e6d0; border-color:var(--teal); }
+
+@media (max-width:900px) {
+  .auth-layout { grid-template-columns:1fr; gap:40px; padding:20px 0; }
+  .auth-story:where(.auth-layout, .auth-layout *) { text-align:center; }
+  .auth-story:where(.auth-layout, .auth-layout *)>p { margin-inline:auto; }
+  .quote-mark:where(.auth-layout, .auth-layout *) { margin-top:30px; }
+  .auth-card:where(.auth-layout, .auth-layout *) { width:min(480px,100%); margin:auto; }
+}
+@media (max-width:620px) {
+  .auth-story:where(.auth-layout, .auth-layout *) h1 { font-size:44px; }
+  .auth-script-title .script-title-green { font-size: 38px; }
+  .auth-script-title .script-title-orange { font-size: 38px; }
+}

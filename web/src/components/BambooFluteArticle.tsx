@@ -46,7 +46,10 @@ export function BambooFluteArticle() {
       <a className="flute-back" href="/explore"><ArrowLeft size={16} /> Tất cả nhạc cụ</a>
       <header className="flute-heading">
         <p className="flute-eyebrow"><Sparkles size={14} /> Nhạc cụ Việt Nam / Bộ hơi</p>
-        <h1>Sáo trúc<span>Một hơi thở, một miền văn hóa.</span></h1>
+        <h1 className="flute-script-title">
+          <span className="script-title-green">Sáo trúc</span>
+          <span className="script-title-orange">Một hơi thở, một nền văn hóa</span>
+        </h1>
         <p className="flute-subtitle">Từ ống trúc mộc mạc đến sân khấu biểu diễn, tiếng sáo giữ một vị trí đặc biệt trong di sản âm nhạc Việt Nam.</p>
       </header>
       <div className="flute-layout">
