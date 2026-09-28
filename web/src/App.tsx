@@ -138,10 +138,6 @@ function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; 
 }
 
 function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => void }) {
-  const [family, setFamily] = useState('Tất cả');
-  const families = ['Tất cả', ...Array.from(new Set(instruments.map(instrument => instrument.family)))];
-  const visibleInstruments = family === 'Tất cả' ? instruments : instruments.filter(instrument => instrument.family === family);
-
   return <main className="page explore-page">
     <section className="explore-hero">
       <div className="explore-hero-copy">
@@ -160,19 +156,16 @@ function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => v
       <div className="archive-heading">
         <div>
           <div className="section-kicker"><Sparkles size={14} /> Danh mục nhạc cụ</div>
-          <h2 className="archive-script-title">Tra cứu theo họ nhạc cụ</h2>
+          <h2 className="archive-script-title">Danh mục nhạc cụ</h2>
         </div>
-        <div className="family-filters" role="group" aria-label="Lọc theo họ nhạc cụ">{families.map(item => <button key={item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div>
       </div>
-      <div className="explore-grid">{visibleInstruments.map(instrument => <InstrumentCard key={instrument.id} instrument={instrument} onSelect={onInstrument} />)}</div>
+      <div className="explore-grid">{instruments.map(instrument => <InstrumentCard key={instrument.id} instrument={instrument} onSelect={onInstrument} />)}</div>
     </section>
 
   </main>;
 }
 
 function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | null; courses: Array<CourseSummary | LearnerCourseSummary>; loading: boolean; error: string; onAuth: () => void; onOpenLesson: (route?: LessonRoute) => void; onRefresh: () => Promise<void> }) {
-  const [family, setFamily] = useState('Tất cả');
-  const visible = instruments.filter(instrument => family === 'Tất cả' || instrument.family === family);
   const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
   return <main className="page learn-page">
     <section className="learning-intro">
@@ -192,10 +185,10 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
       </ol>
     </section>
     <section id="chon-nhac-cu" className="learning-catalog">
-      <div className="learning-catalog-heading"><div><span className="section-kicker"><Sparkles size={14} /> Từ yêu thích đến thực hành</span><h2>Bạn muốn học nhạc cụ nào?</h2></div><div className="family-filters" role="group" aria-label="Lọc nhạc cụ học tập">{['Tất cả', 'Họ dây', 'Họ hơi'].map(item => <button key={item} aria-pressed={family === item} className={family === item ? 'active' : ''} onClick={() => setFamily(item)}>{item}</button>)}</div></div>
+      <div className="learning-catalog-heading"><div><span className="section-kicker"><Sparkles size={14} /> Từ yêu thích đến thực hành</span><h2>Bạn muốn học nhạc cụ nào?</h2></div></div>
       {loading && <p className="learning-notice" role="status">Đang cập nhật danh sách khóa học…</p>}
       {error && <div className="learning-notice" role="alert"><span>{error} Bạn vẫn có thể chọn nhạc cụ bên dưới.</span><button className="text-button" onClick={() => void onRefresh()}>Thử lại</button></div>}
-      <div className="learning-grid">{visible.map(instrument => {
+      <div className="learning-grid">{instruments.map(instrument => {
         const count = courses.filter(course => normalize(course.instrument) === normalize(instrument.name)).length;
         return <article className="learning-card" key={instrument.id}>
           <div className="learning-card-art"><span>{instrument.family}</span><img src={`/images/generated/carousel-${instrument.id}.webp`} alt={`${instrument.name} — minh họa`} loading="lazy" /></div>
