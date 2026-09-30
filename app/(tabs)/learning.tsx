@@ -1,14 +1,6 @@
+import { Text, TextInput } from '../../ui/Typography';
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  TextInput,
-  Alert,
-} from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
@@ -115,8 +107,7 @@ export default function LearningScreen() {
           <Text style={{ color: Colors.light.textMuted, textAlign: "center", marginBottom: 20 }}>
             Bạn chưa chọn khóa học nào. Vui lòng chọn một khóa học từ Trang chủ.
           </Text>
-          <TouchableOpacity
-            style={{ backgroundColor: Colors.primary, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 }}
+          <TouchableOpacity accessibilityRole="button" style={{ backgroundColor: Colors.primary, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 }}
             onPress={() => router.replace("/(tabs)")}
           >
             <Text style={{ color: "#FFF", fontWeight: "600" }}>Quay lại Trang chủ</Text>
@@ -133,17 +124,18 @@ export default function LearningScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <ScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Quay lại" style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
           </TouchableOpacity>
           <View style={{ flex: 1, marginHorizontal: 12 }}>
             <Text style={styles.courseTitle} numberOfLines={1}>{course.title}</Text>
             <Text style={styles.courseInstructor}>Nhạc cụ: {course.instrument}</Text>
           </View>
-          <TouchableOpacity style={styles.moreBtn} onPress={fetchCourseData}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Tải lại khóa học" style={styles.moreBtn} onPress={fetchCourseData}>
             <Ionicons name="refresh" size={20} color={Colors.light.text} />
           </TouchableOpacity>
         </View>
@@ -157,7 +149,7 @@ export default function LearningScreen() {
             </View>
             <View style={styles.progressBar}>
               <LinearGradient
-                colors={[Colors.primary, Colors.accent]}
+                colors={[Colors.accent, Colors.accent]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={[styles.progressFill, { width: `${progressPercent * 100}%` }]}
@@ -167,18 +159,17 @@ export default function LearningScreen() {
           </View>
 
           {/* Course Chapters */}
-          <Text style={styles.sectionTitle}>LỘ TRÌNH HỌC</Text>
+          <Text style={styles.sectionTitle}>Lộ trình học</Text>
           {course.chapters &&
             course.chapters.map((chapter, index) => {
               const isExpanded = expanded.includes(chapter.id.toString());
               return (
                 <View key={chapter.id} style={styles.chapterCard}>
-                  <TouchableOpacity
-                    style={styles.chapterHeader}
+                  <TouchableOpacity accessibilityRole="button" accessibilityState={{ expanded: isExpanded }} style={styles.chapterHeader}
                     onPress={() => toggleChapter(chapter.id.toString())}
                     activeOpacity={0.7}
                   >
-                    <View style={[styles.chapterIcon, { backgroundColor: "#EBF6F0" }]}>
+                    <View style={[styles.chapterIcon, { backgroundColor: Colors.successBg }]}>
                       <Ionicons name="layers-outline" size={18} color={Colors.primary} />
                     </View>
                     <Text style={styles.chapterTitle}>Chương {index + 1}: {chapter.title}</Text>
@@ -188,8 +179,7 @@ export default function LearningScreen() {
                   {isExpanded &&
                     chapter.lessons &&
                     chapter.lessons.map((lesson) => (
-                      <TouchableOpacity
-                        key={lesson.id}
+                      <TouchableOpacity accessibilityRole="button" key={lesson.id}
                         style={styles.lessonRow}
                         onPress={() => handleSelectLesson(lesson)}
                       >
@@ -218,7 +208,7 @@ export default function LearningScreen() {
               <Text style={styles.notesTitle}>Ghi chú chung khóa học</Text>
             </View>
             <View style={styles.notesBox}>
-              <TextInput
+              <TextInput accessibilityLabel="Ghi chú khóa học"
                 style={styles.notesInput}
                 multiline
                 placeholder="Nhập ghi chú học tập của bạn tại đây để lưu lại..."
@@ -227,7 +217,7 @@ export default function LearningScreen() {
                 placeholderTextColor={Colors.light.textMuted}
               />
             </View>
-            <TouchableOpacity style={styles.saveNotesBtn} activeOpacity={0.85} onPress={handleSaveNote}>
+            <TouchableOpacity accessibilityRole="button" style={styles.saveNotesBtn} activeOpacity={0.85} onPress={handleSaveNote}>
               <LinearGradient
                 colors={[Colors.primaryDark, Colors.primary]}
                 start={{ x: 0, y: 0 }}
@@ -235,13 +225,14 @@ export default function LearningScreen() {
                 style={styles.saveNotesBtnGradient}
               >
                 <Ionicons name="save-outline" size={16} color="#FFF" style={{ marginRight: 8 }} />
-                <Text style={styles.saveNotesBtnText}>Lưu ghi chú lên máy chủ</Text>
+                <Text style={styles.saveNotesBtnText}>Lưu ghi chú</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
         <View style={{ height: 20 }} />
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -249,21 +240,21 @@ export default function LearningScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.light.bg },
   header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingVertical: 12 },
-  backBtn: { width: 38, height: 38, borderRadius: 12, backgroundColor: Colors.light.bgElevated, justifyContent: "center", alignItems: "center" },
+  backBtn: { width: 48, height: 48, borderRadius: 12, backgroundColor: Colors.light.bgElevated, justifyContent: "center", alignItems: "center" },
   courseTitle: { fontSize: 17, fontWeight: "700", color: Colors.light.text },
   courseInstructor: { fontSize: 12, color: Colors.light.textSecondary, marginTop: 2 },
-  moreBtn: { width: 38, height: 38, borderRadius: 12, backgroundColor: Colors.light.bgElevated, justifyContent: "center", alignItems: "center" },
+  moreBtn: { width: 48, height: 48, borderRadius: 12, backgroundColor: Colors.light.bgElevated, justifyContent: "center", alignItems: "center" },
   content: { paddingHorizontal: 20, paddingTop: 10 },
-  progressCard: { backgroundColor: "#FFF", borderRadius: 16, padding: 18, marginBottom: 24, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  progressCard: { backgroundColor: Colors.light.bgCard, borderRadius: 16, padding: 18, marginBottom: 24, borderWidth: 1, borderColor: Colors.light.border },
   progressHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   progressLabel: { fontSize: 14, fontWeight: "700", color: Colors.light.text },
   progressPercent: { fontSize: 14, fontWeight: "800", color: Colors.primary },
   progressBar: { height: 8, backgroundColor: Colors.light.bgElevated, borderRadius: 4, overflow: "hidden", marginBottom: 10 },
   progressFill: { height: "100%", borderRadius: 4 },
   progressSub: { fontSize: 12, color: Colors.light.textMuted },
-  sectionTitle: { fontSize: 18, fontWeight: "800", color: Colors.light.text, marginBottom: 16, letterSpacing: 0.5 },
-  chapterCard: { backgroundColor: "#FFF", borderRadius: 16, overflow: "hidden", marginBottom: 16, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
-  chapterHeader: { flexDirection: "row", alignItems: "center", padding: 16, backgroundColor: "#FFF" },
+  sectionTitle: { fontSize: 23, fontWeight: "700", color: Colors.light.text, marginBottom: 16 },
+  chapterCard: { backgroundColor: Colors.light.bgCard, borderRadius: 16, overflow: "hidden", marginBottom: 16, borderWidth: 1, borderColor: Colors.light.border },
+  chapterHeader: { flexDirection: "row", alignItems: "center", padding: 16, backgroundColor: Colors.light.bgCard },
   chapterIcon: { width: 32, height: 32, borderRadius: 10, justifyContent: "center", alignItems: "center", marginRight: 12 },
   chapterTitle: { flex: 1, fontSize: 15, fontWeight: "700", color: Colors.light.text },
   lessonRow: { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 16, borderTopWidth: 1, borderTopColor: Colors.light.border },
@@ -272,7 +263,7 @@ const styles = StyleSheet.create({
   pendingDot: { color: Colors.light.textMuted, fontSize: 12, fontWeight: "900" },
   lessonRowTitle: { flex: 1, fontSize: 14, color: Colors.light.textSecondary },
   lessonDuration: { fontSize: 12, color: Colors.light.textMuted, fontWeight: "600" },
-  notesCard: { backgroundColor: "#FFF", borderRadius: 16, padding: 18, marginBottom: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  notesCard: { backgroundColor: Colors.light.bgCard, borderRadius: 16, padding: 18, marginBottom: 20, borderWidth: 1, borderColor: Colors.light.border },
   notesHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
   notesTitle: { fontSize: 16, fontWeight: "700", color: Colors.light.text },
   notesBox: { backgroundColor: Colors.light.bgElevated, borderRadius: 12, padding: 14, minHeight: 120, marginBottom: 16 },

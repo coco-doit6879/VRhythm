@@ -41,6 +41,10 @@ export type AuthResponse = {
 
 export type UserProfile = Pick<AuthResponse, 'userId' | 'fullName' | 'email' | 'role' | 'avatarUrl'>;
 
+export type LessonDetail = { id: number; title: string; type: string; theory?: { content?: string }; video?: { content?: string; durationSeconds?: number } };
+export type QuizDetail = { title: string; passPercentage: number; questions: Array<{ id: number; prompt: string; options: Array<{ id: number; text: string }> }> };
+export type PracticalDetail = { title: string; sheetMusicJson?: string; expectedNotes: Array<{ sortOrder: number; note: string }> };
+
 export type LoginPayload = {
   email: string;
   password: string;
@@ -138,6 +142,10 @@ async function readCourse<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const api = {
+  getLesson(id: number, signal?: AbortSignal) { return readCourse<LessonDetail>(`/api/lessons/${id}`, signal); },
+  getQuiz(id: number, signal?: AbortSignal) { return readCourse<QuizDetail>(`/api/quizzes/${id}`, signal); },
+  getPractical(id: number, signal?: AbortSignal) { return readCourse<PracticalDetail>(`/api/practical/${id}`, signal); },
+  getVideoUrl(courseId: number, lessonId: number, signal?: AbortSignal) { return readCourse<string>(`/api/lessons/${lessonId}/video-url?courseId=${courseId}`, signal); },
   getCourse(id: number, signal?: AbortSignal) {
     return readCourse<CourseDetail>(`/api/courses/${id}`, signal);
   },
@@ -174,6 +182,9 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ watchedSeconds, totalSeconds }),
     });
+  },
+  completeExternalVideo(courseId: number, lessonId: number) {
+    return request<object>(`/api/lessons/${lessonId}/external-video/complete?courseId=${courseId}`, { method: 'POST' });
   },
   submitQuiz(lessonId: number, answers: Array<{ questionId: number; selectedOptionId: number }>) {
     return request<{ passed: boolean; scorePercentage: number }>(`/api/quizzes/${lessonId}/submit`, {

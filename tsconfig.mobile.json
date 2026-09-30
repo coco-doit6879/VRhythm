@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["app/**/*.ts", "app/**/*.tsx", "ui/**/*.tsx", "constants/**/*.ts", "services/**/*.ts", "declarations.d.ts", ".expo/types/**/*.ts"],
+  "exclude": ["web", "teacher-web", "node_modules"]
+}

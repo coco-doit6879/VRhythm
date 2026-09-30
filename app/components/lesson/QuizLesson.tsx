@@ -1,11 +1,6 @@
+import { Text } from '../../../ui/Typography';
 import React from "react";
-import {
-  ActivityIndicator,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { ActivityIndicator, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "../../../constants/Colors";
 import { LessonDto, QuizExamDto, QuizSubmitResponseDto } from "../../../services/api-types";
@@ -65,13 +60,13 @@ export function QuizLesson({
         <Text style={styles.cardHeaderTitle}>KẾT QUẢ BÀI THI</Text>
         <View style={styles.resultContent}>
           <Text style={styles.resultIcon}>{isPassed ? "🏅" : "⚠️"}</Text>
-          <Text style={[styles.resultTitle, { color: isPassed ? Colors.primary : Colors.danger }]}> 
+          <Text style={[styles.resultTitle, { color: isPassed ? Colors.primary : Colors.danger }]}>
             {isPassed ? "ĐÃ ĐẠT BÀI THI!" : "CHƯA ĐẠT YÊU CẦU"}
           </Text>
           <Text style={styles.resultMeta}>Số câu đúng: {result.correctAnswers} / {result.totalQuestions}</Text>
           <Text style={styles.resultMeta}>Tỷ lệ: {result.scorePercentage}% (Yêu cầu: {quiz.passPercentage}%)</Text>
         </View>
-        <TouchableOpacity style={styles.actionBtn} onPress={onReset}>
+        <TouchableOpacity accessibilityRole="button" style={styles.actionBtn} onPress={onReset}>
           <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.actionBtnGradient}>
             <Text style={styles.actionBtnText}>Làm lại</Text>
           </LinearGradient>
@@ -94,13 +89,12 @@ export function QuizLesson({
         {currentQuestion.options?.map((opt: any, oIdx: number) => {
           const isSelected = selectedOptionId === opt.id;
           return (
-            <TouchableOpacity
-              key={opt.id}
+            <TouchableOpacity accessibilityRole="radio" accessibilityState={{ checked: isSelected }} key={opt.id}
               style={[styles.quizOptionBtn, isSelected && styles.quizOptionSelected]}
               onPress={() => onSelectOption(currentQuestion.id, opt.id)}
             >
               <View style={styles.quizOptionNumber}>
-                <Text style={[styles.quizOptionNumberText, isSelected && { color: "#FFF" }]}> 
+                <Text style={[styles.quizOptionNumberText, isSelected && { color: Colors.accent }]}>
                   {String.fromCharCode(65 + oIdx)}
                 </Text>
               </View>
@@ -113,32 +107,30 @@ export function QuizLesson({
       </View>
       <View style={styles.buttonRow}>
         {questionIndex > 0 && (
-          <TouchableOpacity style={[styles.actionBtn, { flex: 1 }]} onPress={onPrevious}>
-            <View style={[styles.actionBtnGradient, { backgroundColor: "#F0F2F5" }]}> 
+          <TouchableOpacity accessibilityRole="button" style={[styles.actionBtn, { flex: 1 }]} onPress={onPrevious}>
+            <View style={[styles.actionBtnGradient, { backgroundColor: Colors.light.bgElevated }]}>
               <Text style={[styles.actionBtnText, { color: Colors.light.text }]}>Quay lại</Text>
             </View>
           </TouchableOpacity>
         )}
         {!isLastQuestion ? (
-          <TouchableOpacity
-            style={[styles.actionBtn, { flex: 2 }]}
+          <TouchableOpacity accessibilityRole="button" style={[styles.actionBtn, { flex: 2 }]}
             disabled={selectedOptionId === undefined}
             onPress={onNext}
           >
             <LinearGradient
-              colors={selectedOptionId === undefined ? ["#A8C5B5", "#86A795"] : [Colors.primary, Colors.primaryDark]}
+              colors={selectedOptionId === undefined ? [Colors.light.textSecondary, Colors.light.textSecondary] : [Colors.primary, Colors.primaryDark]}
               style={styles.actionBtnGradient}
             >
               <Text style={styles.actionBtnText}>Câu tiếp theo</Text>
             </LinearGradient>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity
-            style={[styles.actionBtn, { flex: 2 }]}
+          <TouchableOpacity accessibilityRole="button" style={[styles.actionBtn, { flex: 2 }]}
             disabled={selectedOptionId === undefined || submittingQuiz}
             onPress={onSubmit}
           >
-            <LinearGradient colors={[Colors.warning, "#E76F51"]} style={styles.actionBtnGradient}>
+            <LinearGradient colors={[Colors.accent, Colors.accent]} style={styles.actionBtnGradient}>
               <Text style={styles.actionBtnText}>Nộp bài</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -150,11 +142,11 @@ export function QuizLesson({
 
 const styles = StyleSheet.create({
   typeSpecificCard: {
-    backgroundColor: "#FFF",
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 16,
     padding: 18,
     marginBottom: 20,
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -194,14 +186,14 @@ const styles = StyleSheet.create({
     padding: 12,
     gap: 12,
   },
-  quizOptionSelected: { borderColor: Colors.warning, backgroundColor: "#FFFBF0" },
+  quizOptionSelected: { borderColor: Colors.warning, backgroundColor: Colors.warningBg },
   quizOptionText: { flex: 1, fontSize: 14, color: Colors.light.textSecondary, fontWeight: "500" },
   quizOptionTextSelected: { color: Colors.warning, fontWeight: "700" },
   quizOptionNumber: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: "#FFF",
+    backgroundColor: Colors.light.bgCard,
     borderWidth: 1,
     borderColor: Colors.light.border,
     justifyContent: "center",
