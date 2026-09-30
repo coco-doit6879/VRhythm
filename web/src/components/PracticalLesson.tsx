@@ -121,7 +121,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
         <span>Nốt {Math.min(index + 1, score.notes.length)}/{score.notes.length}</span>
         <strong>{target || 'Hoàn tất lượt thổi'}</strong>
       </div>
-      <div className="pitch-readout"><strong>{heard}</strong><span>Micro đang nghe · {notes.length} nốt đúng</span></div>
+      <div className="pitch-readout"><strong>{heard}</strong><span>{recording ? 'Micro đang nghe' : 'Micro đã dừng'} · {notes.length} nốt đúng</span></div>
       <p className={`practice-hint ${phase === 'wrong' ? 'wrong' : ''}`} role={phase === 'wrong' ? 'alert' : 'status'}>{error || hint || (recording ? 'Thổi nốt đang sáng trên bản nhạc.' : notes.length === score.notes.length ? 'Đã nghe đủ nốt; đang gửi kết quả.' : 'Nhấn “Bắt đầu nghe” khi bạn sẵn sàng.')}</p>
       <div className="lesson-actions"><button className="record-button" disabled={busy || completed || starting} onClick={() => void start()}>{recording ? <Square size={18} /> : <Mic size={18} />}{starting ? 'Đang mở microphone…' : recording ? 'Dừng nghe' : 'Bắt đầu nghe'}</button><button className="text-button" disabled={recording || starting || busy || !notes.length} onClick={() => { setNotes([]); setHeard('—'); setIndex(0); setPhase('waiting'); setHint(''); }}><RotateCcw size={16} /> Xóa lượt thu</button></div>
       <p className="recorded-notes">Nốt đã đúng: {notes.length ? notes.join(' · ') : 'Chưa có nốt nào'}</p>
