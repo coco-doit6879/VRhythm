@@ -1,18 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-} from "react-native";
+import { Text } from '../../ui/Typography';
+import React, { useState, useEffect, useRef } from "react";
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
+import { useLocalSearchParams, router, useNavigation } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { Theme } from "../../constants/Theme";
 import { Colors } from "../../constants/Colors";
 import {
   api,
@@ -29,7 +22,7 @@ const { width } = Dimensions.get("window");
 export default function LessonScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const lessonId = parseInt(id, 10);
-  
+
   const [course, setCourse] = useState<CourseDetailDto | null>(null);
   const [lessonDetail, setLessonDetail] = useState<LessonDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,110 +42,174 @@ export default function LessonScreen() {
   const player = useVideoPlayer(videoUrl ?? "", (player) => {
     player.loop = false;
   });
-
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        if (player) {
-          player.pause();
-        }
-      };
-    }, [player])
-  );
+  const navigation = useNavigation();
 
   useEffect(() => {
-    fetchLessonData();
+    // The hook releases the player when its source changes or this screen unmounts.
+    // Only pause on navigation blur while this instance is still active.
+    return navigation.addListener('blur', () => {
+      if (videoUrl && lessonDetail?.type === 'Video') player.pause();
+    });
+  }, [navigation, player, videoUrl, lessonDetail?.type]);
+
+  const [loadError, setLoadError] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [videoError, setVideoError] = useState('');
+  const [completing, setCompleting] = useState(false);
+  const [retakingQuiz, setRetakingQuiz] = useState(false);
+  const [practiceMessage, setPracticeMessage] = useState('');
+  const generation = useRef(0);
+  const actionLock = useRef(false);
+  const videoRequest = useRef(0);
+
+  const message = (error: unknown, fallback: string) => error instanceof Error ? error.message : fallback;
+  const requireSuccess = <T,>(response: { success: boolean; data: T; message: string | null }): T => {
+    if (!response.success) throw new Error(response.message || 'Chưa lưu được kết quả. Vui lòng thử lại.');
+    return response.data;
+  };
+
+  useEffect(() => {
+    void fetchLessonData();
+    return () => { generation.current++; videoRequest.current++; };
   }, [lessonId]);
 
   const fetchLessonData = async () => {
-    setLoading(true);
+    const run = ++generation.current;
+    videoRequest.current++;
+    actionLock.current = false;
+    setLoading(true); setLoadError(''); setActionError(''); setVideoError('');
+    setLessonDetail(null); setCourse(null); setVideoUrl(null); setVideoLoading(false);
+    setCurrentQuestionIndex(0); setQuizAnswers({}); setQuizResult(null); setRetakingQuiz(false);
+    setPracticalMode(null); setCompleting(false); setSubmittingQuiz(false); setPracticeMessage('');
     try {
       const courseId = api.getCurrentCourseId();
-      if (!courseId) {
-        Alert.alert("Lỗi", "Không tìm thấy thông tin khóa học.");
-        router.back();
-        return;
-      }
-
-      // Fetch course to get the syllabus for "Next Lesson" navigation
-      const courseRes = await api.getCourseDetail(courseId);
-      if (courseRes.success && courseRes.data) {
-        setCourse(courseRes.data);
-      }
-
-      const res = await api.getLessonDetail(lessonId);
-      if (res.success && res.data) {
-        setLessonDetail(res.data);
-        if (res.data.type === "Video") {
-          fetchVideoUrl(courseId, lessonId);
-        } else {
-          setVideoLoading(false);
-        }
-      } else {
-        Alert.alert("Lỗi", "Không thể tải bài học.");
-        router.back();
-      }
-    } catch (e) {
-      console.warn(e);
-      Alert.alert("Lỗi", "Không thể tải bài học.");
-      router.back();
+      if (!Number.isSafeInteger(lessonId) || lessonId <= 0) throw new Error('Đường dẫn bài học không hợp lệ. Hãy quay lại lộ trình.');
+      if (!courseId) throw new Error('Chưa chọn khóa học. Hãy quay lại lộ trình để chọn khóa học.');
+      const [courseRes, lessonRes] = await Promise.all([api.getCourseDetail(courseId), api.getLessonDetail(lessonId)]);
+      const nextCourse = requireSuccess(courseRes);
+      const nextLesson = requireSuccess(lessonRes);
+      if (!nextCourse || !nextLesson) throw new Error('Không tìm thấy bài học. Hãy quay lại lộ trình.');
+      if (generation.current !== run) return;
+      setCourse(nextCourse); setLessonDetail(nextLesson);
+      if (nextLesson.type === 'Video') void fetchVideoUrl(courseId, lessonId);
+    } catch (error) {
+      if (generation.current === run) setLoadError(message(error, 'Không tải được bài học. Kiểm tra kết nối rồi thử lại.'));
     } finally {
-      setLoading(false);
+      if (generation.current === run) setLoading(false);
     }
   };
 
   const fetchVideoUrl = async (courseId: number, lId: number) => {
-    setVideoLoading(true);
+    const run = generation.current;
+    const requestId = ++videoRequest.current;
+    setVideoLoading(true); setVideoError(''); setVideoUrl(null);
     try {
-      const res = await api.getVideoUrl(courseId, lId);
-      if (res.success && res.data) {
-        setVideoUrl(res.data);
-      } else {
-        setVideoUrl("https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4");
-      }
-    } catch (e) {
-      setVideoUrl("https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4");
+      const url = requireSuccess(await api.getVideoUrl(courseId, lId));
+      if (typeof url !== 'string' || !/^https?:\/\//i.test(url)) throw new Error('Video chưa sẵn sàng. Vui lòng tải lại sau.');
+      if (generation.current === run && videoRequest.current === requestId) setVideoUrl(url);
+    } catch (error) {
+      if (generation.current === run && videoRequest.current === requestId) setVideoError(message(error, 'Không tải được video. Kiểm tra kết nối rồi thử lại.'));
     } finally {
-      setVideoLoading(false);
+      if (generation.current === run && videoRequest.current === requestId) setVideoLoading(false);
     }
   };
 
-  const totalSeconds = lessonDetail?.durationSeconds || 600;
-
-  useEffect(() => {
-    if (!player || !lessonDetail || !course) return;
-    let lastReported = 0;
-    const subscription = player.addListener("statusChange", ({ status, error }) => {
-      if (status === "idle") {
-        handleCompleteLesson();
-      }
-    });
-    const interval = setInterval(() => {
-      const current = Math.floor(player.currentTime);
-      if (current !== lastReported && current % 5 === 0) {
-        lastReported = current;
-        setWatchedSeconds(current);
-        api.updateVideoProgress(course.id, lessonDetail.id, current, totalSeconds).catch(console.error);
-      }
-    }, 1000);
-
-    return () => {
-      subscription.remove();
-      clearInterval(interval);
-    };
-  }, [player, lessonDetail, course]);
+  const videoDuration = () => {
+    const duration = player.duration || lessonDetail?.video?.durationSeconds || lessonDetail?.durationSeconds || 0;
+    return Number.isFinite(duration) && duration > 0 ? duration : 0;
+  };
 
   const handleCompleteLesson = async () => {
-    if (!course || !lessonDetail) return;
+    if (!course || !lessonDetail || actionLock.current || lessonDetail.isCompleted) return;
+    if (!['Theory', 'Video'].includes(lessonDetail.type || '')) return;
+    const run = generation.current;
+    actionLock.current = true; setCompleting(true); setActionError('');
     try {
-      if (lessonDetail.type === 'Theory' || lessonDetail.type === 'Video') {
-        await api.updateVideoProgress(course.id, lessonDetail.id, totalSeconds, totalSeconds);
+      if (lessonDetail.type === 'Theory') {
+        requireSuccess(await api.completeTheory(lessonDetail.id));
+      } else {
+        const total = videoDuration();
+        if (!videoUrl || videoError || !total || player.currentTime / total < 0.9) {
+          throw new Error('Hãy xem ít nhất 90% video trước khi xác nhận hoàn thành.');
+        }
+        requireSuccess(await api.updateVideoProgress(course.id, lessonDetail.id, player.currentTime, total));
       }
-    } catch (e) {
-      console.warn("Failed to mark complete remotely:", e);
+      const confirmed = requireSuccess(await api.getLessonDetail(lessonDetail.id));
+      if (!confirmed) throw new Error('Chưa tải được tiến độ mới. Vui lòng thử lại.');
+      if (generation.current === run) {
+        setLessonDetail(confirmed);
+        if (!confirmed.isCompleted) setActionError('Máy chủ chưa xác nhận hoàn thành. Vui lòng kiểm tra tiến độ rồi thử lại.');
+      }
+    } catch (error) {
+      if (generation.current === run) setActionError(message(error, 'Chưa lưu được tiến độ. Vui lòng thử lại.'));
+    } finally {
+      if (generation.current === run) { actionLock.current = false; setCompleting(false); }
     }
-    // Update local state to show 'Next' button if necessary, or just rely on API refresh
-    setLessonDetail(prev => prev ? { ...prev, isCompleted: true } : prev);
+  };
+
+  useEffect(() => {
+    if (!lessonDetail || lessonDetail.type !== 'Video' || !course || !videoUrl) return;
+    const run = generation.current;
+    let reporting = false;
+    let lastReported = -1;
+    const status = player.addListener('statusChange', ({ status }) => {
+      if (status === 'error') setVideoError('Không phát được video. Hãy tải lại video để nhận liên kết mới.');
+    });
+    const ended = player.addListener('playToEnd', () => { void handleCompleteLesson(); });
+    const interval = setInterval(async () => {
+      const current = Math.floor(player.currentTime);
+      const total = videoDuration();
+      if (!player.playing || !total || current <= 0 || current === lastReported || reporting) return;
+      reporting = true;
+      try {
+        requireSuccess(await api.updateVideoProgress(course.id, lessonDetail.id, current, total));
+        if (generation.current === run) { lastReported = current; setWatchedSeconds(current); }
+      } catch {
+        if (generation.current === run) setActionError('Chưa đồng bộ được tiến độ video. Kiểm tra kết nối rồi xác nhận lại khi xem xong.');
+      } finally { reporting = false; }
+    }, 5000);
+    return () => { status.remove(); ended.remove(); clearInterval(interval); };
+  }, [player, lessonDetail?.id, course?.id, videoUrl, videoError]);
+
+  const submitQuiz = async () => {
+    if (!lessonDetail || actionLock.current) return;
+    const questions = lessonDetail.quiz?.questions || [];
+    if (!questions.length || questions.some(q => !q.options?.some(o => o.id === quizAnswers[q.id]))) {
+      setActionError('Hãy chọn đáp án cho tất cả câu hỏi trước khi nộp bài.'); return;
+    }
+    const run = generation.current;
+    actionLock.current = true; setSubmittingQuiz(true); setActionError('');
+    try {
+      const result = requireSuccess(await api.submitQuiz(lessonDetail.id, questions.map(q => ({ questionId: q.id, selectedOptionId: quizAnswers[q.id] }))));
+      if (!result || typeof result.passed !== 'boolean' || !Number.isFinite(result.scorePercentage)) throw new Error('Kết quả trả về không hợp lệ. Vui lòng nộp lại bài.');
+      if (generation.current !== run) return;
+      setQuizResult(result); setRetakingQuiz(false);
+      if (result.passed) setLessonDetail(prev => prev ? { ...prev, isCompleted: true } : prev);
+    } catch (error) {
+      if (generation.current === run) setActionError(message(error, 'Chưa nộp được bài. Đáp án đã được giữ lại; hãy thử lại.'));
+    } finally {
+      if (generation.current === run) { actionLock.current = false; setSubmittingQuiz(false); }
+    }
+  };
+
+  const submitPractice = async (notes: string[]) => {
+    if (!lessonDetail || actionLock.current) return false;
+    const run = generation.current;
+    actionLock.current = true; setCompleting(true); setActionError(''); setPracticeMessage('');
+    try {
+      if (!notes.length) throw new Error('Chưa thu được nốt nhạc. Hãy thử lại với micro.');
+      const result = requireSuccess(await api.submitPractical(lessonDetail.id, notes));
+      if (!result || typeof result.passed !== 'boolean') throw new Error('Kết quả thực hành không hợp lệ. Vui lòng thử lại.');
+      if (generation.current !== run) return false;
+      setPracticeMessage(result.passed ? 'Máy chủ xác nhận: đã đạt bài thực hành.' : 'Chưa đạt yêu cầu. Bạn có thể luyện tập rồi thử lại.');
+      if (result.passed) setLessonDetail(prev => prev ? { ...prev, isCompleted: true } : prev);
+      return true;
+    } catch (error) {
+      if (generation.current === run) setActionError(message(error, 'Chưa gửi được bài thực hành. Hãy thử gửi lại.'));
+      return false;
+    } finally {
+      if (generation.current === run) { actionLock.current = false; setCompleting(false); }
+    }
   };
 
   const navigateToNextLesson = () => {
@@ -172,7 +229,7 @@ export default function LessonScreen() {
     }
   };
 
-  if (loading || !lessonDetail) {
+  if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.loadingContainer}>
@@ -183,6 +240,12 @@ export default function LessonScreen() {
     );
   }
 
+  if (!lessonDetail) return <SafeAreaView style={styles.safe}><View style={[styles.content, { gap: 16 }]}>
+    <Text accessibilityRole="alert">{loadError || 'Không tìm thấy bài học.'}</Text>
+    <TouchableOpacity accessibilityRole="button" onPress={() => void fetchLessonData()} style={Theme.button}><Text style={Theme.buttonText}>Tải lại bài học</Text></TouchableOpacity>
+    <TouchableOpacity accessibilityRole="button" onPress={() => router.replace('/(tabs)/learning')} style={Theme.button}><Text style={Theme.buttonText}>Về lộ trình</Text></TouchableOpacity>
+  </View></SafeAreaView>;
+
   // Quiz variables
   const theory = lessonDetail.theory;
   const quiz = lessonDetail.quiz;
@@ -192,15 +255,16 @@ export default function LessonScreen() {
   const selectedOptionId = currentQuestion ? quizAnswers[currentQuestion.id] : undefined;
   const isLastQuestion = currentQuestionIndex === quizQuestions.length - 1;
 
-  const hasResult = quizResult !== null || (lessonDetail.type === 'Quiz' && lessonDetail.isCompleted);
+  const hasResult = !retakingQuiz && (quizResult !== null || (lessonDetail.type === 'Quiz' && lessonDetail.isCompleted));
+  const quizPassed = quizResult ? quizResult.passed : lessonDetail.isCompleted;
 
   const renderMediaHeader = () => {
     if (lessonDetail.type === "Video") {
-      return <VideoLesson videoLoading={videoLoading} videoUrl={videoUrl} player={player} />;
+      return <VideoLesson videoLoading={videoLoading} videoUrl={videoUrl} player={player} error={videoError} onRetry={() => course && void fetchVideoUrl(course.id, lessonId)} />;
     }
     if (lessonDetail.type === "Theory") {
       return (
-        <LinearGradient colors={["#1F3A2B", "#112218"]} style={styles.mediaHeader}>
+        <LinearGradient colors={Theme.panelGradient} style={styles.mediaHeader}>
           <Ionicons name="book-outline" size={48} color={Colors.accent} />
           <View style={styles.mediaHeaderMeta}>
             <Text style={styles.mediaHeaderTag}>BÀI HỌC LÝ THUYẾT</Text>
@@ -211,7 +275,7 @@ export default function LessonScreen() {
     }
     if (lessonDetail.type === "Quiz") {
       return (
-        <LinearGradient colors={["#2D5A27", "#173014"]} style={styles.mediaHeader}>
+        <LinearGradient colors={Theme.panelGradient} style={styles.mediaHeader}>
           <Ionicons name="help-circle-outline" size={48} color={Colors.warning} />
           <View style={styles.mediaHeaderMeta}>
             <Text style={styles.mediaHeaderTag}>BÀI TRẮC NGHIỆM</Text>
@@ -222,7 +286,7 @@ export default function LessonScreen() {
     }
     if (["Practice", "Practise", "Practical"].includes(lessonDetail.type ?? "")) {
       return (
-        <LinearGradient colors={["#3B275C", "#1D1330"]} style={styles.mediaHeader}>
+        <LinearGradient colors={Theme.panelGradient} style={styles.mediaHeader}>
           <Ionicons name="musical-notes-outline" size={48} color={Colors.info} />
           <View style={styles.mediaHeaderMeta}>
             <Text style={styles.mediaHeaderTag}>BÀI TẬP THỰC HÀNH</Text>
@@ -239,7 +303,7 @@ export default function LessonScreen() {
       {/* Header */}
       {!practicalMode && (
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.push('/(tabs)/learning')}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Quay lại lộ trình" style={styles.backBtn} onPress={() => router.push('/(tabs)/learning')}>
             <Ionicons name="chevron-back" size={24} color={Colors.light.text} />
           </TouchableOpacity>
           <View style={{ flex: 1, marginHorizontal: 12 }}>
@@ -249,8 +313,10 @@ export default function LessonScreen() {
         </View>
       )}
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} scrollEnabled={!practicalMode} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} scrollEnabled showsVerticalScrollIndicator={false}>
         {!practicalMode && renderMediaHeader()}
+        {!!actionError && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={{ color: Colors.danger, padding: 16 }}>{actionError}</Text>}
+        {!!practiceMessage && <Text accessibilityLiveRegion="polite" style={{ padding: 16 }}>{practiceMessage}</Text>}
 
         <View style={[styles.content, { flex: 1 }, practicalMode ? { padding: 0 } : {}]}>
           {lessonDetail.type === "Video" && (
@@ -262,14 +328,14 @@ export default function LessonScreen() {
               <Text style={styles.bodyText}>
                 {lessonDetail.content || "Hãy xem kỹ video bài giảng từ giáo viên để nắm bắt kỹ thuật và kiến thức một cách trực quan nhất. Đừng quên chuẩn bị sáo và thực hành lại ngay sau khi xem xong nhé!"}
               </Text>
-              
-              <TouchableOpacity
-                style={styles.actionBtn}
-                onPress={() => handleCompleteLesson()}
+
+              <TouchableOpacity accessibilityRole="button" style={styles.actionBtn}
+                disabled={completing || !videoUrl || !!videoError || lessonDetail.isCompleted}
+                onPress={() => void handleCompleteLesson()}
               >
                 <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.actionBtnGradient}>
                   <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                  <Text style={styles.actionBtnText}>Tôi đã xem xong</Text>
+                  <Text style={styles.actionBtnText}>{completing ? 'Đang lưu...' : lessonDetail.isCompleted ? 'Đã hoàn thành' : 'Tôi đã xem xong'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -281,17 +347,12 @@ export default function LessonScreen() {
               <Text style={styles.bodyText}>
                 {theory?.content || lessonDetail.content || "Đang cập nhật..."}
               </Text>
-              <TouchableOpacity
-                style={styles.actionBtn}
-                onPress={async () => {
-                  try {
-                    await api.completeTheory(lessonDetail.id);
-                  } catch (e) {}
-                  handleCompleteLesson();
-                }}
+              <TouchableOpacity accessibilityRole="button" style={styles.actionBtn}
+                disabled={completing || lessonDetail.isCompleted}
+                onPress={() => void handleCompleteLesson()}
               >
                 <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.actionBtnGradient}>
-                  <Text style={styles.actionBtnText}>Hoàn thành bài đọc</Text>
+                  <Text style={styles.actionBtnText}>{completing ? 'Đang lưu...' : lessonDetail.isCompleted ? 'Đã hoàn thành' : 'Hoàn thành bài đọc'}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -304,17 +365,17 @@ export default function LessonScreen() {
                   <Text style={styles.cardTitle}>KẾT QUẢ BÀI THI</Text>
                   <View style={{ alignItems: "center", marginVertical: 20 }}>
                     <Ionicons
-                      name={quizResult?.passed || lessonDetail.isCompleted ? "ribbon-outline" : "alert-circle-outline"}
+                      name={quizPassed ? "ribbon-outline" : "alert-circle-outline"}
                       size={64}
-                      color={quizResult?.passed || lessonDetail.isCompleted ? Colors.primary : Colors.danger}
+                      color={quizPassed ? Colors.primary : Colors.danger}
                     />
                     <Text style={{
                       fontSize: 24,
                       fontWeight: "800",
                       marginTop: 12,
-                      color: quizResult?.passed || lessonDetail.isCompleted ? Colors.primary : Colors.danger,
+                      color: quizPassed ? Colors.primary : Colors.danger,
                     }}>
-                      {quizResult?.passed || lessonDetail.isCompleted ? "ĐÃ ĐẠT BÀI THI!" : "CHƯA ĐẠT YÊU CẦU"}
+                      {quizPassed ? "ĐÃ ĐẠT BÀI THI!" : "CHƯA ĐẠT YÊU CẦU"}
                     </Text>
                     {quizResult && (
                       <Text style={{ marginTop: 8, color: Colors.light.textSecondary }}>
@@ -322,21 +383,21 @@ export default function LessonScreen() {
                       </Text>
                     )}
                   </View>
-                  <TouchableOpacity
-                    style={styles.actionBtn}
+                  <TouchableOpacity accessibilityRole="button" style={styles.actionBtn}
                     onPress={() => {
                       setQuizResult(null);
+                      setRetakingQuiz(true); setActionError('');
                       setCurrentQuestionIndex(0);
                       setQuizAnswers({});
                     }}
                   >
-                    <LinearGradient colors={["#86A795", "#A8C5B5"]} style={styles.actionBtnGradient}>
+                    <LinearGradient colors={[Colors.primary, Colors.primary]} style={styles.actionBtnGradient}>
                       <Ionicons name="refresh-outline" size={20} color="#FFF" />
                       <Text style={styles.actionBtnText}> Làm lại</Text>
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
-              ) : (
+              ) : !quizQuestions.length ? <View style={styles.card}><Text>Bài trắc nghiệm chưa có câu hỏi. Vui lòng quay lại sau.</Text></View> : (
                 <View style={styles.card}>
                   <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 12 }}>
                     <Text style={styles.cardTitle}>CÂU HỎI {currentQuestionIndex + 1}/{quizQuestions.length}</Text>
@@ -346,13 +407,12 @@ export default function LessonScreen() {
                     {currentQuestion?.options?.map((opt, oIdx) => {
                       const isSelected = selectedOptionId === opt.id;
                       return (
-                        <TouchableOpacity
-                          key={opt.id}
+                        <TouchableOpacity accessibilityRole="radio" aria-checked={isSelected} accessibilityState={{ checked: isSelected }} key={opt.id}
                           style={[styles.quizOptionBtn, isSelected && styles.quizOptionSelected]}
                           onPress={() => setQuizAnswers(prev => ({ ...prev, [currentQuestion.id]: opt.id }))}
                         >
                           <View style={styles.quizOptionNumber}>
-                            <Text style={[styles.quizOptionNumberText, isSelected && { color: "#FFF" }]}>
+                            <Text style={[styles.quizOptionNumberText, isSelected && { color: Colors.primaryDark }]}>
                               {String.fromCharCode(65 + oIdx)}
                             </Text>
                           </View>
@@ -365,57 +425,33 @@ export default function LessonScreen() {
                   </View>
                   <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
                     {currentQuestionIndex > 0 && (
-                      <TouchableOpacity
-                        style={[styles.actionBtn, { flex: 1 }]}
+                      <TouchableOpacity accessibilityRole="button" style={[styles.actionBtn, { flex: 1 }]}
                         onPress={() => setCurrentQuestionIndex(prev => prev - 1)}
                       >
-                        <View style={[styles.actionBtnGradient, { backgroundColor: "#F0F2F5" }]}>
+                        <View style={[styles.actionBtnGradient, { backgroundColor: Colors.light.bgElevated }]}>
                           <Text style={[styles.actionBtnText, { color: Colors.light.text }]}>Quay lại</Text>
                         </View>
                       </TouchableOpacity>
                     )}
                     {!isLastQuestion ? (
-                      <TouchableOpacity
-                        style={[styles.actionBtn, { flex: 2 }]}
+                      <TouchableOpacity accessibilityRole="button" style={[styles.actionBtn, { flex: 2 }]}
                         disabled={selectedOptionId === undefined}
                         onPress={() => setCurrentQuestionIndex(prev => prev + 1)}
                       >
                         <LinearGradient
-                          colors={selectedOptionId === undefined ? ["#A8C5B5", "#86A795"] : [Colors.primary, Colors.primaryDark]}
+                          colors={selectedOptionId === undefined ? [Colors.light.textSecondary, Colors.light.textSecondary] : [Colors.primary, Colors.primaryDark]}
                           style={styles.actionBtnGradient}
                         >
                           <Text style={styles.actionBtnText}>Câu tiếp theo</Text>
                         </LinearGradient>
                       </TouchableOpacity>
                     ) : (
-                      <TouchableOpacity
-                        style={[styles.actionBtn, { flex: 2 }]}
+                      <TouchableOpacity accessibilityRole="button" style={[styles.actionBtn, { flex: 2 }]}
                         disabled={selectedOptionId === undefined || submittingQuiz}
-                        onPress={async () => {
-                          setSubmittingQuiz(true);
-                          try {
-                            const payload = Object.entries(quizAnswers).map(([qId, oId]) => ({
-                              questionId: Number(qId),
-                              selectedOptionId: oId,
-                            }));
-                            const res = await api.submitQuiz(lessonDetail.id, payload);
-                            if (res.success && res.data) {
-                              setQuizResult(res.data);
-                              if (res.data.passed) {
-                                handleCompleteLesson();
-                              }
-                            } else {
-                              // mock result
-                              setQuizResult({ passed: true, correctAnswers: quizQuestions.length, totalQuestions: quizQuestions.length, scorePercentage: 100 });
-                              handleCompleteLesson();
-                            }
-                          } finally {
-                            setSubmittingQuiz(false);
-                          }
-                        }}
+                        onPress={() => void submitQuiz()}
                       >
-                        <LinearGradient colors={[Colors.warning, "#E76F51"]} style={styles.actionBtnGradient}>
-                          <Text style={styles.actionBtnText}>Nộp bài</Text>
+                        <LinearGradient colors={[Colors.accent, Colors.accent]} style={styles.actionBtnGradient}>
+                          <Text style={styles.actionBtnText}>{submittingQuiz ? 'Đang nộp...' : 'Nộp bài'}</Text>
                         </LinearGradient>
                       </TouchableOpacity>
                     )}
@@ -426,10 +462,10 @@ export default function LessonScreen() {
           )}
 
           {["Practice", "Practise", "Practical"].includes(lessonDetail.type ?? "") && practical && (
-            <PracticalLesson 
+            <PracticalLesson
               lesson={lessonDetail}
               practical={practical}
-              onComplete={handleCompleteLesson}
+              onComplete={submitPractice}
               mode={practicalMode}
               setMode={setPracticalMode}
             />
@@ -441,13 +477,13 @@ export default function LessonScreen() {
       {/* Persistent Bottom Bar for Navigation */}
       {!practicalMode && (
         <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.navBtn} onPress={() => router.push('/(tabs)/learning')}>
+          <TouchableOpacity accessibilityRole="button" style={styles.navBtn} onPress={() => router.push('/(tabs)/learning')}>
             <Ionicons name="list-outline" size={24} color={Colors.primary} />
             <Text style={styles.navBtnText}>Danh sách</Text>
           </TouchableOpacity>
-          
+
           {lessonDetail.isCompleted && (
-            <TouchableOpacity style={styles.nextBtn} onPress={navigateToNextLesson}>
+            <TouchableOpacity accessibilityRole="button" style={styles.nextBtn} onPress={navigateToNextLesson}>
               <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.nextBtnGradient}>
                 <Text style={styles.nextBtnText}>Tiếp tục bài tiếp theo</Text>
                 <Ionicons name="arrow-forward" size={20} color="#FFF" />
@@ -465,33 +501,33 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.light.bg },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { marginTop: 12, color: Colors.light.textMuted },
-  header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: Colors.light.border, backgroundColor: '#fff' },
-  backBtn: { padding: 8 },
+  header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: Colors.light.border, backgroundColor: Colors.light.bgCard },
+  backBtn: { padding: 12, minWidth: 48, minHeight: 48 },
   headerTitle: { fontSize: 18, fontWeight: "700", color: Colors.light.text },
   headerSubtitle: { fontSize: 13, color: Colors.light.textMuted },
   content: { padding: 16, paddingBottom: 40 },
-  card: { backgroundColor: "#FFF", borderRadius: 16, padding: 18, marginBottom: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  card: { backgroundColor: Colors.light.bgCard, borderRadius: 16, padding: 18, marginBottom: 20, shadowColor: Colors.shadow, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
   cardTitle: { fontSize: 13, fontWeight: "700", letterSpacing: 1.5, color: Colors.light.textMuted, marginBottom: 14 },
   bodyText: { fontSize: 15, color: Colors.light.textSecondary, lineHeight: 24 },
   mediaHeader: { padding: 24, alignItems: "center", justifyContent: "center", minHeight: 160 },
   mediaHeaderMeta: { alignItems: "center", marginTop: 12 },
-  mediaHeaderTag: { color: "#FFF", fontSize: 14, fontWeight: "800", letterSpacing: 2, marginBottom: 4 },
-  mediaHeaderSubtitle: { color: "rgba(255,255,255,0.7)", fontSize: 13 },
+  mediaHeaderTag: { color: Colors.light.text, fontSize: 14, fontWeight: "800", letterSpacing: 2, marginBottom: 4 },
+  mediaHeaderSubtitle: { color: Colors.light.textSecondary, fontSize: 13 },
   actionBtn: { borderRadius: 14, overflow: "hidden", marginTop: 16 },
   actionBtnGradient: { flexDirection: "row", justifyContent: "center", alignItems: "center", paddingVertical: 14 },
   actionBtnText: { color: "#FFF", fontWeight: "700", fontSize: 15 },
   quizQuestionText: { fontSize: 16, fontWeight: "600", color: Colors.light.text, lineHeight: 24, marginBottom: 20 },
   quizOptionsCol: { gap: 12 },
   quizOptionBtn: { flexDirection: "row", alignItems: "center", backgroundColor: Colors.light.bgElevated, borderWidth: 2, borderColor: "transparent", borderRadius: 16, padding: 12 },
-  quizOptionSelected: { borderColor: Colors.primary, backgroundColor: Colors.primarySoft },
-  quizOptionNumber: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#EBF2FE", justifyContent: "center", alignItems: "center", marginRight: 12 },
+  quizOptionSelected: { borderColor: Colors.primary, backgroundColor: Colors.selected },
+  quizOptionNumber: { width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.infoBg, justifyContent: "center", alignItems: "center", marginRight: 12 },
   quizOptionNumberText: { fontSize: 14, fontWeight: "700", color: Colors.primary },
   quizOptionText: { flex: 1, fontSize: 15, color: Colors.light.textSecondary, lineHeight: 22 },
   quizOptionTextSelected: { color: Colors.primaryDark, fontWeight: "600" },
-  bottomBar: { flexDirection: 'row', padding: 16, borderTopWidth: 1, borderTopColor: Colors.light.border, backgroundColor: '#fff', alignItems: 'center' },
+  bottomBar: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, padding: 16, borderTopWidth: 1, borderTopColor: Colors.light.border, backgroundColor: Colors.light.bgCard, alignItems: 'center' },
   navBtn: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: Colors.light.bgElevated, borderRadius: 12 },
   navBtnText: { marginLeft: 8, color: Colors.primary, fontWeight: '600' },
-  nextBtn: { flex: 1, marginLeft: 16, borderRadius: 12, overflow: 'hidden' },
+  nextBtn: { flex: 1, minWidth: 180, borderRadius: 12, overflow: 'hidden' },
   nextBtnGradient: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 14 },
-  nextBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16, marginRight: 8 }
+  nextBtnText: { flexShrink: 1, color: '#fff', fontWeight: 'bold', fontSize: 16, marginRight: 8 }
 });

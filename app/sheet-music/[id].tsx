@@ -1,5 +1,6 @@
+import { Text } from '../../ui/Typography';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,11 +16,11 @@ function pitchToMidi(pitch: string): number {
   const regex = /^([A-G])(#|s|b)?(\d)$/;
   const match = pitch.match(regex);
   if (!match) return 60;
-  
+
   let noteStr = match[1];
   const acc = match[2];
   const oct = parseInt(match[3], 10);
-  
+
   if (acc === '#' || acc === 's') noteStr += 's';
   else if (acc === 'b') {
     const flatMap: Record<string, string> = {
@@ -27,10 +28,10 @@ function pitchToMidi(pitch: string): number {
     };
     noteStr = flatMap[noteStr + 'b'] || noteStr;
   }
-  
+
   const noteIndex = notes.indexOf(noteStr);
   if (noteIndex === -1) return 60;
-  
+
   return (oct + 1) * 12 + noteIndex;
 }
 
@@ -101,7 +102,7 @@ export default function SheetMusicPlayerScreen() {
         activeSounds.current.push(sound);
         await sound.playAsync();
 
-        let durationMs = (60 / tempo) * 1000; 
+        let durationMs = (60 / tempo) * 1000;
         const d = String(durationStr).toLowerCase();
         if (d.includes('w')) durationMs *= 4;
         else if (d.includes('h')) durationMs *= 2;
@@ -156,7 +157,7 @@ export default function SheetMusicPlayerScreen() {
           }
           return next;
         });
-      }, (60 / tempo) * 1000); 
+      }, (60 / tempo) * 1000);
     } else {
       stopAllSounds();
     }
@@ -166,15 +167,13 @@ export default function SheetMusicPlayerScreen() {
   }, [isPlaying, score.metadata.tempo, score.notes.length]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Quay lại" style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>{score.metadata.title}</Text>
-        <TouchableOpacity style={styles.bookmarkBtn}>
-          <Ionicons name="bookmark-outline" size={22} color={Colors.primary} />
-        </TouchableOpacity>
+
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -184,27 +183,20 @@ export default function SheetMusicPlayerScreen() {
               <Text style={styles.playerTitle}>{score.metadata.title}</Text>
               <Text style={styles.playerMeta}>{score.metadata.composer || "Nhạc Quốc Tế"} • Sáo trúc</Text>
             </View>
-            <View style={styles.playerActions}>
-              <TouchableOpacity style={styles.actionBtn}>
-                <Ionicons name="heart-outline" size={20} color={Colors.light.textSecondary} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn}>
-                <Ionicons name="share-outline" size={20} color={Colors.light.textSecondary} />
-              </TouchableOpacity>
-            </View>
+
           </View>
 
           <View style={[styles.sheetMusicPreview, { paddingVertical: 10 }]}>
-            <View style={{ transform: [{ scale: 1 }], marginTop: 0, pointerEvents: 'none' }}>
+            <View style={{ transform: [{ scale: 1 }], marginTop: 0, pointerEvents: 'auto' }}>
               <SheetMusic score={score} currentIndex={currentIndex} />
             </View>
           </View>
 
           <View style={styles.playerControls}>
-            <TouchableOpacity style={[styles.playBtn, isPlaying && styles.playBtnActive]} onPress={() => setIsPlaying(!isPlaying)}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={isPlaying ? "Tạm dừng bản nhạc" : "Phát bản nhạc"} style={[styles.playBtn, isPlaying && styles.playBtnActive]} onPress={() => setIsPlaying(!isPlaying)}>
               <Ionicons name={isPlaying ? 'pause' : 'play'} size={20} color="#FFF" />
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.playBtn, { width: 40, height: 40, backgroundColor: Colors.light.bgElevated }]} onPress={() => { setIsPlaying(false); setCurrentIndex(0); }}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Dừng bản nhạc" style={[styles.playBtn, { width: 48, height: 48, backgroundColor: Colors.light.bgElevated }]} onPress={() => { setIsPlaying(false); setCurrentIndex(0); }}>
               <Ionicons name={'stop'} size={16} color={Colors.light.textMuted} />
             </TouchableOpacity>
 
@@ -214,15 +206,13 @@ export default function SheetMusicPlayerScreen() {
             </View>
             <View style={styles.autoScrollRow}>
               <Text style={styles.autoScrollLabel}>TỰ ĐỘNG CUỘN</Text>
-              <View style={styles.toggle}>
-                <View style={styles.toggleThumb} />
-              </View>
+              <Ionicons name="checkmark-circle" size={20} color={Colors.primary} />
             </View>
           </View>
 
           <View style={styles.tabsRow}>
             {['Bản nhạc', 'Hợp âm', 'Video mẫu'].map((t) => (
-              <TouchableOpacity key={t} onPress={() => setTab(t)} style={[styles.tabItem, tab === t && styles.tabItemActive]}>
+              <TouchableOpacity accessibilityRole="tab" accessibilityState={{ selected: tab === t }} key={t} onPress={() => setTab(t)} style={[styles.tabItem, tab === t && styles.tabItemActive]}>
                 <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t}</Text>
               </TouchableOpacity>
             ))}
@@ -230,9 +220,9 @@ export default function SheetMusicPlayerScreen() {
 
           {tab === 'Bản nhạc' && (
             <View style={{ marginTop: 24 }}>
-              <FingeringCard 
-                note={score.notes[currentIndex]?.pitch} 
-                fingering={FINGERING_MAP[score.notes[currentIndex]?.pitch] || []} 
+              <FingeringCard
+                note={score.notes[currentIndex]?.pitch}
+                fingering={FINGERING_MAP[score.notes[currentIndex]?.pitch] || []}
                 title="Hướng dẫn bấm nốt"
               />
             </View>
@@ -246,24 +236,7 @@ export default function SheetMusicPlayerScreen() {
             </View>
           )}
 
-          {tab === 'Video mẫu' && (
-            <View style={styles.videoTab}>
-              <Video
-                ref={videoRef}
-                style={styles.video}
-                source={{
-                  uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
-                }}
-                useNativeControls
-                resizeMode={ResizeMode.COVER}
-                isLooping
-              />
-              <View style={styles.videoHint}>
-                <Ionicons name="information-circle-outline" size={16} color={Colors.light.textSecondary} />
-                <Text style={styles.videoHintText}>Đây là video minh họa cách cầm sáo và thổi mẫu từ chuyên gia.</Text>
-              </View>
-            </View>
-          )}
+          {tab === 'Video mẫu' && <View style={styles.emptyTab}><Ionicons name="videocam-outline" size={40} color={Colors.primary} /><Text style={styles.emptyTabTitle}>Video mẫu đang được cập nhật</Text><Text style={styles.emptyTabText}>Bạn có thể nghe bản nhạc và xem hướng dẫn bấm nốt trong lúc chờ video.</Text></View>}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -280,23 +253,23 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   backBtn: {
-    width: 38,
-    height: 38,
+    width: 48,
+    height: 48,
     borderRadius: 12,
     backgroundColor: Colors.light.bgElevated,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: { fontSize: 17, fontWeight: '700', color: Colors.light.text },
+  headerTitle: { flex: 1, marginLeft: 12, fontSize: 17, fontWeight: '700', color: Colors.light.text },
   bookmarkBtn: { padding: 8 },
-  content: { paddingBottom: 40 },
+  content: { paddingBottom: 40, width: '100%', maxWidth: 760, alignSelf: 'center' },
   playerCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     marginHorizontal: 20,
     marginTop: 10,
-    borderRadius: 20,
+    borderRadius: 14,
     padding: 18,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -307,8 +280,8 @@ const styles = StyleSheet.create({
   playerMeta: { fontSize: 13, color: Colors.light.textMuted },
   playerActions: { flexDirection: 'row', gap: 8 },
   actionBtn: {
-    width: 36,
-    height: 36,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     backgroundColor: Colors.light.bgElevated,
     justifyContent: 'center',
@@ -316,7 +289,7 @@ const styles = StyleSheet.create({
   },
   sheetMusicPreview: {
     minHeight: 140,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.sheet,
     borderRadius: 12,
     marginBottom: 16,
     overflow: 'hidden',
@@ -324,7 +297,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 10,
   },
-  playerControls: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 16 },
+  playerControls: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 14, marginBottom: 16 },
   playBtn: {
     width: 48,
     height: 48,
@@ -347,9 +320,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
     alignItems: 'flex-end',
   },
-  toggleThumb: { width: 18, height: 18, borderRadius: 9, backgroundColor: '#FFF' },
+  toggleThumb: { width: 18, height: 18, borderRadius: 9, backgroundColor: Colors.light.bgCard },
   tabsRow: { flexDirection: 'row', gap: 0 },
-  tabItem: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
+  tabItem: { flex: 1, minHeight: 48, justifyContent: 'center', paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
   tabItemActive: { backgroundColor: Colors.primary },
   tabText: { fontSize: 14, fontWeight: '500', color: Colors.light.textMuted },
   tabTextActive: { color: '#FFF', fontWeight: '700' },

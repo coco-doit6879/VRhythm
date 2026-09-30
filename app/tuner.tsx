@@ -1,18 +1,14 @@
+import { Text } from '../ui/Typography';
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { InstrumentArt } from '../ui/InstrumentArt';
+import { Theme } from '../constants/Theme';
 import { Colors } from '../constants/Colors';
 
-const { width } = Dimensions.get('window');
+
 
 const STRINGS_DAN_TRANH = [
   { label: 'Dây 1', note: 'D5', active: true },
@@ -24,6 +20,9 @@ const STRINGS_DAN_TRANH = [
 ];
 
 export default function TunerScreen() {
+  const { width: windowWidth } = useWindowDimensions();
+  const width = Math.min(windowWidth, 760);
+  const styles = createStyles(width);
   const [selectedString, setSelectedString] = useState(0);
   const [isListening, setIsListening] = useState(false);
 
@@ -37,16 +36,15 @@ export default function TunerScreen() {
   const needleAngle = (cent / 50) * 85;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Quay lại" style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Bộ lên dây điện tử</Text>
-          <TouchableOpacity
-            style={[styles.micBtn, isListening && styles.micBtnActive]}
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={isListening ? "Dừng mô phỏng" : "Bắt đầu mô phỏng"} accessibilityState={{ selected: isListening }} style={[styles.micBtn, isListening && styles.micBtnActive]}
             onPress={() => setIsListening(!isListening)}
           >
             <Ionicons name="mic" size={20} color={isListening ? '#FFF' : Colors.primary} />
@@ -54,20 +52,19 @@ export default function TunerScreen() {
         </View>
 
         <View style={styles.content}>
+          <Text style={{ ...Theme.body, marginBottom: 20 }}>Bản xem trước. Kim và cao độ là dữ liệu minh họa; micro chưa được kết nối.</Text>
           {/* Instrument Selector */}
           <View style={styles.instrumentSelector}>
             <View style={styles.instrumentInfo}>
               <View style={styles.instrumentIconWrap}>
-                <Text style={{ fontSize: 22 }}>🎵</Text>
+                <InstrumentArt instrument="Đàn Tranh" style={{ width: 44, height: 44 }} />
               </View>
               <View>
                 <Text style={styles.instrumentSelectLabel}>ĐANG CHỌN</Text>
                 <Text style={styles.instrumentName}>Đàn Tranh (19 dây)</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.changeBtn}>
-              <Text style={styles.changeBtnText}>Thay đổi</Text>
-            </TouchableOpacity>
+
           </View>
 
           {/* Tuner Meter */}
@@ -126,13 +123,12 @@ export default function TunerScreen() {
           <View style={styles.stringsSection}>
             <View style={styles.stringsSectionHeader}>
               <Text style={styles.sectionTitle}>DANH SÁCH DÂY ĐÀN</Text>
-              <Text style={styles.sampleHint}>Chạm để nghe âm mẫu</Text>
+              <Text style={styles.sampleHint}>Chọn dây để xem nốt</Text>
             </View>
             <View style={styles.stringsGrid}>
               {STRINGS_DAN_TRANH.map((str, idx) => (
-                <TouchableOpacity
-                  key={idx}
-                  style={[styles.stringCard, selectedString === idx && styles.stringCardActive]}
+                <TouchableOpacity accessibilityRole="button" key={idx}
+                  accessibilityLabel={`${str.label}, ${str.note}`} accessibilityState={{ selected: selectedString === idx }} style={[styles.stringCard, selectedString === idx && styles.stringCardActive]}
                   onPress={() => setSelectedString(idx)}
                   activeOpacity={0.7}
                 >
@@ -162,7 +158,7 @@ export default function TunerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (width: number) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.light.bg },
   header: {
     flexDirection: 'row',
@@ -172,8 +168,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backBtn: {
-    width: 38,
-    height: 38,
+    width: 48,
+    height: 48,
     borderRadius: 12,
     backgroundColor: Colors.light.bgElevated,
     justifyContent: 'center',
@@ -181,8 +177,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 17, fontWeight: '700', color: Colors.light.text },
   micBtn: {
-    width: 42,
-    height: 42,
+    width: 48,
+    height: 48,
     borderRadius: 14,
     backgroundColor: Colors.light.bgElevated,
     justifyContent: 'center',
@@ -210,19 +206,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
+
   },
   instrumentSelectLabel: { fontSize: 10, fontWeight: '700', color: Colors.primary, letterSpacing: 1 },
   instrumentName: { fontSize: 14, fontWeight: '700', color: Colors.light.text, marginTop: 2 },
   changeBtn: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 10,
@@ -232,16 +224,12 @@ const styles = StyleSheet.create({
   changeBtnText: { fontSize: 13, fontWeight: '600', color: Colors.light.text },
 
   tunerCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 24,
+    backgroundColor: Colors.light.bgCard,
+    borderRadius: 14,
     padding: 24,
     marginBottom: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+
   },
   currentStringLabel: { fontSize: 13, color: Colors.light.textMuted, marginBottom: 6 },
   currentNote: { fontSize: 56, fontWeight: '900', color: Colors.primary, marginBottom: 16 },
@@ -272,7 +260,7 @@ const styles = StyleSheet.create({
   needle: {
     width: 2,
     height: 80,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: Colors.light.text,
     borderRadius: 1,
     transformOrigin: 'bottom',
   },
@@ -283,7 +271,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: Colors.light.text,
   },
 
   tuneStatusBadge: {
@@ -296,14 +284,14 @@ const styles = StyleSheet.create({
   centsText: { fontSize: 12, fontWeight: '600' },
 
   stringsSection: { marginBottom: 20 },
-  stringsSectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  stringsSectionHeader: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   sectionTitle: { fontSize: 12, fontWeight: '700', letterSpacing: 1, color: Colors.light.textMuted },
   sampleHint: { fontSize: 12, color: Colors.primary },
 
   stringsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   stringCard: {
     width: (width - 52) / 2,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
@@ -311,11 +299,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: Colors.light.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
+
   },
   stringCardActive: { borderColor: Colors.primary, backgroundColor: Colors.light.bgElevated },
   stringLabel: { fontSize: 11, color: Colors.light.textMuted, marginBottom: 4 },

@@ -1,141 +1,103 @@
-import { ArrowLeft, ArrowRight, Check, ChevronLeft, CheckCircle2, CirclePlay, Mic, Pause, Play, RotateCcw, Sparkles, Square, Volume2, XCircle } from 'lucide-react';
+import { ArrowRight, Check, CheckCircle2, ChevronLeft } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { bambooFluteScore, mockLessons } from '../data/mock';
-import { api, authStorage } from '../services/api';
-import { WebSheetMusic } from './WebSheetMusic';
+import { api, courseErrorMessage, type CourseDetail, type LessonDetail, type PracticalDetail, type QuizDetail } from '../services/api';
+import { PracticalLesson } from './PracticalLesson';
+import { VideoLesson } from './VideoLesson';
+import './lesson-player.css';
 
 type LessonRoute = { courseId: number; chapterId: number; lessonId: number };
-type Lesson = { id: number; title: string; type: string; duration: string; done: boolean };
-type Chapter = { id: number; title: string; lessons: Lesson[] };
-type QuizQuestion = { question: string; options: string[]; answer: number; explanation: string };
+type Loaded = { course: CourseDetail; lesson: LessonDetail; quiz?: QuizDetail; practical?: PracticalDetail; videoUrl?: string };
+const labels: Record<string, string> = { Theory: 'Lý thuyết', Video: 'Video', Quiz: 'Trắc nghiệm', Practical: 'Thực hành' };
 
-const midi: Record<string, number> = { C5: 72, D5: 74, E5: 76, F5: 77, G5: 79, A5: 81, B5: 83, C6: 84 };
-const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const chapters: Chapter[] = [
-  { id: 1, title: 'Nhập môn Sáo Trúc', lessons: mockLessons.slice(0, 5) },
-  { id: 2, title: 'Làm quen nốt nhạc', lessons: [{ id: 201, title: 'Vị trí 3 nốt Đồ, Rê, Mi', type: 'Theory', duration: '9 phút', done: false }, { id: 202, title: 'Thực hành 3 nốt', type: 'Practical', duration: '12 phút', done: false }] },
-  { id: 3, title: 'Hoàn thiện thang âm', lessons: [{ id: 301, title: 'Thang âm Đô trưởng', type: 'Practical', duration: '15 phút', done: false }, { id: 302, title: 'Kiểm tra cuối chương', type: 'Quiz', duration: '5 câu hỏi', done: false }] },
-];
-const completionKey = 'vrhythm_completed_lessons';
-const readCompletedLessons = (): number[] => JSON.parse(localStorage.getItem(completionKey) ?? '[]') as number[];
-const quizQuestions: Record<number, QuizQuestion[]> = {
-  105: [
-    { question: 'Sáo trúc Việt Nam thường được làm từ chất liệu nào?', options: ['Tre hoặc trúc', 'Kim loại', 'Nhựa', 'Gỗ lim'], answer: 0, explanation: 'Tre và trúc tạo ra thân sáo nhẹ, bền và có âm sắc gần gũi.' },
-    { question: 'Kỹ thuật thở nền tảng khi chơi sáo trúc là gì?', options: ['Thở ngực', 'Thở bụng', 'Nín thở', 'Thở thật nhanh'], answer: 1, explanation: 'Thở bụng giúp luồng hơi đều và kiểm soát được độ dài của âm.' },
-    { question: 'Nếu ngón tay bịt lỗ sáo không kín, điều gì thường xảy ra?', options: ['Âm thanh vang hơn', 'Sáo tự lên tông', 'Tiếng bị xì hoặc không kêu', 'Không có thay đổi'], answer: 2, explanation: 'Khe hở làm thất thoát cột khí, khiến âm bị xì hoặc không phát ra.' },
-  ],
-  302: [
-    { question: 'Trong thang âm Đô trưởng, sau nốt Mi là nốt nào?', options: ['Rê', 'Fa', 'Sol', 'Si'], answer: 1, explanation: 'Thứ tự cơ bản là Đô, Rê, Mi, Fa, Sol, La, Si, Đô.' },
-    { question: 'Muốn lên nốt cao hơn trên sáo, người chơi thường cần làm gì?', options: ['Thổi mạnh hơn có kiểm soát', 'Bịt thêm tất cả lỗ', 'Dừng luồng hơi', 'Đổi sang dây đàn'], answer: 0, explanation: 'Quãng cao cần luồng hơi nhanh và tập trung hơn, không chỉ thổi thật mạnh.' },
-    { question: 'Bước nào giúp tiếng sáo ổn định nhất?', options: ['Bịt kín lỗ và giữ hơi đều', 'Đổi ngón liên tục', 'Thổi đứt quãng', 'Cắn vào thân sáo'], answer: 0, explanation: 'Hai nền tảng đầu tiên luôn là thế ngón kín và luồng hơi đều.' },
-  ],
-};
-
-function detectPitch(buffer: Float32Array, sampleRate: number) {
-  let rms = 0;
-  for (const sample of buffer) rms += sample * sample;
-  rms = Math.sqrt(rms / buffer.length);
-  if (rms < 0.015) return null;
-  let bestOffset = -1;
-  let bestCorrelation = 0;
-  for (let offset = 18; offset < buffer.length / 2; offset += 2) {
-    let correlation = 0;
-    for (let index = 0; index < buffer.length - offset; index += 2) correlation += 1 - Math.abs(buffer[index] - buffer[index + offset]);
-    correlation /= buffer.length / 2;
-    if (correlation > bestCorrelation) { bestCorrelation = correlation; bestOffset = offset; }
-  }
-  return bestOffset > 0 && bestCorrelation > 0.45 ? sampleRate / bestOffset : null;
+export function LessonPlayer(props: { route: LessonRoute; onBack: () => void; onOpenLesson: (route: LessonRoute) => void }) {
+  return <LessonSession key={`${props.route.courseId}-${props.route.chapterId}-${props.route.lessonId}`} {...props} />;
 }
 
-function pitchLabel(frequency: number) {
-  const midiNote = Math.round(69 + 12 * Math.log2(frequency / 440));
-  const name = `${noteNames[(midiNote + 120) % 12]}${Math.floor(midiNote / 12) - 1}`;
-  return { name, midiNote, cents: Math.round((69 + 12 * Math.log2(frequency / 440) - midiNote) * 100) };
-}
+function LessonSession({ route, onBack, onOpenLesson }: { route: LessonRoute; onBack: () => void; onOpenLesson: (route: LessonRoute) => void }) {
+  const [data, setData] = useState<Loaded | null>(null);
+  const [loadError, setLoadError] = useState('');
+  const [retry, setRetry] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState<{ passed: boolean; scorePercentage: number } | null>(null);
+  const [completed, setCompleted] = useState(false);
+  const submitting = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoadError(''); setData(null);
+    void (async () => {
+      try {
+        const course = await api.getCourse(route.courseId, controller.signal);
+        const summary = course.chapters.find(c => c.id === route.chapterId)?.lessons.find(l => l.id === route.lessonId);
+        if (!summary) { setLoadError('Bài học không thuộc khóa học này. Hãy quay lại và chọn từ lộ trình.'); return; }
+        if (!course.isEnrolled || !course.isUnlocked) { setLoadError('Bạn cần đăng nhập và đăng ký hoặc mở khóa học trước khi vào bài.'); return; }
+        let loaded: Loaded;
+        if (summary.type === 'Quiz') loaded = { course, lesson: summary, quiz: await api.getQuiz(summary.id, controller.signal) };
+        else if (summary.type === 'Practical') loaded = { course, lesson: summary, practical: await api.getPractical(summary.id, controller.signal) };
+        else {
+          const lesson = await api.getLesson(summary.id, controller.signal);
+          loaded = { course, lesson };
+          if (summary.type === 'Video') {
+            try { loaded.videoUrl = await api.getVideoUrl(course.id, summary.id, controller.signal); }
+            catch { loaded.videoUrl = undefined; }
+          }
+        }
+        if (!controller.signal.aborted) { setData(loaded); setCompleted(summary.isCompleted); }
+      } catch (e) { if (!controller.signal.aborted) setLoadError(courseErrorMessage(e)); }
+    })();
+    return () => controller.abort();
+  }, [route.courseId, route.chapterId, route.lessonId, retry]);
 
-export function LessonPlayer({ route, onBack, onOpenLesson }: { route: LessonRoute; onBack: () => void; onOpenLesson: (route: LessonRoute) => void }) {
-  const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [recording, setRecording] = useState(false);
-  const [detected, setDetected] = useState<{ name: string; midiNote: number; cents: number } | null>(null);
-  const [recordingError, setRecordingError] = useState('');
-  const [completed, setCompleted] = useState(() => readCompletedLessons().includes(route.lessonId));
-  const timer = useRef<number | null>(null);
-  const audioContext = useRef<AudioContext | null>(null);
-  const mediaStream = useRef<MediaStream | null>(null);
-  const animation = useRef<number | null>(null);
-  const chapter = chapters.find(item => item.id === route.chapterId) ?? chapters[0];
-  const currentLesson = chapter.lessons.find(lesson => lesson.id === route.lessonId) ?? chapter.lessons[0];
-  const current = bambooFluteScore.notes[index] ?? bambooFluteScore.notes[0];
-  useEffect(() => setCompleted(readCompletedLessons().includes(route.lessonId)), [route.lessonId]);
-
-  const stop = () => { if (timer.current) window.clearTimeout(timer.current); timer.current = null; setPlaying(false); };
-  useEffect(() => { if (!playing || currentLesson.type !== 'Practical') return; const audio = new Audio(`/audio/${current.pitch}.ogg`); audio.volume = .82; void audio.play().catch(() => undefined); timer.current = window.setTimeout(() => { if (index + 1 >= bambooFluteScore.notes.length) stop(); else setIndex(index + 1); }, 750); return () => { audio.pause(); audio.currentTime = 0; if (timer.current) window.clearTimeout(timer.current); }; }, [playing, index, current.pitch, currentLesson.type]);
-  useEffect(() => () => { stop(); if (animation.current) cancelAnimationFrame(animation.current); mediaStream.current?.getTracks().forEach(track => track.stop()); void audioContext.current?.close(); }, []);
-
-  const stopRecording = () => { if (animation.current) cancelAnimationFrame(animation.current); mediaStream.current?.getTracks().forEach(track => track.stop()); mediaStream.current = null; void audioContext.current?.close(); audioContext.current = null; setRecording(false); };
-  const startRecording = async () => {
-    if (recording) { stopRecording(); return; }
-    if (!navigator.mediaDevices?.getUserMedia) { setRecordingError('Trình duyệt này không hỗ trợ microphone.'); return; }
+  const submit = async (action: () => Promise<{ passed: boolean; scorePercentage: number } | void>) => {
+    if (submitting.current) return;
+    submitting.current = true; setBusy(true); setError(''); setResult(null);
     try {
-      setRecordingError('');
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
-      const context = new AudioContext(); const source = context.createMediaStreamSource(stream); const analyser = context.createAnalyser();
-      analyser.fftSize = 2048; source.connect(analyser); const buffer = new Float32Array(analyser.fftSize);
-      mediaStream.current = stream; audioContext.current = context; setRecording(true);
-      const analyse = () => { analyser.getFloatTimeDomainData(buffer); const frequency = detectPitch(buffer, context.sampleRate); if (frequency) setDetected(pitchLabel(frequency)); animation.current = requestAnimationFrame(analyse); };
-      analyse();
-    } catch { setRecordingError('Không thể truy cập microphone. Hãy cấp quyền rồi thử lại.'); setRecording(false); }
+      const grade = await action();
+      if (!mounted.current) return;
+      if (grade) setResult(grade);
+      if (!grade || grade.passed) {
+        setCompleted(true);
+        setData(previous => previous && ({ ...previous, course: { ...previous.course, chapters: previous.course.chapters.map(c => ({ ...c, lessons: c.lessons.map(l => l.id === route.lessonId ? { ...l, isCompleted: true } : l) })) } }));
+        try { await api.recalculateCourseCompletion(route.courseId); }
+        catch { if (mounted.current) setError('Bài học đã lưu. Tổng tiến độ khóa học chưa cập nhật; hãy tải lại khóa học để kiểm tra.'); }
+      }
+    } catch (e) { if (mounted.current) setError(courseErrorMessage(e)); }
+    finally { submitting.current = false; if (mounted.current) setBusy(false); }
   };
 
-  const targetMidi = midi[current.pitch] ?? 72;
-  const isInTune = detected !== null && detected.midiNote === targetMidi && Math.abs(detected.cents) <= 35;
-  const selectLesson = (lessonId: number, chapterId: number) => onOpenLesson({ courseId: route.courseId, chapterId, lessonId });
-  const completeLesson = async () => {
-    const completedLessons = new Set(readCompletedLessons());
-    completedLessons.add(route.lessonId);
-    localStorage.setItem(completionKey, JSON.stringify([...completedLessons]));
-    setCompleted(true);
-    if (!authStorage.read()) return;
-    try {
-      if (currentLesson.type === 'Theory') await api.completeTheory(route.lessonId);
-      if (currentLesson.type === 'Video') await api.updateLessonProgress(route.courseId, route.lessonId, 1, 1);
-      if (currentLesson.type === 'Practical') await api.submitPractical(route.lessonId, route.lessonId === 104 ? ['G5', 'G5'] : bambooFluteScore.notes.map(note => note.pitch));
-      await api.recalculateCourseCompletion(route.courseId);
-    } catch { /* Keep the local completion state while the mock lesson is not in the API catalog. */ }
-  };
-  const labelType = (type: string) => type === 'Theory' ? 'Lý thuyết' : type === 'Video' ? 'Video' : type === 'Practical' ? 'Thực hành' : 'Trắc nghiệm';
-  const quiz = quizQuestions[route.lessonId];
+  const lessonOrder = data?.course.chapters
+    .slice().sort((a, b) => a.sortOrder - b.sortOrder)
+    .flatMap(chapter => chapter.lessons.slice().sort((a, b) => a.sortOrder - b.sortOrder)
+      .map(lesson => ({ courseId: route.courseId, chapterId: chapter.id, lessonId: lesson.id, title: lesson.title })));
+  const nextLesson = lessonOrder?.[(lessonOrder.findIndex(lesson => lesson.lessonId === route.lessonId)) + 1];
 
-  return <main className="page lesson-page"><button className="text-button" onClick={onBack}><ChevronLeft size={18} /> Quay lại khóa học</button><div className="lesson-header"><div><div className="section-kicker"><Sparkles size={14} /> Chương {String(route.chapterId).padStart(2, '0')} · Bài {String(route.lessonId).padStart(2, '0')}</div><h1>{currentLesson.title}</h1><p>{currentLesson.type === 'Theory' ? 'Nắm nền tảng trước khi bắt đầu luyện tập.' : currentLesson.type === 'Video' ? 'Xem hướng dẫn và thực hành từng bước cùng giảng viên.' : currentLesson.type === 'Quiz' ? 'Kiểm tra lại kiến thức sau chương học.' : 'Nghe từng nốt, quan sát thế bấm và thử chơi lại trên cây sáo của bạn.'}</p></div><span className="lesson-badge"><Volume2 size={16} /> Sáo trúc · {currentLesson.duration}</span></div><div className="lesson-grid"><section className="practice-card">{currentLesson.type === 'Theory' && <TheoryLesson lessonId={route.lessonId} completed={completed} onComplete={completeLesson} />}{currentLesson.type === 'Video' && <VideoLesson lessonId={route.lessonId} completed={completed} onComplete={completeLesson} />}{currentLesson.type === 'Quiz' && <QuizLesson questions={quiz ?? quizQuestions[105]} completed={completed} onComplete={completeLesson} />}{currentLesson.type === 'Practical' && <PracticeLesson current={current} index={index} playing={playing} setIndex={setIndex} stop={stop} play={() => setPlaying(true)} scoreLength={bambooFluteScore.notes.length} recording={recording} detected={detected} isInTune={isInTune} recordingError={recordingError} startRecording={startRecording} completed={completed} onComplete={completeLesson} />}</section><aside className="lesson-sidebar"><div className="section-kicker"><Sparkles size={14} /> Nội dung khóa học</div><h2>Nhập môn Sáo Trúc</h2>{chapters.map(item => { const doneCount = item.lessons.filter(lesson => lesson.done || readCompletedLessons().includes(lesson.id)).length; const chapterDone = doneCount === item.lessons.length; return <div className="chapter-group" key={item.id}><h3><span>Chương {String(item.id).padStart(2, '0')} · {item.title}</span><small>{doneCount}/{item.lessons.length} {chapterDone && <CheckCircle2 size={14} />}</small></h3>{item.lessons.map(lesson => { const isDone = lesson.done || readCompletedLessons().includes(lesson.id); return <button className={lesson.id === route.lessonId ? 'lesson-item current' : 'lesson-item'} key={lesson.id} onClick={() => selectLesson(lesson.id, item.id)}><span>{isDone ? <Check size={14} /> : String(lesson.id % 100 || item.id).padStart(2, '0')}</span><div><strong>{lesson.title}</strong><small>{labelType(lesson.type)} · {lesson.duration}</small></div></button>; })}</div>; })}</aside></div></main>;
+  return <main className="page lesson-page course-player">
+    <button className="text-button" onClick={onBack}><ChevronLeft size={18} /> Quay lại khóa học</button>
+    {!data && !loadError && <p role="status">Đang tải bài học…</p>}
+    {loadError && <div role="alert" className="lesson-load-error"><p>{loadError}</p><button className="primary" onClick={() => setRetry(n => n + 1)}>Thử lại</button></div>}
+    {data && <>
+      <header className="lesson-header"><div><div className="section-kicker">{data.course.title} · {labels[data.lesson.type]}</div><h1>{data.lesson.title}</h1></div></header>
+      <div className="lesson-grid"><section className="practice-card" aria-label="Nội dung bài học" aria-busy={busy}>
+        {data.lesson.type === 'Theory' && <article className="lesson-content"><h2>Nội dung bài học</h2><div className="lesson-prose">{data.lesson.theory?.content || 'Nội dung đang được cập nhật.'}</div>{data.lesson.theory?.content && !completed && <button className="primary completion-button" disabled={busy} onClick={() => void submit(async () => { await api.completeTheory(route.lessonId); })}>{busy ? 'Đang lưu…' : 'Đánh dấu đã học'}</button>}</article>}
+        {data.lesson.type === 'Video' && <VideoLesson url={data.videoUrl} content={data.lesson.video?.content} completed={completed} busy={busy} onComplete={(watched, total) => submit(async () => { await api.updateLessonProgress(route.courseId, route.lessonId, watched, total); })} onConfirmExternal={() => submit(async () => { await api.completeExternalVideo(route.courseId, route.lessonId); })} />}
+        {data.quiz && <QuizLesson quiz={data.quiz} busy={busy} completed={completed} onSubmit={answers => submit(() => api.submitQuiz(route.lessonId, answers))} />}
+        {data.practical && <PracticalLesson practical={data.practical} busy={busy} completed={completed} onSubmit={notes => submit(() => api.submitPractical(route.lessonId, notes))} />}
+        {error && <p role="alert" className="lesson-feedback error">{error}</p>}
+        {result && <p role="status" className="lesson-feedback">{result.passed ? 'Đạt' : 'Chưa đạt'} · {Math.round(result.scorePercentage)}%. {!result.passed && 'Bạn có thể luyện lại rồi nộp bài.'}</p>}
+        {completed && <p className="completion-done"><CheckCircle2 size={18} /> Đã hoàn thành</p>}
+        {completed && <div className="lesson-next-action">{nextLesson
+          ? <button className="primary" onClick={() => onOpenLesson(nextLesson)}>Bài tiếp theo · {nextLesson.title} <ArrowRight size={18} aria-hidden="true" /></button>
+          : <button className="primary" onClick={onBack}>Xem lại khóa học <ArrowRight size={18} aria-hidden="true" /></button>}
+        </div>}
+      </section><aside className="lesson-sidebar"><details><summary>Nội dung khóa học <span>{data.course.chapters.reduce((n, c) => n + c.lessons.length, 0)} bài</span></summary><div className="lesson-outline">{data.course.chapters.map(chapter => <section className="chapter-group" key={chapter.id}><h2>{chapter.title}</h2>{chapter.lessons.map((lesson, index) => <button aria-current={lesson.id === route.lessonId ? 'page' : undefined} className={`lesson-item ${lesson.id === route.lessonId ? 'current' : ''}`} key={lesson.id} onClick={() => onOpenLesson({ courseId: route.courseId, chapterId: chapter.id, lessonId: lesson.id })}><span>{lesson.isCompleted ? <Check size={14} /> : index + 1}</span><div><strong>{lesson.title}</strong><small>{labels[lesson.type]}{lesson.isCompleted ? ' · Đã hoàn thành' : ''}</small></div></button>)}</section>)}</div></details></aside></div>
+    </>}
+  </main>;
 }
 
-function TheoryLesson({ lessonId, completed, onComplete }: { lessonId: number; completed: boolean; onComplete: () => void }) {
-  const isNotes = lessonId === 201;
-  return <article className="lesson-content"><div className="content-kicker">Lý thuyết</div><h2>{isNotes ? 'Ba nốt đầu tiên: Đồ, Rê, Mi' : 'Sáo trúc Việt Nam và cách tạo âm'}</h2><p>{isNotes ? 'Ba nốt Đồ, Rê, Mi là nền tảng để bạn bắt đầu đọc sheet nhạc và làm quen với thế bấm.' : 'Sáo trúc thường được làm từ tre hoặc trúc. Âm thanh hình thành khi luồng hơi đi qua lỗ thổi và làm rung cột khí trong thân sáo.'}</p><div className="lesson-points"><div><b>01</b><span>{isNotes ? 'Bịt kín sáu lỗ để tạo nốt Đồ.' : 'Giữ thân sáo ngang, môi thả lỏng và hướng hơi ổn định.'}</span></div><div><b>02</b><span>{isNotes ? 'Mở lần lượt lỗ dưới để chuyển sang Rê rồi Mi.' : 'Tập hơi đều trước khi tăng lực để âm không bị xì.'}</span></div><div><b>03</b><span>{isNotes ? 'Chuyển ngón chậm, không nhấc ngón quá cao.' : 'Nghe độ vang của âm để tự điều chỉnh góc môi.'}</span></div></div><CompletionButton completed={completed} onComplete={onComplete} label="Đánh dấu đã học" /></article>;
-}
-
-function VideoLesson({ lessonId, completed, onComplete }: { lessonId: number; completed: boolean; onComplete: () => void }) {
-  const video = lessonId === 102
-    ? { id: 'YwYzC-aL9M4', title: 'Hướng dẫn học thổi sáo cho người mới' }
-    : { id: '5ppzDF6GE1w', title: 'Thực hành và nghe âm thanh sáo trúc' };
-  return <article className="lesson-content"><div className="content-kicker">Video hướng dẫn</div><h2>{video.title}</h2><div className="video-frame"><iframe title={video.title} src={`https://www.youtube-nocookie.com/embed/${video.id}?rel=0`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div><p className="video-note">Video được tải trực tiếp từ YouTube. Bạn có thể mở toàn màn hình để quan sát tư thế và thế ngón rõ hơn.</p><a className="text-button" href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noreferrer"><CirclePlay size={16} /> Mở video trên YouTube</a><CompletionButton completed={completed} onComplete={onComplete} label="Đã xem xong video" /></article>;
-}
-
-function QuizLesson({ questions, completed, onComplete }: { questions: QuizQuestion[]; completed: boolean; onComplete: () => void }) {
-  const [selected, setSelected] = useState<Record<number, number>>({});
-  const [submitted, setSubmitted] = useState(false);
-  const score = questions.reduce((total, item, index) => total + (selected[index] === item.answer ? 1 : 0), 0);
-  const passed = score / questions.length >= .7;
-  return <article className="lesson-content quiz-content"><div className="content-kicker">Trắc nghiệm</div><h2>Kiểm tra kiến thức</h2><p>Chọn đáp án, sau đó bấm nộp bài để xem kết quả và giải thích.</p>{questions.map((item, index) => <div className="quiz-question" key={item.question}><h3><span>{String(index + 1).padStart(2, '0')}</span>{item.question}</h3><div className="quiz-options">{item.options.map((option, optionIndex) => <button className={selected[index] === optionIndex ? 'quiz-option selected' : 'quiz-option'} disabled={submitted} key={option} onClick={() => setSelected(current => ({ ...current, [index]: optionIndex }))}>{option}</button>)}</div>{submitted && <div className={selected[index] === item.answer ? 'quiz-feedback correct' : 'quiz-feedback incorrect'}>{selected[index] === item.answer ? <CheckCircle2 size={16} /> : <XCircle size={16} />}{selected[index] === item.answer ? 'Chính xác. ' : 'Chưa đúng. '}{item.explanation}</div>}</div>)}<div className="quiz-footer">{submitted ? <strong>Kết quả: {score} / {questions.length}</strong> : <span>{Object.keys(selected).length} / {questions.length} câu đã chọn</span>}<button className="primary" disabled={Object.keys(selected).length < questions.length} onClick={() => { setSubmitted(true); if (passed) onComplete(); }}>{submitted ? 'Đã chấm bài' : 'Nộp bài'}</button></div>{submitted && !passed && <p className="recorder-error">Bạn cần đạt ít nhất 70% để hoàn thành bài quiz.</p>}{submitted && passed && !completed && <p className="pitch-result correct">Quiz đạt yêu cầu, bài học đã được ghi nhận.</p>}</article>;
-}
-
-function PracticeLesson({ current, index, playing, setIndex, stop, play, scoreLength, recording, detected, isInTune, recordingError, startRecording, completed, onComplete }: { current: { pitch: string }; index: number; playing: boolean; setIndex: (value: number) => void; stop: () => void; play: () => void; scoreLength: number; recording: boolean; detected: { name: string; cents: number } | null; isInTune: boolean; recordingError: string; startRecording: () => void; completed: boolean; onComplete: () => void }) {
-  return <><div className="practice-top"><span>Sheet nhạc · 80 BPM</span><strong>{String(index + 1).padStart(2, '0')} / {String(scoreLength).padStart(2, '0')}</strong></div><div className="real-sheet"><WebSheetMusic score={bambooFluteScore} currentIndex={index} /></div><div className="target-note"><small>Nốt mục tiêu</small><strong>{current.pitch}</strong><span>Giữ hơi đều, ngón tay bịt kín lỗ sáo</span></div><div className="practice-controls"><button className="icon-button" aria-label="Nốt trước" onClick={() => setIndex(Math.max(0, index - 1))}><ArrowLeft size={17} /></button><button className="play-large" aria-label={playing ? 'Tạm dừng' : 'Phát bài tập'} onClick={playing ? stop : play}>{playing ? <Pause /> : <Play />}</button><button className="icon-button" aria-label="Nốt tiếp theo" onClick={() => setIndex(Math.min(scoreLength - 1, index + 1))}><ArrowRight size={17} /></button><button className="icon-button" aria-label="Đặt lại" onClick={() => { stop(); setIndex(0); }}><RotateCcw size={16} /></button></div><div className="lesson-progress"><i style={{ width: `${(index / (scoreLength - 1)) * 100}%` }} /></div><div className="pitch-recorder"><div className="recorder-heading"><div><span className="section-kicker"><Sparkles size={14} /> Luyện bằng microphone</span><h3>Kiểm tra nốt thổi</h3></div><button className={recording ? 'record-button active' : 'record-button'} onClick={startRecording}>{recording ? <Square size={15} /> : <Mic size={15} />} {recording ? 'Dừng nghe' : 'Bắt đầu nghe'}</button></div><div className="pitch-readout"><strong>{detected?.name ?? '--'}</strong><span>{detected ? `${detected.cents > 0 ? '+' : ''}${detected.cents} cents` : 'Thổi một nốt vào microphone'}</span></div><div className={`pitch-result ${detected ? (isInTune ? 'correct' : 'adjust') : ''}`}>{detected ? (isInTune ? 'Đúng cao độ mục tiêu' : `Đang nghe ${detected.name}, hãy điều chỉnh hơi`) : 'Ứng dụng chỉ phân tích âm thanh, không lưu bản ghi.'}</div>{recordingError && <p className="recorder-error">{recordingError}</p>}</div><CompletionButton completed={completed} onComplete={onComplete} label="Hoàn thành bài thực hành" /></>;
-}
-
-function CompletionButton({ completed, onComplete, label }: { completed: boolean; onComplete: () => void; label: string }) {
-  return completed
-    ? <div className="completion-done"><CheckCircle2 size={16} /> Đã hoàn thành</div>
-    : <button className="primary completion-button" onClick={onComplete}>{label}</button>;
+function QuizLesson({ quiz, busy, completed, onSubmit }: { quiz: QuizDetail; busy: boolean; completed: boolean; onSubmit: (answers: Array<{ questionId: number; selectedOptionId: number }>) => Promise<void> }) {
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+  if (!quiz.questions.length) return <p>Nội dung câu hỏi đang được cập nhật.</p>;
+  return <article className="lesson-content"><h2>Kiểm tra kiến thức</h2><p>Chọn một đáp án cho mỗi câu. Kết quả được chấm và lưu trên máy chủ.</p>{quiz.questions.map((question, index) => <fieldset className="lesson-question" key={question.id} disabled={busy || completed}><legend>{index + 1}. {question.prompt}</legend>{question.options.map(option => <label className="lesson-answer" key={option.id}><input type="radio" name={`question-${question.id}`} checked={answers[question.id] === option.id} onChange={() => setAnswers(old => ({ ...old, [question.id]: option.id }))} />{option.text}</label>)}</fieldset>)}{!completed && <button className="primary" disabled={busy || quiz.questions.some(q => answers[q.id] == null)} onClick={() => void onSubmit(quiz.questions.map(q => ({ questionId: q.id, selectedOptionId: answers[q.id] })))}>{busy ? 'Đang chấm…' : 'Nộp bài'}</button>}</article>;
 }

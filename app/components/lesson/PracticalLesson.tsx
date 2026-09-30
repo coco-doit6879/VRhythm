@@ -1,5 +1,6 @@
+import { Text } from '../../../ui/Typography';
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "../../../constants/Colors";
 import { LessonDto, PracticalDto } from "../../../services/api-types";
@@ -8,7 +9,7 @@ import PracticalExamEngine from "./PracticalExamEngine";
 interface PracticalLessonProps {
   lesson: LessonDto | null;
   practical: PracticalDto | null;
-  onComplete: () => void;
+  onComplete: (notes: string[]) => Promise<boolean>;
   mode: 'normal' | 'exam' | null;
   setMode: (mode: 'normal' | 'exam' | null) => void;
 }
@@ -21,7 +22,7 @@ export function PracticalLesson({ lesson, practical, onComplete, mode, setMode }
   if (mode) {
     return (
       <View style={[styles.engineContainer, { flex: 1 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => setMode(null)}>
+        <TouchableOpacity accessibilityRole="button" style={styles.backButton} onPress={() => setMode(null)}>
           <View style={styles.backButtonContainer}>
             <Text style={styles.backButtonText}>← Đổi chế độ tập luyện</Text>
           </View>
@@ -36,20 +37,20 @@ export function PracticalLesson({ lesson, practical, onComplete, mode, setMode }
   return (
     <View style={styles.typeSpecificCard}>
       <Text style={styles.cardHeaderTitle}>BÀI LUYỆN ÂM: {lesson?.title?.toUpperCase()}</Text>
-      
+
       <Text style={styles.practiceBodyText}>
         Bạn có 2 tùy chọn để thực hành. Hãy chọn 1 chế độ bên dưới:
       </Text>
-      
-      <TouchableOpacity style={[styles.actionBtn, { marginBottom: 16 }]} onPress={() => setMode('normal')}>
-        <LinearGradient colors={['#A8C5B5', '#86A795']} style={styles.actionBtnGradient}>
-          <Text style={styles.actionBtnText}>🎧 Nghe mẫu (Tự động chạy)</Text>
+
+      <TouchableOpacity accessibilityRole="button" style={[styles.actionBtn, { marginBottom: 16 }]} onPress={() => setMode('normal')}>
+        <LinearGradient colors={[Colors.primary, Colors.primary]} style={styles.actionBtnGradient}>
+          <Text style={styles.actionBtnText}>Nghe mẫu (Tự động chạy)</Text>
         </LinearGradient>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.actionBtn} onPress={() => setMode('exam')}>
+      <TouchableOpacity accessibilityRole="button" style={styles.actionBtn} onPress={() => setMode('exam')}>
         <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.actionBtnGradient}>
-          <Text style={styles.actionBtnText}>🎤 Bắt đầu thực hành thi</Text>
+          <Text style={styles.actionBtnText}>Bắt đầu thực hành thi</Text>
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -58,11 +59,11 @@ export function PracticalLesson({ lesson, practical, onComplete, mode, setMode }
 
 const styles = StyleSheet.create({
   typeSpecificCard: {
-    backgroundColor: "#FFF",
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 16,
     padding: 18,
     marginBottom: 20,
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -78,16 +79,16 @@ const styles = StyleSheet.create({
   backButtonContainer: {
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#F0F4F8',
+    backgroundColor: Colors.light.bgElevated,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E1E8ED',
+    borderColor: Colors.light.border,
   },
   backButtonText: {
-    color: '#4A5568',
+    color: Colors.light.textSecondary,
     fontWeight: '700',
     fontSize: 15,
   },

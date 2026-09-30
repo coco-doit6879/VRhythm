@@ -1,124 +1,26 @@
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
+import React from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '../../constants/Colors';
+import { Text } from '../../ui/Typography';
 interface Props {
-  playing: boolean;
-
-  onPlay: () => void;
-  onPause: () => void;
-  onStop: () => void;
-  onPrev: () => void;
-  onNext: () => void;
+  disabled?: boolean; allowSeek?: boolean;
+  playing: boolean; onPlay: () => void; onPause: () => void; onStop: () => void; onPrev: () => void; onNext: () => void;
 }
-
-export default function PlaybackControls({
-  playing,
-  onPlay,
-  onPause,
-  onStop,
-  onPrev,
-  onNext,
-}: Props) {
-  return (
-    <View style={styles.container}>
-      <ControlButton
-        label="⏮"
-        text="Prev"
-        onPress={onPrev}
-      />
-
-      <ControlButton
-        label={playing ? "⏸" : "▶"}
-        text={playing ? "Pause" : "Play"}
-        primary
-        onPress={playing ? onPause : onPlay}
-      />
-
-      <ControlButton
-        label="⏹"
-        text="Stop"
-        danger
-        onPress={onStop}
-      />
-
-      <ControlButton
-        label="⏭"
-        text="Next"
-        onPress={onNext}
-      />
-    </View>
-  );
+export default function PlaybackControls({ playing, onPlay, onPause, onStop, onPrev, onNext, disabled = false, allowSeek = true }: Props) {
+  const controls = [
+    { label: 'Nốt trước', icon: 'play-skip-back', action: onPrev, primary: false },
+    { label: playing ? 'Tạm dừng' : 'Phát', icon: playing ? 'pause' : 'play', action: playing ? onPause : onPlay, primary: true },
+    { label: 'Dừng', icon: 'stop', action: onStop, primary: false },
+    { label: 'Nốt sau', icon: 'play-skip-forward', action: onNext, primary: false },
+  ] as const;
+  return <View style={styles.row}>{controls.filter(control => allowSeek || !['Nốt trước', 'Nốt sau'].includes(control.label)).map(control => <TouchableOpacity key={control.label} disabled={disabled} accessibilityState={{ disabled }} accessibilityRole="button" accessibilityLabel={control.label} onPress={control.action} style={[styles.button, control.primary && styles.primary]}>
+    <Ionicons name={control.icon} color={control.primary ? Colors.onPrimary : Colors.primary} size={22} />
+    <Text style={[styles.label, control.primary && { color: Colors.onPrimary }]}>{control.label}</Text>
+  </TouchableOpacity>)}</View>;
 }
-
-interface ButtonProps {
-  label: string;
-  text: string;
-  onPress: () => void;
-  primary?: boolean;
-  danger?: boolean;
-}
-
-function ControlButton({
-  label,
-  text,
-  onPress,
-  primary,
-  danger,
-}: ButtonProps) {
-  return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        primary && styles.primaryButton,
-        danger && styles.dangerButton,
-      ]}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
-      <Text style={styles.icon}>{label}</Text>
-
-      <Text style={styles.text}>{text}</Text>
-    </TouchableOpacity>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
-    marginTop: 12,
-  },
-
-  button: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
-    backgroundColor: "#FFFFFF",
-
-    justifyContent: "center",
-    alignItems: "center",
-
-    elevation: 3,
-  },
-
-  primaryButton: {
-    backgroundColor: "#2D7EF7",
-  },
-
-  dangerButton: {
-    backgroundColor: "#E74C3C",
-  },
-
-  icon: {
-    fontSize: 22,
-    color: "#222",
-  },
-
-  text: {
-    marginTop: 2,
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#222",
-  },
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 16 },
+  button: { flexGrow: 1, flexBasis: 60, minHeight: 64, padding: 10, borderRadius: 8, backgroundColor: Colors.light.bgElevated, alignItems: 'center', justifyContent: 'center', gap: 6 },
+  primary: { backgroundColor: Colors.primary }, label: { fontSize: 11, textAlign: 'center', color: Colors.primary },
 });

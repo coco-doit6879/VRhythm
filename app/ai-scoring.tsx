@@ -1,22 +1,14 @@
+import { Text } from '../ui/Typography';
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Animated,
-  Dimensions,
-  Modal,
-  Alert,
-} from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Animated, useWindowDimensions, Modal, Alert, AccessibilityInfo } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Theme } from '../constants/Theme';
 import { Colors } from '../constants/Colors';
 
-const { width } = Dimensions.get('window');
+
 const WAVE_BARS = 32;
 
 type NoteResult = { time: number; type: 'correct' | 'wrong' | 'late' };
@@ -34,6 +26,9 @@ const NOTES: NoteResult[] = [
 ];
 
 export default function AIScoringScreen() {
+  const { width: windowWidth } = useWindowDimensions();
+  const width = Math.min(windowWidth, 760);
+  const styles = createStyles(width);
   const [isRecording, setIsRecording] = useState(false);
   const [timer, setTimer] = useState(45);
   const [shareModalVisible, setShareModalVisible] = useState(false);
@@ -41,12 +36,19 @@ export default function AIScoringScreen() {
     Array.from({ length: WAVE_BARS }, () => new Animated.Value(0.3))
   ).current;
 
+  const [reduceMotion, setReduceMotion] = useState(true);
   useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => subscription.remove();
+  }, []);
+  useEffect(() => {
+    const animations: Animated.CompositeAnimation[] = [];
     let interval: ReturnType<typeof setInterval>;
     if (isRecording) {
       const animateWaves = () => {
         waveAnimations.forEach((anim) => {
-          Animated.loop(
+          const animation = Animated.loop(
             Animated.sequence([
               Animated.timing(anim, {
                 toValue: Math.random() * 0.7 + 0.3,
@@ -59,14 +61,16 @@ export default function AIScoringScreen() {
                 useNativeDriver: true,
               }),
             ])
-          ).start();
+          );
+          animations.push(animation);
+          animation.start();
         });
       };
-      animateWaves();
+      if (!reduceMotion) animateWaves();
       interval = setInterval(() => setTimer((t) => t > 0 ? t - 1 : 0), 1000);
     }
-    return () => clearInterval(interval);
-  }, [isRecording]);
+    return () => { clearInterval(interval); animations.forEach(animation => animation.stop()); };
+  }, [isRecording, reduceMotion, waveAnimations]);
 
   const totalScore = 85;
   const pitchScore = 88;
@@ -75,30 +79,31 @@ export default function AIScoringScreen() {
 
   const handleShareToCommunity = () => {
     setShareModalVisible(false);
-    Alert.alert('Thành công!', 'Thành tích của bạn đã được chia sẻ lên Cộng đồng VRhythm.');
+    Alert.alert('Bản xem trước', 'Kết quả này là dữ liệu minh họa và chưa được chia sẻ.');
     router.push('/(tabs)/community');
   };
 
   const handleShareToSocial = (platform: string) => {
     setShareModalVisible(false);
-    Alert.alert('Chia sẻ', `Đang mở chia sẻ đến ${platform}...`);
+    Alert.alert('Bản xem trước', 'Chia sẻ kết quả chưa được kết nối.');
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={{ width: "100%", maxWidth: 760, alignSelf: "center" }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Quay lại" style={styles.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={20} color={Colors.light.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Chấm điểm AI</Text>
-          <TouchableOpacity style={styles.shareBtn} onPress={() => setShareModalVisible(true)}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Tùy chọn chia sẻ" style={styles.shareBtn} onPress={() => setShareModalVisible(true)}>
             <Ionicons name="share-outline" size={20} color={Colors.primary} />
           </TouchableOpacity>
         </View>
 
         <View style={styles.content}>
+          <Text style={{ ...Theme.body, marginBottom: 20 }}>Bản xem trước. Điểm số và bản ghi là dữ liệu minh họa, chưa phải kết quả phân tích micro.</Text>
           {/* Practice Card */}
           <View style={styles.practiceCard}>
             <View style={styles.practiceCardTop}>
@@ -130,8 +135,7 @@ export default function AIScoringScreen() {
                 />
               ))}
               {/* Stop button overlay */}
-              <TouchableOpacity
-                style={styles.waveStopBtn}
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={isRecording ? "Dừng mô phỏng bản ghi" : "Mô phỏng bản ghi"} accessibilityState={{ selected: isRecording }} style={styles.waveStopBtn}
                 onPress={() => setIsRecording(!isRecording)}
               >
                 <View style={[styles.stopIcon, isRecording && styles.stopIconActive]}>
@@ -151,9 +155,9 @@ export default function AIScoringScreen() {
             <View style={styles.scoreRow}>
               <View style={styles.starsRow}>
                 {[1, 2, 3, 4].map((i) => (
-                  <Ionicons key={i} name="star" size={18} color="#F4A261" />
+                  <Ionicons key={i} name="star" size={18} color={Colors.warning} />
                 ))}
-                <Ionicons name="star-half" size={18} color="#F4A261" />
+                <Ionicons name="star-half" size={18} color={Colors.warning} />
                 <Text style={styles.scoreGrade}>Tốt</Text>
               </View>
               <Text style={styles.scoreBig}>
@@ -166,9 +170,9 @@ export default function AIScoringScreen() {
           {/* Sub Scores */}
           <View style={styles.subScoresRow}>
             {[
-              { label: 'Cao độ', score: pitchScore, icon: 'musical-note-outline', color: Colors.primary, bg: '#EBF6F0' },
-              { label: 'Nhịp điệu', score: rhythmScore, icon: 'swap-vertical-outline', color: Colors.info, bg: '#EBF2FE' },
-              { label: 'Độ ổn định', score: stabilityScore, icon: 'dice-outline', color: Colors.warning, bg: '#FEF3E8' },
+              { label: 'Cao độ', score: pitchScore, icon: 'musical-note-outline', color: Colors.primary, bg: Colors.successBg },
+              { label: 'Nhịp điệu', score: rhythmScore, icon: 'swap-vertical-outline', color: Colors.info, bg: Colors.infoBg },
+              { label: 'Độ ổn định', score: stabilityScore, icon: 'dice-outline', color: Colors.warning, bg: Colors.warningBg },
             ].map((item) => (
               <View key={item.label} style={styles.subScoreCard}>
                 <View style={[styles.subScoreIcon, { backgroundColor: item.bg }]}>
@@ -292,8 +296,7 @@ export default function AIScoringScreen() {
 
           {/* ===== Action Buttons ===== */}
           <View style={styles.actionBtnsRow}>
-            <TouchableOpacity
-              style={styles.shareBtnAction}
+            <TouchableOpacity accessibilityRole="button" style={styles.shareBtnAction}
               activeOpacity={0.85}
               onPress={() => setShareModalVisible(true)}
             >
@@ -301,7 +304,7 @@ export default function AIScoringScreen() {
               <Text style={styles.shareBtnActionText}>Khoe thành tích</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.retryBtn} activeOpacity={0.85}>
+            <TouchableOpacity accessibilityRole="button" style={styles.retryBtn} activeOpacity={0.85} onPress={() => { setTimer(45); setIsRecording(false); }}>
               <LinearGradient
                 colors={[Colors.primary, Colors.primaryDark]}
                 style={styles.retryBtnGradient}
@@ -322,8 +325,7 @@ export default function AIScoringScreen() {
         animationType="slide"
         onRequestClose={() => setShareModalVisible(false)}
       >
-        <TouchableOpacity
-          style={styles.shareOverlay}
+        <TouchableOpacity accessibilityRole="button" style={styles.shareOverlay}
           activeOpacity={1}
           onPress={() => setShareModalVisible(false)}
         >
@@ -352,46 +354,45 @@ export default function AIScoringScreen() {
                 </View>
                 <View style={styles.sharePreviewStars}>
                   {[1, 2, 3, 4].map((i) => (
-                    <Ionicons key={i} name="star" size={14} color="#F4A261" />
+                    <Ionicons key={i} name="star" size={14} color={Colors.warning} />
                   ))}
-                  <Ionicons name="star-half" size={14} color="#F4A261" />
+                  <Ionicons name="star-half" size={14} color={Colors.warning} />
                 </View>
               </LinearGradient>
             </View>
 
             {/* Share Options */}
             <View style={styles.shareOptions}>
-              <TouchableOpacity style={styles.shareOption} onPress={handleShareToCommunity}>
-                <View style={[styles.shareOptionIcon, { backgroundColor: '#EBF6F0' }]}>
+              <TouchableOpacity accessibilityRole="button" style={styles.shareOption} onPress={handleShareToCommunity}>
+                <View style={[styles.shareOptionIcon, { backgroundColor: Colors.successBg }]}>
                   <Ionicons name="people" size={22} color={Colors.primary} />
                 </View>
                 <Text style={styles.shareOptionLabel}>Cộng đồng{'\n'}VRhythm</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.shareOption} onPress={() => handleShareToSocial('Facebook')}>
-                <View style={[styles.shareOptionIcon, { backgroundColor: '#EBF2FE' }]}>
+              <TouchableOpacity accessibilityRole="button" style={styles.shareOption} onPress={() => handleShareToSocial('Facebook')}>
+                <View style={[styles.shareOptionIcon, { backgroundColor: Colors.infoBg }]}>
                   <FontAwesome name="facebook" size={22} color="#1877F2" />
                 </View>
                 <Text style={styles.shareOptionLabel}>Facebook</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.shareOption} onPress={() => handleShareToSocial('Zalo')}>
-                <View style={[styles.shareOptionIcon, { backgroundColor: '#EBF6F0' }]}>
+              <TouchableOpacity accessibilityRole="button" style={styles.shareOption} onPress={() => handleShareToSocial('Zalo')}>
+                <View style={[styles.shareOptionIcon, { backgroundColor: Colors.successBg }]}>
                   <Ionicons name="chatbubble-ellipses" size={22} color="#0068FF" />
                 </View>
                 <Text style={styles.shareOptionLabel}>Zalo</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.shareOption} onPress={() => handleShareToSocial('Tải về')}>
-                <View style={[styles.shareOptionIcon, { backgroundColor: '#F0EBFA' }]}>
+              <TouchableOpacity accessibilityRole="button" style={styles.shareOption} onPress={() => handleShareToSocial('Tải về')}>
+                <View style={[styles.shareOptionIcon, { backgroundColor: Colors.infoBg }]}>
                   <Ionicons name="download" size={22} color={Colors.purple} />
                 </View>
                 <Text style={styles.shareOptionLabel}>Tải ảnh{'\n'}về máy</Text>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              style={styles.shareCancelBtn}
+            <TouchableOpacity accessibilityRole="button" style={styles.shareCancelBtn}
               onPress={() => setShareModalVisible(false)}
             >
               <Text style={styles.shareCancelText}>Đóng</Text>
@@ -403,7 +404,7 @@ export default function AIScoringScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (width: number) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.light.bg },
   header: {
     flexDirection: 'row',
@@ -413,8 +414,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backBtn: {
-    width: 38,
-    height: 38,
+    width: 48,
+    height: 48,
     borderRadius: 12,
     backgroundColor: Colors.light.bgElevated,
     justifyContent: 'center',
@@ -426,11 +427,11 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20 },
 
   practiceCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 20,
     padding: 18,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -443,13 +444,13 @@ const styles = StyleSheet.create({
   recBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FEE2E2',
+    backgroundColor: Colors.dangerBg,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
     gap: 5,
   },
-  recBadgeActive: { backgroundColor: '#FECACA' },
+  recBadgeActive: { backgroundColor: Colors.dangerBg },
   recDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.danger },
   recText: { fontSize: 11, fontWeight: '700', color: Colors.danger },
 
@@ -469,6 +470,10 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   waveStopBtn: {
+    minWidth: 48,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'absolute',
     right: 12,
     top: '50%',
@@ -483,14 +488,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stopIconActive: { backgroundColor: Colors.danger },
-  stopSquare: { width: 12, height: 12, borderRadius: 2, backgroundColor: '#FFF' },
+  stopSquare: { width: 12, height: 12, borderRadius: 2, backgroundColor: Colors.light.bgCard },
 
   scoreCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 16,
     padding: 18,
     marginBottom: 14,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -507,11 +512,11 @@ const styles = StyleSheet.create({
   subScoresRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   subScoreCard: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 14,
     padding: 14,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
@@ -523,11 +528,11 @@ const styles = StyleSheet.create({
   subScoreNum: { fontSize: 14, fontWeight: '800' },
 
   analysisCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 16,
     padding: 18,
     marginBottom: 14,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -544,12 +549,12 @@ const styles = StyleSheet.create({
 
   // ===== AI Feedback: Good =====
   feedbackGoodCard: {
-    backgroundColor: '#EBF6F0',
+    backgroundColor: Colors.successBg,
     borderRadius: 16,
     padding: 18,
     marginBottom: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.primary,
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
   feedbackHeader: {
     flexDirection: 'row',
@@ -561,7 +566,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: '#D8F3E6',
+    backgroundColor: Colors.selected,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -592,25 +597,25 @@ const styles = StyleSheet.create({
 
   // ===== AI Feedback: Improve =====
   feedbackImproveCard: {
-    backgroundColor: '#FFFBF0',
+    backgroundColor: Colors.warningBg,
     borderRadius: 16,
     padding: 18,
     marginBottom: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: Colors.warning,
+    borderWidth: 1,
+    borderColor: Colors.warning,
   },
   feedbackIconImprove: {
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: '#FEF0D5',
+    backgroundColor: Colors.warningBg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   feedbackTitleImprove: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#8B6914',
+    color: Colors.warning,
   },
 
   // ===== Action Buttons =====
@@ -628,7 +633,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
     borderRadius: 14,
     paddingVertical: 16,
-    backgroundColor: '#EBF6F0',
+    backgroundColor: Colors.successBg,
   },
   shareBtnActionText: {
     color: Colors.primary,
@@ -661,7 +666,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   shareSheet: {
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.light.bgCard,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
@@ -671,7 +676,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#E0EBE4',
+    backgroundColor: Colors.light.border,
     alignSelf: 'center',
     marginBottom: 20,
   },

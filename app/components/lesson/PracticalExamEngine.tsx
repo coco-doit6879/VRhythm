@@ -1,7 +1,8 @@
+import { Text } from '../../../ui/Typography';
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { StyleSheet, Text, View, Alert } from "react-native";
+import { StyleSheet, View, AppState } from 'react-native';
 import { LinearGradient } from "expo-linear-gradient";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../../constants/Colors";
 import { Audio } from "expo-av";
@@ -13,11 +14,11 @@ function pitchToMidi(pitch: string): number {
   const regex = /^([A-G])(#|s|b)?(\d)$/;
   const match = pitch.match(regex);
   if (!match) return 60;
-  
+
   let noteStr = match[1];
   const acc = match[2];
   const oct = parseInt(match[3], 10);
-  
+
   if (acc === '#' || acc === 's') noteStr += 's';
   else if (acc === 'b') {
     const flatMap: Record<string, string> = {
@@ -25,10 +26,10 @@ function pitchToMidi(pitch: string): number {
     };
     noteStr = flatMap[noteStr + 'b'] || noteStr;
   }
-  
+
   const noteIndex = notes.indexOf(noteStr);
   if (noteIndex === -1) return 60;
-  
+
   return (oct + 1) * 12 + noteIndex;
 }
 
@@ -64,7 +65,7 @@ const FINGERING_MAP: Record<string, number[]> = {
 
 interface Props {
   mode: 'normal' | 'exam';
-  onComplete: () => void;
+  onComplete: (notes: string[]) => Promise<boolean>;
   practical: any;
 }
 
@@ -76,26 +77,27 @@ export default function PracticalExamEngine({ mode, onComplete, practical }: Pro
       case 'w': return beatMs * 4;
       case 'h': return beatMs * 2;
       case 'q': return beatMs * 1;
-      case 'e': 
+      case 'e':
       case '8': return beatMs * 0.5;
-      case 's': 
+      case 's':
       case '16': return beatMs * 0.25;
       default: return beatMs;
     }
   }
 
   const score = useMemo(() => {
-    if (practical?.sheetMusicJson) {
-      try {
-        return JSON.parse(practical.sheetMusicJson);
-      } catch (e) {
-        console.warn("Failed to parse sheetMusicJson", e);
-      }
-    }
-    return {
-      metadata: { title: "Bản nhạc chưa tải" },
-      notes: [],
-    };
+    try {
+      const parsed = JSON.parse(practical?.sheetMusicJson || 'null');
+      const notes = parsed?.notes;
+      const metadata = parsed?.metadata;
+      if (!Array.isArray(notes) || !notes.length || notes.length > 2000 ||
+          !metadata || !Number.isFinite(metadata.tempo) || metadata.tempo <= 0 ||
+          !Number.isInteger(metadata.timeSignature?.beats) || metadata.timeSignature.beats < 1 ||
+          metadata.timeSignature.beats > 32 ||
+          notes.some((n: any) => !n || typeof n.id !== 'string' || !/^[A-G][4-7]$/.test(n.pitch) ||
+            !['w', 'h', 'q', '8', '16'].includes(n.duration))) return null;
+      return parsed;
+    } catch { return null; }
   }, [practical]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -103,159 +105,172 @@ export default function PracticalExamEngine({ mode, onComplete, practical }: Pro
   const [detectedNote, setDetectedNote] = useState<string | null>(null);
   const [isWrong, setIsWrong] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [engineError, setEngineError] = useState('');
+  const [pendingNotes, setPendingNotes] = useState<string[] | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const session = useRef(0);
+  const mounted = useRef(true);
+  const submissionLock = useRef(false);
+  const recordedNotes = useRef<string[]>([]);
+  const wrongCounter = useRef(0);
+  const sounds = useRef(new Set<{ unloadAsync: () => Promise<unknown> }>());
+  const soundTimers = useRef(new Set<ReturnType<typeof setTimeout>>());
+  const currentNote = score?.notes[currentIndex];
 
-  const timer = useRef<number | null>(null);
-  const wrongCounter = useRef<number>(0);
-  
-  const currentNote = score.notes[currentIndex];
+  function releaseResources() {
+    session.current++;
+    if (timer.current !== null) clearTimeout(timer.current);
+    timer.current = null;
+    for (const timeout of soundTimers.current) clearTimeout(timeout);
+    soundTimers.current.clear();
+    for (const sound of sounds.current) void sound.unloadAsync().catch(() => {});
+    sounds.current.clear();
+    PitchDetectorService.stop();
+  }
 
   useEffect(() => {
-    if (mode === 'exam' && playing) {
-      startExamMode();
-    } else {
-      PitchDetectorService.stop();
-    }
-    return () => {
-      PitchDetectorService.stop();
-    };
-  }, [mode, playing, currentIndex]);
-
-  const startExamMode = async () => {
-    const hasPermission = await PitchDetectorService.requestPermission();
-    if (!hasPermission) {
-      Alert.alert("Lỗi", "Không có quyền truy cập micro.");
-      setPlaying(false);
-      return;
-    }
-
-    PitchDetectorService.start((frequency) => {
-      if (!frequency || frequency <= 0) {
-         setDetectedNote(null);
-         return;
-      }
-      
-      const note = pitchToNote(frequency);
-      setDetectedNote(note);
-
-      if (note) {
-        if (note === currentNote.pitch) {
-          // Correct!
-          wrongCounter.current = 0;
-          setIsWrong(false);
-          
-          // Advance note
-          PitchDetectorService.stop(); // stop briefly to avoid double trigger
-          
-          const durationMs = getNoteDurationMs(currentNote.duration || 'q', score.metadata.tempo || 90);
-          
-          setTimeout(() => {
-            if (currentIndex + 1 >= score.notes.length) {
-              setPlaying(false);
-              onComplete();
-            } else {
-              setCurrentIndex(prev => prev + 1);
-            }
-          }, durationMs);
-        } else {
-          wrongCounter.current += 1;
-          if (wrongCounter.current > 5) {
-             setIsWrong(true);
-          }
-        }
-      }
+    mounted.current = true;
+    const subscription = AppState.addEventListener('change', state => {
+      if (state !== 'active') { releaseResources(); setPlaying(false); }
     });
+    return () => {
+      mounted.current = false;
+      subscription.remove();
+      releaseResources();
+    };
+  }, []);
+
+  const sendAttempt = async (notes: string[]) => {
+    if (submissionLock.current || !notes.length) return;
+    submissionLock.current = true; setSubmitting(true); setPendingNotes(notes);
+    try {
+      const accepted = await onComplete(notes);
+      if (mounted.current && accepted) setPendingNotes(null);
+    } finally {
+      submissionLock.current = false;
+      if (mounted.current) setSubmitting(false);
+    }
   };
 
+  useEffect(() => {
+    if (mode !== 'exam' || !playing || !currentNote || !score) return;
+    let cancelled = false;
+    let advancing = false;
+    let advanceTimer: ReturnType<typeof setTimeout> | undefined;
+    const start = async () => {
+      try {
+        const allowed = await PitchDetectorService.requestPermission();
+        if (cancelled) return;
+        if (!allowed) throw new Error('Chưa có quyền micro. Hãy cấp quyền trong Cài đặt rồi nhấn Phát để thử lại.');
+        PitchDetectorService.start(frequency => {
+          if (cancelled || advancing) return;
+          const note = frequency ? pitchToNote(frequency) : null;
+          setDetectedNote(note);
+          if (!note) return;
+          if (note === currentNote.pitch) {
+            advancing = true;
+            recordedNotes.current[currentIndex] = note;
+            wrongCounter.current = 0; setIsWrong(false);
+            PitchDetectorService.stop();
+            advanceTimer = setTimeout(() => {
+              if (cancelled) return;
+              if (currentIndex + 1 >= score.notes.length) {
+                setPlaying(false);
+                if (recordedNotes.current.length === score.notes.length &&
+                    recordedNotes.current.every(n => typeof n === 'string')) {
+                  void sendAttempt([...recordedNotes.current]);
+                }
+              } else setCurrentIndex(index => index + 1);
+            }, getNoteDurationMs(currentNote.duration, score.metadata.tempo));
+          } else {
+            wrongCounter.current++;
+            if (wrongCounter.current > 5) setIsWrong(true);
+          }
+        });
+      } catch (error) {
+        if (!cancelled) {
+          setEngineError(error instanceof Error ? error.message : 'Không mở được micro. Hãy kiểm tra quyền và thử lại.');
+          setPlaying(false);
+        }
+      }
+    };
+    void start();
+    return () => { cancelled = true; if (advanceTimer) clearTimeout(advanceTimer); PitchDetectorService.stop(); };
+  }, [mode, playing, currentIndex, score]);
+
   function stop() {
-    if (timer.current) {
-      clearTimeout(timer.current);
-      timer.current = null;
-    }
-    PitchDetectorService.stop();
+    releaseResources();
     setPlaying(false);
   }
 
-  const playNoteAudio = async (pitch: string, durationMs: number) => {
+  const playNoteAudio = async (pitch: string, durationMs: number, run: number) => {
     try {
-      const midi = pitchToMidi(pitch);
-      const audioResource = (BambooFluteNotes as any)[midi.toString()];
-      if (audioResource) {
-        const { sound } = await Audio.Sound.createAsync(audioResource);
-        await sound.playAsync();
-
-        let isUnloaded = false;
-        sound.setOnPlaybackStatusUpdate((status: any) => {
-          if (status.isLoaded && status.didJustFinish) {
-            isUnloaded = true;
-            sound.unloadAsync();
-          }
-        });
-
-        setTimeout(async () => {
-          try {
-            if (!isUnloaded) {
-              isUnloaded = true;
-              await sound.stopAsync();
-              await sound.unloadAsync();
-            }
-          } catch (e) {}
-        }, durationMs);
+      const audioResource = (BambooFluteNotes as any)[pitchToMidi(pitch).toString()];
+      if (!audioResource) throw new Error('Chưa có âm thanh mẫu cho nốt này.');
+      const { sound } = await Audio.Sound.createAsync(audioResource);
+      if (session.current !== run || !mounted.current) { await sound.unloadAsync(); return; }
+      sounds.current.add(sound);
+      await sound.playAsync();
+      if (session.current !== run) return;
+      const timeout = setTimeout(() => {
+        soundTimers.current.delete(timeout); sounds.current.delete(sound);
+        void sound.unloadAsync().catch(() => {});
+      }, durationMs);
+      soundTimers.current.add(timeout);
+    } catch {
+      if (session.current === run && mounted.current) {
+        stop(); setEngineError('Không phát được âm thanh mẫu. Hãy nhấn Phát để thử lại.');
       }
-    } catch (e) {
-      console.warn('Error playing note:', e);
     }
   };
 
   function play() {
-    if (playing) return;
-    setPlaying(true);
-
+    if (playing || !score || submitting || pendingNotes) return;
+    setEngineError(''); setPlaying(true);
+    const run = ++session.current;
     if (mode === 'normal') {
       const playNextNote = (index: number) => {
-        if (index >= score.notes.length) {
-          stop();
-          onComplete();
-          return;
-        }
+        if (session.current !== run) return;
+        if (index >= score.notes.length) { stop(); setCurrentIndex(0); return; }
         setCurrentIndex(index);
-        
         const note = score.notes[index];
-        const durationMs = getNoteDurationMs(note.duration || 'q', score.metadata.tempo || 90);
-        
-        if (note && note.pitch) {
-          playNoteAudio(note.pitch, durationMs);
-        }
-
-        timer.current = setTimeout(() => {
-          playNextNote(index + 1);
-        }, durationMs) as any;
+        const durationMs = getNoteDurationMs(note.duration, score.metadata.tempo);
+        void playNoteAudio(note.pitch, durationMs, run);
+        timer.current = setTimeout(() => playNextNote(index + 1), durationMs);
       };
-      
       playNextNote(currentIndex);
+    } else {
+      // Every exam starts from the first note; seeking cannot fabricate an attempt.
+      recordedNotes.current = []; setCurrentIndex(0);
     }
   }
 
-  function pause() {
-    stop();
+  function pause() { stop(); }
+  function reset() {
+    if (submitting) return;
+    stop(); setCurrentIndex(0); setIsWrong(false); setEngineError('');
+    setPendingNotes(null); recordedNotes.current = []; wrongCounter.current = 0;
   }
 
-  function reset() {
-    stop();
-    setCurrentIndex(0);
-    setIsWrong(false);
-    wrongCounter.current = 0;
-  }
+  if (!score) return <View style={styles.container}>
+    <Text accessibilityRole="alert">Bản nhạc chưa sẵn sàng. Hãy quay lại bài học và tải lại.</Text>
+  </View>;
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        {score.metadata?.title || "Twinkle Twinkle Little Star"} {mode === 'exam' ? '(Thi)' : ''}
+        {score.metadata?.title || "Bài thực hành"} {mode === 'exam' ? '(Thi)' : ''}
       </Text>
 
+      {!!engineError && <Text accessibilityRole="alert" style={{ color: Colors.danger, marginVertical: 12 }}>{engineError}</Text>}
+      {pendingNotes && <TouchableOpacity accessibilityRole="button" disabled={submitting} onPress={() => void sendAttempt(pendingNotes)} style={styles.helpBtnToggle}>
+        <Text>{submitting ? 'Đang gửi kết quả...' : 'Gửi lại bài thực hành'}</Text>
+      </TouchableOpacity>}
       {mode === 'exam' && (
         <View style={styles.examStatus}>
           <Text style={styles.detectedNoteText}>
-            Phát hiện: <Text style={{ fontWeight: 'bold', color: isWrong ? 'red' : 'green'}}>{detectedNote || '--'}</Text>
+            Phát hiện: <Text style={{ fontWeight: 'bold', color: isWrong ? Colors.danger : Colors.primary}}>{detectedNote || '--'}</Text>
           </Text>
           <Text style={styles.targetNoteText}>
             Mục tiêu: {currentNote?.pitch}
@@ -277,9 +292,9 @@ export default function PracticalExamEngine({ mode, onComplete, practical }: Pro
             fingering={FINGERING_MAP[currentNote?.pitch] || []}
           />
         </View>
-        
+
         <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 10 }}>
-          <TouchableOpacity onPress={() => setShowHelp(!showHelp)} style={styles.helpBtnToggle}>
+          <TouchableOpacity accessibilityRole="button" accessibilityState={{ expanded: showHelp }} onPress={() => setShowHelp(!showHelp)} style={styles.helpBtnToggle}>
             <Ionicons name="help-circle-outline" size={20} color={Colors.primary} />
             <Text style={styles.helpBtnText}>Hướng dẫn cầm sáo</Text>
           </TouchableOpacity>
@@ -294,8 +309,8 @@ export default function PracticalExamEngine({ mode, onComplete, practical }: Pro
               </Text>
             </View>
             <View style={styles.helpImagePlaceholder}>
-              <Ionicons name="image-outline" size={40} color="#81C784" />
-              <Text style={{ color: '#2E7D32', fontSize: 12, marginTop: 8 }}>Ảnh minh họa thế bấm</Text>
+              <Ionicons name="image-outline" size={40} color={Colors.primary} />
+              <Text style={{ color: Colors.primary, fontSize: 12, marginTop: 8 }}>Ảnh minh họa thế bấm</Text>
             </View>
           </View>
         )}
@@ -304,11 +319,13 @@ export default function PracticalExamEngine({ mode, onComplete, practical }: Pro
       <View style={{ marginTop: 'auto' }}>
         <PlaybackControls
           playing={playing}
+          disabled={submitting || !!pendingNotes}
+          allowSeek={mode === 'normal'}
           onPlay={play}
           onPause={pause}
           onStop={reset}
-          onPrev={() => setCurrentIndex((i) => Math.max(0, i - 1))}
-          onNext={() => setCurrentIndex((i) => Math.min(score.notes.length - 1, i + 1))}
+          onPrev={() => { stop(); setCurrentIndex((i) => Math.max(0, i - 1)); }}
+          onNext={() => { stop(); setCurrentIndex((i) => Math.min(score.notes.length - 1, i + 1)); }}
         />
       </View>
     </View>
@@ -318,7 +335,7 @@ export default function PracticalExamEngine({ mode, onComplete, practical }: Pro
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f4f4",
+    backgroundColor: Colors.light.bg,
     padding: 16,
     borderRadius: 16,
   },
@@ -327,9 +344,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 10,
     textAlign: "center",
-    color: "#333333",
+    color: Colors.light.text,
   },
   examStatus: {
+    flexWrap: 'wrap',
+    gap: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
@@ -337,57 +356,58 @@ const styles = StyleSheet.create({
   },
   detectedNoteText: {
     fontSize: 16,
-    color: "#333333",
+    color: Colors.light.text,
   },
   targetNoteText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: "#333333",
+    color: Colors.light.text,
   },
   wrongHighlight: {
-    backgroundColor: '#ffe6e6',
+    backgroundColor: Colors.dangerBg,
     borderRadius: 8,
   },
   helpBtnToggle: {
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successBg,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#C8E6C9',
+    borderColor: Colors.selected,
   },
   helpBtnText: {
     marginLeft: 6,
-    color: '#2E7D32',
+    color: Colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },
   helpSection: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: Colors.successBg,
     padding: 14,
     borderRadius: 12,
     marginTop: 8,
     borderWidth: 1,
-    borderColor: '#C8E6C9',
+    borderColor: Colors.selected,
   },
   helpText: {
     flex: 1,
     marginLeft: 10,
     fontSize: 13,
-    color: '#2E7D32',
+    color: Colors.primary,
     lineHeight: 20,
   },
   helpImagePlaceholder: {
     marginTop: 12,
     height: 120,
-    backgroundColor: '#C8E6C9',
+    backgroundColor: Colors.selected,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#A5D6A7',
+    borderColor: Colors.light.border,
     borderStyle: 'dashed',
   }
 });

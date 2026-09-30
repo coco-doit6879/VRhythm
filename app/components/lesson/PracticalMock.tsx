@@ -1,5 +1,7 @@
+import { Colors } from '../../../constants/Colors';
+import { Text } from '../../../ui/Typography';
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from 'react-native';
 import { Audio } from "expo-av";
 
 import SheetMusic from "../SheetMusic/renderer/SheetMusic";
@@ -126,16 +128,16 @@ export default function PracticeMock() {
         return;
       }
       setCurrentIndex(index);
-      
+
       const note = score.notes[index];
       const durationMs = getNoteDurationMs(note.duration || 'q', score.metadata.tempo || 90);
       void playNote(note.pitch, durationMs);
-      
+
       timer.current = setTimeout(() => {
         playNextNote(index + 1);
       }, durationMs) as any;
     };
-    
+
     playNextNote(currentIndex);
   }
 
@@ -148,7 +150,10 @@ export default function PracticeMock() {
     setCurrentIndex(0);
   }
 
-  useEffect(() => () => { void stopAllSounds(); }, []);
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+    void stopAllSounds();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -168,7 +173,7 @@ export default function PracticeMock() {
             fingering={FINGERING_MAP[currentNote?.pitch] || []}
           />
         </View>
-        
+
         {currentIndex + 1 < score.notes.length && (
           <View style={{ opacity: 0.5, marginTop: -15, zIndex: -1, alignSelf: 'stretch' }}>
             <FingeringCard
@@ -201,7 +206,7 @@ export default function PracticeMock() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f4f4",
+    backgroundColor: Colors.light.bg,
     padding: 16,
   },
 
