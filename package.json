@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@expo-google-fonts/be-vietnam-pro": "^0.4.1",
     "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.0.3",
     "buffer": "^6.0.3",
@@ -13,6 +14,7 @@
     "expo-linear-gradient": "~15.0.8",
     "expo-linking": "~8.0.12",
     "expo-router": "~6.0.24",
+    "expo-secure-store": "~15.0.8",
     "expo-status-bar": "~3.0.9",
     "expo-video": "~3.0.16",
     "pitchfinder": "^2.3.4",
@@ -32,6 +34,10 @@
     "typescript": "~5.9.2"
   },
   "scripts": {
+    "test:mobile:unit": "node --test scripts/mobile-api.test.cjs scripts/mobile-storage.test.cjs",
+    "test:mobile:harden": "node web/node_modules/@playwright/test/cli.js test -c scripts/mobile-playwright.config.cjs",
+    "start:local": "node scripts/start-local.cjs",
+    "typecheck:mobile": "tsc --noEmit -p tsconfig.mobile.json",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",

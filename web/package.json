@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test:audio": "node --experimental-strip-types --test tests/instrumentSynth.test.mjs",
-    "deploy:pages": "npm run build && npx wrangler pages deploy dist --project-name vrhythm --branch main",
+    "deploy:pages": "npm run build && npx wrangler pages deploy dist --project-name vrhythm-student --branch main",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy"
   },

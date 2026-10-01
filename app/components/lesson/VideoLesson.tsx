@@ -1,26 +1,31 @@
+import { Text } from '../../../ui/Typography';
 import React from "react";
-import { ActivityIndicator, View, Text, StyleSheet } from "react-native";
+import { ActivityIndicator, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from "expo-linear-gradient";
 import { VideoView } from "expo-video";
+import { Theme } from "../../../constants/Theme";
+import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../../constants/Colors";
 
 interface VideoLessonProps {
   videoLoading: boolean;
   videoUrl: string | null;
   player: any;
+  error?: string;
+  onRetry?: () => void;
 }
 
-export function VideoLesson({ videoLoading, videoUrl, player }: VideoLessonProps) {
+export function VideoLesson({ videoLoading, videoUrl, player, error, onRetry }: VideoLessonProps) {
   return (
     <View style={styles.videoContainer}>
       {videoLoading ? (
         <LinearGradient
-          colors={["#1A3020", "#0D1F17", "#1A2E22"]}
+          colors={Theme.panelGradient}
           style={styles.videoPlayer}
         >
-          <ActivityIndicator size="large" color="#FFF" />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </LinearGradient>
-      ) : videoUrl ? (
+      ) : videoUrl && !error ? (
         <VideoView
           player={player}
           style={{ width: "100%", height: 220 }}
@@ -31,11 +36,13 @@ export function VideoLesson({ videoLoading, videoUrl, player }: VideoLessonProps
         />
       ) : (
         <LinearGradient
-          colors={["#1A3020", "#0D1F17", "#1A2E22"]}
+          colors={Theme.panelGradient}
           style={styles.videoPlayer}
         >
           <View style={styles.videoOverlay}>
-            <Text style={{ fontSize: 80 }}>🎵</Text>
+            <Ionicons name="videocam-outline" size={40} color={Colors.primary} />
+            <Text accessibilityRole={error ? 'alert' : undefined} style={{ color: Colors.light.textSecondary, marginTop: 12 }}>{error || 'Video chưa sẵn sàng'}</Text>
+            {onRetry && <TouchableOpacity accessibilityRole="button" onPress={onRetry} style={[Theme.button, { marginTop: 12 }]}><Text style={Theme.buttonText}>Tải lại video</Text></TouchableOpacity>}
           </View>
         </LinearGradient>
       )}
@@ -46,10 +53,10 @@ export function VideoLesson({ videoLoading, videoUrl, player }: VideoLessonProps
 const styles = StyleSheet.create({
   videoContainer: { marginBottom: 0 },
   videoPlayer: {
-    height: 220,
+    minHeight: 220,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
   },
-  videoOverlay: { position: "absolute", opacity: 0.2 },
+  videoOverlay: { alignItems: "center", padding: 20 },
 });

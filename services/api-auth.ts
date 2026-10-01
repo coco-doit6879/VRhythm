@@ -15,21 +15,23 @@ export const authApi = {
   getToken: () => {
     return storage.getItem("authToken");
   },
-  logout: () => {
-    storage.removeItem("authToken");
-    storage.removeItem("currentCourseId");
-    storage.removeItem("hasCompletedOnboarding");
-    storage.removeItem("onboardingInstrument");
-    storage.removeItem("onboardingTime");
+  logout: async () => {
+    await storage.removeItem("authToken");
+    await storage.removeItem("currentCourseId");
+    await storage.removeItem("hasCompletedOnboarding");
+    await storage.removeItem("onboardingInstrument");
+    await storage.removeItem("onboardingTime");
   },
   login: async (dto: LoginRequestDto): Promise<ApiResponse<AuthResponseDto>> => {
     const response = await request<AuthResponseDto>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify(dto),
     });
-    if (response.success && response.data?.token) {
-      authApi.setToken(response.data.token);
+    if (!response.success || typeof response.data?.token !== 'string' || !response.data.token.trim()) {
+      throw new Error('Máy chủ chưa cấp phiên đăng nhập. Vui lòng thử lại.');
     }
+    try { authApi.setToken(response.data.token); }
+    catch { throw new Error('Không lưu được phiên đăng nhập trên thiết bị. Hãy mở khóa thiết bị rồi thử lại.'); }
     return response;
   },
   register: async (
@@ -39,9 +41,11 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify(dto),
     });
-    if (response.success && response.data?.token) {
-      authApi.setToken(response.data.token);
+    if (!response.success || typeof response.data?.token !== 'string' || !response.data.token.trim()) {
+      throw new Error('Máy chủ chưa cấp phiên đăng nhập. Vui lòng thử lại.');
     }
+    try { authApi.setToken(response.data.token); }
+    catch { throw new Error('Không lưu được phiên đăng nhập trên thiết bị. Hãy mở khóa thiết bị rồi thử lại.'); }
     return response;
   },
   getProfile: async (): Promise<ApiResponse<UserProfileDto>> => {

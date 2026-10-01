@@ -1,5 +1,6 @@
 import { PermissionsAndroid, Platform } from 'react-native';
-import AudioRecord from 'react-native-audio-record';
+import { Audio } from 'expo-av';
+let AudioRecord: any;
 import Pitchfinder from 'pitchfinder';
 import { Buffer } from 'buffer';
 
@@ -7,6 +8,8 @@ const SAMPLE_RATE = 22050; // Use lower sample rate for better performance
 const detectPitch = Pitchfinder.YIN({ sampleRate: SAMPLE_RATE });
 
 let isInitialized = false;
+let activeGeneration = 0;
+let recordingSubscription: { remove: () => void } | undefined;
 
 export const PitchDetectorService = {
   async requestPermission(): Promise<boolean> {
@@ -29,13 +32,13 @@ export const PitchDetectorService = {
         return false;
       }
     }
-    // iOS permissions are handled by the system automatically when AudioRecord.start is called
-    // But typically you'd use react-native-permissions. We assume it handles or prompts.
-    return true;
+    if (Platform.OS === 'web') return false;
+    try { return (await Audio.requestPermissionsAsync()).granted; } catch { return false; }
   },
 
   init() {
     if (isInitialized) return;
+    AudioRecord = require('react-native-audio-record').default;
     AudioRecord.init({
       sampleRate: SAMPLE_RATE,
       channels: 1,
@@ -50,8 +53,10 @@ export const PitchDetectorService = {
     if (!isInitialized) {
       this.init();
     }
-    AudioRecord.start();
-    AudioRecord.on('data', (data: string) => {
+    const run = ++activeGeneration;
+    recordingSubscription?.remove();
+    recordingSubscription = AudioRecord.on('data', (data: string) => {
+      if (run !== activeGeneration) return;
       // Decode base64 to buffer
       const buffer = Buffer.from(data, 'base64');
       // Convert PCM int16 to Float32Array (-1 to 1)
@@ -65,11 +70,15 @@ export const PitchDetectorService = {
       const pitch = detectPitch(float32Array);
       onPitchDetected(pitch);
     });
+    AudioRecord.start();
   },
 
   stop() {
+    activeGeneration++;
+    recordingSubscription?.remove();
+    recordingSubscription = undefined;
     if (isInitialized) {
-      AudioRecord.stop();
+      try { void Promise.resolve(AudioRecord.stop()).catch(() => {}); } catch { /* Already stopped. */ }
     }
   },
 };

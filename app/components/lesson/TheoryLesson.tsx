@@ -1,5 +1,6 @@
+import { Text } from '../../../ui/Typography';
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "../../../constants/Colors";
 import { LessonDto } from "../../../services/api-types";
@@ -15,7 +16,7 @@ export function TheoryLesson({ lesson, content, onComplete }: TheoryLessonProps)
     <View style={styles.typeSpecificCard}>
       <Text style={styles.cardHeaderTitle}>NỘI DUNG LÝ THUYẾT</Text>
       <Text style={styles.theoryBodyText}>{content || "Đang cập nhật..."}</Text>
-      <TouchableOpacity style={styles.actionBtn} onPress={onComplete}>
+      <TouchableOpacity accessibilityRole="button" style={styles.actionBtn} onPress={onComplete}>
         <LinearGradient
           colors={[Colors.primary, Colors.primaryDark]}
           style={styles.actionBtnGradient}
@@ -29,11 +30,11 @@ export function TheoryLesson({ lesson, content, onComplete }: TheoryLessonProps)
 
 const styles = StyleSheet.create({
   typeSpecificCard: {
-    backgroundColor: "#FFF",
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 16,
     padding: 18,
     marginBottom: 20,
-    shadowColor: "#000",
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 6,

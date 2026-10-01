@@ -13,7 +13,7 @@ import { api, authStorage, courseErrorMessage, type AuthResponse, type CourseSum
 
 type View = 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson';
 type LessonRoute = { courseId: number; chapterId: number; lessonId: number };
-const defaultLessonRoute: LessonRoute = { courseId: 1, chapterId: 1, lessonId: 104 };
+const defaultLessonRoute: LessonRoute = { courseId: 1, chapterId: 1, lessonId: 1 };
 
 const routeForView = (view: View, authMode: 'login' | 'register' = 'login') => {
   if (view === 'auth') return authMode === 'register' ? '/register' : '/login';

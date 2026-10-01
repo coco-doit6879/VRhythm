@@ -1,5 +1,7 @@
+import { Colors } from '../../constants/Colors';
+import { Text } from '../../ui/Typography';
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from 'react-native';
 
 interface Props {
   note?: string;
@@ -10,10 +12,10 @@ interface Props {
 export default function FingeringCard({
   note,
   fingering,
-  title = "Fingering",
+  title = "Thế bấm",
 }: Props) {
   const safeFingering = Array.isArray(fingering) ? fingering : [];
-  
+
   const NOTE_NAMES: Record<string, string> = {
     "C4": "Đô (C4)", "D4": "Rê (D4)", "E4": "Mi (E4)", "F4": "Pha (F4)", "G4": "Son (G4)", "A4": "La (A4)", "B4": "Si (B4)",
     "C5": "Đô (C5)", "D5": "Rê (D5)", "E5": "Mi (E5)", "F5": "Pha (F5)", "G5": "Son (G5)", "A5": "La (A5)", "B5": "Si (B5)",
@@ -72,11 +74,12 @@ const HOLE_SIZE = 32;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#FFF",
+    backgroundColor: Colors.light.bgCard,
     borderRadius: 12,
     padding: 5,
     marginTop: 15,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
   },
 
   title: {
@@ -91,7 +94,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 24,
     fontWeight: "bold",
-    color: "#2D7EF7",
+    color: Colors.primary,
   },
 
   instrument: {
@@ -122,7 +125,7 @@ const styles = StyleSheet.create({
   },
 
   openHole: {
-    backgroundColor: "#FFF",
+    backgroundColor: Colors.light.bgCard,
     borderColor: "#777",
   },
 
@@ -137,13 +140,13 @@ const styles = StyleSheet.create({
     width: HOLE_SIZE,
     textAlign: "center",
     fontWeight: "600",
-    color: "#666",
+    color: Colors.light.textSecondary,
   },
 
   number: {
     width: HOLE_SIZE,
     textAlign: "center",
-    color: "#666",
+    color: Colors.light.textSecondary,
     fontWeight: "600",
   },
 
@@ -167,6 +170,6 @@ const styles = StyleSheet.create({
   },
 
   legendText: {
-    color: "#666",
+    color: Colors.light.textSecondary,
   },
 });

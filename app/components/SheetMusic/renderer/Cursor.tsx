@@ -3,6 +3,7 @@
 import React from "react";
 import { View } from "react-native";
 import { STAFF } from "../engine/constants";
+import { Colors } from '../../../../constants/Colors';
 
 interface Props {
   x: number;
@@ -19,7 +20,7 @@ export default function Cursor({ x, staffTop = 40 }: Props) {
         top: staffTop - 10,
         width: 2,
         height: STAFF.HEIGHT + 20,
-        backgroundColor: "red",
+        backgroundColor: Colors.accent,
       }}
     />
   );

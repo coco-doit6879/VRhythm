@@ -1,11 +1,24 @@
 export const Colors = {
   // Brand colors
-  primary: '#2D6A4F',
-  primaryDark: '#1B4332',
-  primaryLight: '#40916C',
-  primarySoft: '#52B788',
-  accent: '#74C69D',
-  accentLight: '#B7E4C7',
+  // Matches web/src/styles/theme/shared.css. The web identity is intentionally light.
+  primary: '#456B4D',
+  primaryDark: '#314F38',
+  primaryLight: '#456B4D',
+  primarySoft: '#456B4D',
+  accent: '#A65131',
+  accentLight: '#F0D9C5',
+  onPrimary: '#F3F7ED',
+  input: '#EFF4E9',
+  inputBorder: '#A5B99B',
+  selected: '#CBDCBD',
+  peach: '#F0D9C5',
+  sheet: '#EEF3E7',
+  overlay: '#243B2BB3',
+  shadow: '#3B5734',
+  successBg: '#DCE7D3',
+  warningBg: '#F0D9C5',
+  dangerBg: '#F5DFD8',
+  infoBg: '#E0E8DA',
 
   // Dark Theme
   dark: {
@@ -20,26 +33,26 @@ export const Colors = {
 
   // Light Theme
   light: {
-    bg: '#F7F9F7',
-    bgCard: '#FFFFFF',
-    bgElevated: '#EFF5EF',
-    border: '#E0EBE4',
-    text: '#0D1F17',
-    textSecondary: '#4A6358',
-    textMuted: '#8FA89A',
+    bg: '#E0E8DA',
+    bgCard: '#EAF0E3',
+    bgElevated: '#E5EDDD',
+    border: '#BDCDB7',
+    text: '#293E32',
+    textSecondary: '#566859',
+    textMuted: '#566859',
   },
 
   // Semantic
-  success: '#52B788',
-  warning: '#F4A261',
-  danger: '#E63946',
-  info: '#4895EF',
-  purple: '#7B5EA7',
+  success: '#456B4D',
+  warning: '#A65131',
+  danger: '#993D2E',
+  info: '#405F73',
+  purple: '#735769',
 
   // Level colors
-  basic: '#52B788',
-  intermediate: '#F4A261',
-  advanced: '#E63946',
+  basic: '#456B4D',
+  intermediate: '#A65131',
+  advanced: '#993D2E',
 };
 
 export const Spacing = {
