@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import './instrument-pages.css';
 import { BambooFluteArticle } from './components/BambooFluteArticle';
-import { InstrumentFeatures } from './components/InstrumentFeatures';
-import { ArrowLeft, ArrowRight, ChevronRight, Landmark, Mail, MapPin, Music2, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { LandingPage } from './components/landing/LandingPage';
+import { ArrowLeft, ArrowRight, Landmark, Mail, MapPin, Music2, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
 import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
 import { InstrumentCard } from './components/InstrumentCard';
 import { LessonPlayer } from './components/LessonPlayer';
-import { InteractiveInstrumentShowcase } from './components/InteractiveInstrumentShowcase';
 import { instruments, type Instrument } from './data/mock';
 import { api, authStorage, courseErrorMessage, type AuthResponse, type CourseSummary, type LearnerCourseSummary } from './services/api';
 
@@ -79,8 +78,8 @@ export default function App() {
   const openAuth = (mode: 'login' | 'register' = 'login') => navigate('auth', mode);
   const signIn = async (data: { fullName?: string; email: string; password: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && instruments.some(item => returnTo === `/learn/${item.id}`)) window.location.assign(returnTo); else navigate('learn'); };
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
-  return <div className="app-shell"><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
-    {view === 'home' && <Home onNavigate={navigate} onInstrument={setSelectedInstrument} />}
+  return <div className={view === 'home' ? 'app-shell landing-shell' : 'app-shell'}><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
+    {view === 'home' && <LandingPage />}
     {isInstrumentRoute && !selectedInstrument && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>Không tìm thấy nhạc cụ</h1><a href="/explore">Quay lại Khám phá</a></main>}
     {view === 'explore' && !isInstrumentRoute && <Explore onInstrument={setSelectedInstrument} />}
     {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
@@ -95,46 +94,6 @@ export default function App() {
 function parseLessonRoute(path: string): LessonRoute {
   const match = path.match(/^\/lesson\/(\d+)\/chapter\/(\d+)\/lesson\/(\d+)/);
   return match ? { courseId: Number(match[1]), chapterId: Number(match[2]), lessonId: Number(match[3]) } : defaultLessonRoute;
-}
-
-function Home({ onNavigate, onInstrument }: { onNavigate: (view: View) => void; onInstrument: (instrument: Instrument) => void }) {
-  return <main className="page home-page">
-    <section className="hero">
-      <div className="hero-copy">
-        <span className="eyebrow"><Sparkles size={14} /> Âm nhạc Việt trên nền tảng số</span>
-        <h1 className="hero-script-title">
-          <span className="hero-title-vietnam">Việt Nam</span>
-          <span className="hero-title-sub">trong từng thanh âm</span>
-        </h1>
-        <p>Bắt đầu học nhạc cụ truyền thống cùng VRhythm — chọn nhạc cụ bạn yêu thích, tìm hiểu lộ trình và thực hành từng bước.</p>
-        <div className="hero-actions">
-          <button className="primary hero-learn-button" onClick={() => onNavigate('learn')}>Bắt đầu học <ArrowRight size={19} /></button>
-          <button className="text-button hero-explore-link" onClick={() => onNavigate('explore')}>Tìm hiểu nhạc cụ <ChevronRight size={15} /></button>
-        </div>
-      </div>
-      <div className="hero-brand-art"><img src="/images/generated/vrhythm-logo-full.webp" alt="VRhythm — biểu tượng sáo và dây đàn cách điệu" width="1254" height="1254" fetchPriority="high" /></div>
-    </section>
-    <InteractiveInstrumentShowcase onSelect={onInstrument} />
-    <InstrumentFeatures />
-    <section className="manifesto">
-      <h2 className="manifesto-script-title">Di sản chỉ sống khi được tiếp tục</h2>
-      <div className="manifesto-body">
-        <p>Mỗi lần bạn tập một nốt nhạc, giai điệu truyền thống sẽ có thêm một người tiếp nối.</p>
-        <p>Chọn nhạc cụ mình yêu thích và bắt đầu từ bài học đầu tiên.</p>
-        <p>VRhythm đồng hành cùng bạn trên hành trình này.</p>
-      </div>
-    </section>
-    <section className="home-cta">
-      <div>
-        <span className="eyebrow"><Sparkles size={14} /> Học theo nhịp của bạn</span>
-        <h2 className="cta-script-title">
-          <span className="script-title-green">Một nốt nhạc hôm nay</span>
-          <span className="script-title-orange">Một giai điệu ngày mai</span>
-        </h2>
-      </div>
-      <button className="primary" onClick={() => onNavigate('learn')}>BẮT ĐẦU HỌC <ArrowRight size={18} /></button>
-    </section>
-  </main>;
 }
 
 function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => void }) {
