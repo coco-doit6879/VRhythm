@@ -18,7 +18,7 @@ Trang chủ ở `src/components/landing/LandingPage.tsx`. Giữ routing và dữ
 
 Các section: `Hero`, `StringCanvas` (lazy), `InstrumentIndex`, `InstrumentChapter`, `QuoteSection`, `FinalCTA`. Màu, font và spacing trong `components/landing/landing.css`.
 
-- Giấy kem `#f3eedf`, xanh mực `#203e32`, cam đất `#a54b26`, đỏ son `#a23829`.
+- Nền xanh rêu đen `#182b24`, chữ kem `#efe5ce`, chữ phụ `#bdbaa9`, vàng đồng `#c6a16a`. Các chương dùng olive/nâu/xanh trầm; đoạn trích giữ nền kem với chữ xanh mực.
 - Playfair Display cho heading, Be Vietnam Pro cho UI; Bachelorette sẵn trong repo chỉ dùng ở “thanh âm”. Google Fonts dùng `display=swap` và font dự phòng. Có thể tự host font về sau.
 - Texture SVG rất nhẹ; ảnh WebP được lấy trực tiếp từ dữ liệu trang Khám phá (`transparentImage`), đồng bộ ở mục lục, hover, accordion, các chương và CTA cuối. Không dùng ảnh editorial giả lập hoặc nhãn “Ảnh minh họa” trên home.
 - Canvas 2D là phác thảo tương tác tám dây ngũ cung, không phải sơ đồ cấu tạo hay mô phỏng chính xác đàn tranh.
