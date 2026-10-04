@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import type { Instrument } from '../data/mock';
 import { api, courseErrorMessage, type AuthResponse, type CourseDetail } from '../services/api';
+import { useScrollReveal } from './useScrollReveal';
 
 function refineCourseTitle(title: string): string {
   return title.replace(/:\s*Từ Cơ Bản Đến Bèo Dạt Mây Trôi/gi, '').trim();
@@ -45,6 +46,7 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
   const [error, setError] = useState('');
   const [busy, setBusy] = useState<number | null>(null);
   const [revision, setRevision] = useState(0);
+  const root = useScrollReveal('.course-overview', courses.map(course => course.id).join(','));
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
@@ -68,7 +70,7 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
     finally { setBusy(null); }
   };
 
-  return <main className="page instrument-learning">
+  return <main className="page instrument-learning" ref={root}>
     <a className="text-button" href="/learn"><ArrowLeft size={18} /> Danh mục học tập</a>
     <section className="instrument-page-hero"><div><span className="section-kicker"><Sparkles size={14} /> Từ tìm hiểu đến thực hành</span><h1>Học {instrument.name.toLocaleLowerCase('vi')}</h1><p>Khám phá nội dung và lộ trình từng khóa học trước khi đăng ký. Chọn khóa phù hợp để bắt đầu hành trình cùng {instrument.name.toLocaleLowerCase('vi')}.</p><a href={`/explore/${instrument.id}`} className="primary hero-explore-btn">Tìm hiểu văn hóa nhạc cụ <ArrowRight size={18} /></a></div><img src={`/images/generated/carousel-${instrument.id}.webp`} alt={`${instrument.name} — minh họa`} /></section>
     {loading && <p role="status">Đang tải nội dung khóa học…</p>}

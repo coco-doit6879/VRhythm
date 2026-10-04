@@ -46,6 +46,3 @@ yarn-error.*
 # Browser QA artifacts (approved screenshot baselines remain tracked)
 web/test-results/
 web/playwright-report/
-web/tests/
-web/playwright.config.ts
-

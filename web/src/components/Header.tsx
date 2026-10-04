@@ -7,14 +7,13 @@ export function Header({ active, loggedIn, onNavigate, onSignOut }: Props) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    if (active !== 'home') return;
     const update = () => setScrolled(window.scrollY > 24);
     update();
     window.addEventListener('scroll', update, { passive: true });
     return () => window.removeEventListener('scroll', update);
   }, [active]);
   const go = (view: string) => { onNavigate(view); setOpen(false); };
-  return <header className={`topbar${active === 'home' && scrolled ? ' is-scrolled' : ''}`}>
+  return <header className={`topbar${scrolled ? ' is-scrolled' : ''}`}>
     <button className="brand" onClick={() => go('home')} aria-label="VRhythm trang chủ">
       <span className="brand-mark"><img src="/images/generated/vrhythm-logo-mark.webp" alt="" width="44" height="44" /></span><span><strong>VRhythm</strong><small>Di sản · Nhịp điệu · Công nghệ</small></span>
     </button>

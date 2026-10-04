@@ -45,12 +45,14 @@ export function BambooFluteArticle() {
     <div className="flute-wrap">
       <a className="flute-back" href="/explore"><ArrowLeft size={16} /> Tất cả nhạc cụ</a>
       <header className="flute-heading">
+        <div className="flute-heading-copy">
         <p className="flute-eyebrow"><Sparkles size={14} /> Nhạc cụ Việt Nam / Bộ hơi</p>
-        <h1 className="flute-script-title">
-          <span className="script-title-green">Sáo trúc</span>
-          <span className="script-title-orange">Một hơi thở, một nền văn hóa</span>
-        </h1>
+        <h1>Sáo trúc</h1>
+        <p className="flute-heading-deck">Một hơi thở,<br /><em>một nền văn hóa.</em></p>
         <p className="flute-subtitle">Từ ống trúc mộc mạc đến sân khấu biểu diễn, tiếng sáo giữ một vị trí đặc biệt trong di sản âm nhạc Việt Nam.</p>
+        <a className="story-button" href="#tong-quan">Đọc câu chuyện <span aria-hidden="true">↓</span></a>
+        </div>
+        <figure className="flute-portrait"><img src="/images/flute-performance-portrait.jpg" alt="Người diễn tấu nhạc cụ hơi bằng tre trong không gian trưng bày nhạc cụ" width="1326" height="1988" fetchPriority="high" /><figcaption>Khoảnh khắc diễn tấu nhạc cụ hơi bằng tre.<br />Ảnh tư liệu do nhóm cung cấp.</figcaption></figure>
       </header>
       <div className="flute-layout">
         <aside className="flute-toc">
@@ -61,7 +63,6 @@ export function BambooFluteArticle() {
           <section id="tong-quan">
             <p className="flute-eyebrow"><Sparkles size={14} /> 01 / Tổng quan</p><h2>Ống trúc nhỏ, tiếng ngân xa</h2>
             <p>Sáo trúc là nhạc cụ hơi thuộc nhóm sáo ngang, thường được chế tác từ tre, trúc hoặc nứa. Dạng sáu lỗ bấm truyền thống hiện diện trong sinh hoạt dân gian, sân khấu truyền thống và biểu diễn chuyên nghiệp.<Cite n={1}/></p>
-            <figure className="flute-photo"><img src="/images/girl_playing_flute.jpg" alt="Một người chơi sáo ngang trong không gian ngoài trời" width="1200" height="800" fetchPriority="high"/><figcaption>Sáo được đặt ngang khi diễn tấu. Ảnh minh họa do nhóm cung cấp.</figcaption></figure>
             <p>Theo Viện Âm nhạc Việt Nam, mẫu sáo truyền thống được mô tả có chiều dài khoảng 40–55 cm, đường kính 1,5–2 cm. Đây là kích thước tham khảo của một dạng sáo, không phải quy chuẩn chung cho mọi cây sáo trúc.<Cite n={1}/></p>
             <p className="flute-note"><strong>Một tên gọi, nhiều biến thể.</strong> Bên cạnh sáo sáu lỗ còn có sáo cải tiến mười lỗ. Số lỗ, kích thước và cao độ có thể thay đổi theo nhu cầu biểu diễn.<Cite n={1}/></p>
           </section>
@@ -77,7 +78,7 @@ export function BambooFluteArticle() {
           </section>
           <section id="van-hoa">
             <p className="flute-eyebrow"><Sparkles size={14} /> 03 / Trong âm nhạc Việt</p><h2>Không chỉ là tiếng sáo độc tấu</h2>
-            <div className="flute-culture"><div><p>Trong Chèo, sáo có thể gợi hơi, lấy giọng cho diễn viên, đệm theo giai điệu hát và hòa tấu cùng dàn nhạc. Tiếng sáo còn góp phần diễn tả tâm trạng nhân vật, kết nối phần hát với diễn biến trên sân khấu.<Cite n={2}/></p><p>Người nhạc công không chỉ chơi đúng nốt: họ cần lắng nghe, theo sát giọng hát và xử lý âm sắc phù hợp với từng tình huống biểu diễn.<Cite n={2}/></p></div><figure className="flute-photo"><img src="/images/sao_truc_dan_nhac_cheo.jpg" alt="Nghệ sĩ thổi sáo trên sân khấu, bên cạnh người chơi đàn tranh" width="888" height="555" loading="lazy"/><figcaption>Biểu diễn sáo cùng nhạc cụ dân tộc. Ảnh do nhóm cung cấp; không dùng ảnh để xác định một tiết mục Chèo cụ thể.</figcaption></figure></div>
+            <div><p>Trong Chèo, sáo có thể gợi hơi, lấy giọng cho diễn viên, đệm theo giai điệu hát và hòa tấu cùng dàn nhạc. Tiếng sáo còn góp phần diễn tả tâm trạng nhân vật, kết nối phần hát với diễn biến trên sân khấu.<Cite n={2}/></p><p>Người nhạc công không chỉ chơi đúng nốt: họ cần lắng nghe, theo sát giọng hát và xử lý âm sắc phù hợp với từng tình huống biểu diễn.<Cite n={2}/></p></div>
             <p>Sáo cũng xuất hiện trong hát Văn và dàn nhạc cung đình. Nghiên cứu được Học viện Âm nhạc Quốc gia Việt Nam công bố cho thấy các làn điệu Chầu Văn tiếp tục được khai thác trong giảng dạy sáo trúc.<Cite n={1}/><Cite n={3}/></p>
           </section>
           <section id="doi-chieu">

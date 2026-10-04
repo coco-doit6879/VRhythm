@@ -1,0 +1,82 @@
+.ex-page { width:min(1280px,calc(100% - 112px)); margin:auto; color:var(--lp-ink); font-family:var(--lp-sans); }
+.ex-page :is(h1,h2,h3,p) { margin:0; }
+.app-shell.landing-shell .ex-page :is(h1,h2,h3) { font-family:var(--lp-serif); font-weight:400; line-height:1.2; }
+.ex-page em { font-weight:400; color:var(--lp-orange); }
+.ex-page a { color:inherit; text-decoration:none; }
+.ex-page :is(a,button):focus-visible { outline:2px solid var(--lp-orange); outline-offset:5px; }
+.ex-label { font-size:10px; letter-spacing:1.7px; text-transform:uppercase; line-height:1.8; }
+.ex-intro { padding-top:65px; }
+.ex-intro>.ex-label { color:var(--lp-orange); }
+.ex-intro-grid { display:grid; grid-template-columns:1.5fr 1fr; gap:100px; align-items:end; margin:28px 0 70px; }
+.app-shell.landing-shell .ex-page h1 { font-size:clamp(50px,5.8vw,84px); letter-spacing:-2px; }
+.ex-intro-aside { padding-bottom:8px; max-width:350px; }
+.ex-count { display:block; font:italic 80px/1 var(--lp-serif); color:var(--lp-orange); margin-bottom:15px; }
+.ex-intro-aside>p { font-size:14px; line-height:1.9; color:var(--lp-muted); margin:26px 0; }
+.ex-intro-aside>a { display:inline-flex; gap:30px; align-items:center; min-height:44px; border-bottom:1px solid var(--lp-line); font-size:12px; }
+.ex-guide { display:grid; grid-template-columns:repeat(3,1fr); border-block:1px solid var(--lp-line); }
+.ex-guide>div { display:flex; gap:24px; padding:28px 24px; border-right:1px solid var(--lp-line); }
+.ex-guide>div:first-child { padding-left:0; }
+.ex-guide>div:last-child { border:0; }
+.ex-guide>div>span { font:italic 18px var(--lp-serif); color:var(--lp-orange); }
+.ex-guide strong { font-weight:500; font-size:13px; }
+.ex-guide small { display:block; font-size:11px; line-height:1.7; color:var(--lp-muted); margin-top:8px; }
+.ex-archive { padding-block:85px; scroll-margin-top:110px; }
+.ex-archive-heading { display:flex; justify-content:space-between; align-items:end; gap:25px; }
+.app-shell.landing-shell .ex-page h2 { font-size:clamp(32px,3.4vw,48px); margin-top:18px; }
+.ex-results { color:var(--lp-muted); font-size:11px; margin:35px 0 18px!important; }
+.ex-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:48px 32px; }
+.ex-card { min-width:0; }
+.ex-card-link { display:block; height:100%; border-bottom:1px solid var(--lp-line); }
+.ex-art { position:relative; display:flex; justify-content:center; align-items:center; height:370px; padding:38px; background:#29382d; overflow:hidden; }
+.ex-card-tyba .ex-art,.ex-card-bau .ex-art { background:#39352b; }
+.ex-card-nhi .ex-art,.ex-card-tranh .ex-art { background:#263934; }
+.ex-art img { width:100%; height:100%; object-fit:contain; transition:transform .35s ease; filter:drop-shadow(0 12px 9px #0003); }
+.ex-card-link:hover .ex-art img { transform:translateY(-7px) rotate(-2deg); }
+.ex-card-number { position:absolute; top:23px; left:25px; font:italic 20px var(--lp-serif); color:var(--lp-orange); }
+.ex-card-family { position:absolute; top:27px; right:25px; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
+.ex-latin { position:absolute; bottom:20px; left:25px; font:italic 13px var(--lp-serif); color:var(--lp-muted); }
+.ex-card-copy { padding:26px 0 24px; }
+.ex-card-copy>.ex-label { color:var(--lp-orange); font-size:9px; }
+.app-shell.landing-shell .ex-page h3 { display:flex; align-items:center; justify-content:space-between; font-size:38px; margin:10px 0 16px; }
+.ex-card-copy h3 svg { color:var(--lp-orange); flex-shrink:0; }
+.ex-description { color:var(--lp-muted); font-size:13px; line-height:1.85; max-width:490px; min-height:50px; }
+.ex-card-bottom { display:flex; align-items:end; justify-content:space-between; gap:22px; margin-top:26px; font-size:10px; line-height:1.8; }
+.ex-card-bottom>span:first-child { color:var(--lp-muted); max-width:55%; }
+.ex-card-bottom>span:last-child { display:flex; align-items:center; gap:10px; white-space:nowrap; }
+.ex-closing { text-align:center; padding:60px 24px 65px; border-block:1px solid var(--lp-line); }
+.ex-closing>a { display:inline-flex; align-items:center; gap:28px; min-height:50px; background:var(--lp-orange); color:var(--lp-paper); padding:16px 24px; font-size:12px; margin-top:30px; }
+.ex-footer { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:35px 0; color:var(--lp-muted); font-size:10px; }
+.ex-footer a { min-height:44px; display:inline-flex; align-items:center; }
+.ex-footer>a:first-child { font:24px var(--lp-serif); color:var(--lp-ink); }
+@media(max-width:1000px) {
+  .ex-page { width:calc(100% - 64px); }
+  .ex-intro-grid { gap:40px; grid-template-columns:1.3fr 1fr; }
+  .ex-guide>div { padding:22px 16px; gap:12px; }
+  .ex-archive-heading { align-items:start; flex-direction:column; gap:26px; }
+  .ex-grid { gap:36px 22px; }
+  .ex-art { height:310px; padding:44px 20px; }
+  .ex-card-bottom { align-items:start; flex-direction:column; gap:12px; }
+  .ex-card-bottom>span:first-child { max-width:100%; }
+  .ex-description { min-height:100px; }
+}
+@media(max-width:620px) {
+  .ex-page { width:calc(100% - 40px); }
+  .ex-intro { padding-top:36px; }
+  .ex-intro-grid { display:block; margin:24px 0 36px; }
+  .app-shell.landing-shell .ex-page h1 { font-size:48px; letter-spacing:-1.4px; }
+  .ex-intro-aside { margin-top:32px; max-width:none; }
+  .ex-count { display:inline-block; vertical-align:middle; font-size:42px; margin:0 18px 0 0; }
+  .ex-intro-aside>p { font-size:13px; margin:20px 0 10px; }
+  .ex-guide { grid-template-columns:1fr; }
+  .ex-guide>div,.ex-guide>div:first-child { padding:20px 0; border:0; border-bottom:1px solid var(--lp-line); gap:20px; }
+  .ex-archive { padding-block:48px; scroll-margin-top:90px; }
+  .app-shell.landing-shell .ex-page h2 { font-size:34px; }
+  .ex-grid { grid-template-columns:1fr; gap:32px; }
+  .ex-art { height:340px; }
+  .ex-description { min-height:0; }
+  .ex-card-bottom { gap:15px; }
+  .ex-closing { padding:42px 0; }
+  .ex-footer { flex-wrap:wrap; }
+  .ex-footer>span { order:3; width:100%; font-size:9px; }
+}
+@media(prefers-reduced-motion:reduce) { .ex-art img { transition:none; } .ex-card-link:hover .ex-art img { transform:none; } }

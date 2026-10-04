@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import './instrument-pages.css';
 import { BambooFluteArticle } from './components/BambooFluteArticle';
 import { LandingPage } from './components/landing/LandingPage';
-import { ArrowLeft, ArrowRight, Landmark, Mail, MapPin, Music2, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Landmark, Mail, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
 import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
-import { InstrumentCard } from './components/InstrumentCard';
+import { ExplorePage } from './components/ExplorePage';
+import { InstrumentStory } from './components/InstrumentStory';
+import { useScrollReveal } from './components/useScrollReveal';
 import { LessonPlayer } from './components/LessonPlayer';
 import { instruments, type Instrument } from './data/mock';
 import { api, authStorage, courseErrorMessage, type AuthResponse, type CourseSummary, type LearnerCourseSummary } from './services/api';
@@ -37,7 +39,6 @@ export default function App() {
   const [pathname, setPathname] = useState(window.location.pathname);
   const selectedInstrument = instruments.find(item => item.id === pathname.split('/')[2]);
   const isInstrumentRoute = /^\/(explore|learn)\//.test(pathname);
-  const setSelectedInstrument = (instrument: Instrument) => { window.location.assign(`/explore/${instrument.id}`); };
   const [authUser, setAuthUser] = useState<AuthResponse | null>(() => authStorage.read());
   const [courses, setCourses] = useState<Array<CourseSummary | LearnerCourseSummary>>([]);
   const [coursesLoading, setCoursesLoading] = useState(false);
@@ -78,10 +79,11 @@ export default function App() {
   const openAuth = (mode: 'login' | 'register' = 'login') => navigate('auth', mode);
   const signIn = async (data: { fullName?: string; email: string; password: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && instruments.some(item => returnTo === `/learn/${item.id}`)) window.location.assign(returnTo); else navigate('learn'); };
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
-  return <div className={view === 'home' ? 'app-shell landing-shell' : 'app-shell'}><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
+  const supportSurface = !['home', 'explore'].includes(view) && !(view === 'learn' && !isInstrumentRoute);
+  return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'home' && <LandingPage />}
     {isInstrumentRoute && !selectedInstrument && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>Không tìm thấy nhạc cụ</h1><a href="/explore">Quay lại Khám phá</a></main>}
-    {view === 'explore' && !isInstrumentRoute && <Explore onInstrument={setSelectedInstrument} />}
+    {view === 'explore' && !isInstrumentRoute && <ExplorePage />}
     {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
     {view === 'learn' && selectedInstrument && <InstrumentLearning instrument={selectedInstrument} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} onLesson={openLesson} />}
     {view === 'learn' && !isInstrumentRoute && <Learn user={authUser} courses={courses} loading={coursesLoading} error={coursesError} onAuth={() => openAuth('login')} onOpenLesson={openLesson} onRefresh={loadCourses} />}
@@ -96,43 +98,16 @@ function parseLessonRoute(path: string): LessonRoute {
   return match ? { courseId: Number(match[1]), chapterId: Number(match[2]), lessonId: Number(match[3]) } : defaultLessonRoute;
 }
 
-function Explore({ onInstrument }: { onInstrument: (instrument: Instrument) => void }) {
-  return <main className="page explore-page">
-    <section className="explore-hero">
-      <div className="explore-hero-copy">
-        <div className="section-kicker"><Sparkles size={14} /> Thư viện di sản âm nhạc Việt Nam</div>
-        <h1 className="explore-script-title">
-          <span className="script-title-green">Mỗi nhạc cụ</span>
-          <span className="script-title-orange">Một câu chuyện văn hóa</span>
-        </h1>
-        <p className="explore-hero-desc">Khám phá nguồn gốc, cấu tạo, không gian diễn xướng và vai trò của những nhạc cụ đã đồng hành cùng đời sống người Việt qua nhiều thế hệ.</p>
-      </div>
-    </section>
-
-    <section className="heritage-guide" aria-label="Các lớp thông tin"><div><Landmark /><span><strong>Bối cảnh lịch sử</strong><small>Hành trình của nhạc cụ trong đời sống</small></span></div><div><MapPin /><span><strong>Không gian văn hóa</strong><small>Vùng miền và loại hình diễn xướng</small></span></div><div><Music2 /><span><strong>Âm sắc & cấu tạo</strong><small>Chất liệu làm nên tiếng nói riêng</small></span></div></section>
-
-    <section className="explore-archive">
-      <div className="archive-heading">
-        <div>
-          <div className="section-kicker"><Sparkles size={14} /> Danh mục nhạc cụ</div>
-          <h2 className="archive-script-title">Danh mục nhạc cụ</h2>
-        </div>
-      </div>
-      <div className="explore-grid">{instruments.map(instrument => <InstrumentCard key={instrument.id} instrument={instrument} onSelect={onInstrument} />)}</div>
-    </section>
-
-  </main>;
-}
-
 function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | null; courses: Array<CourseSummary | LearnerCourseSummary>; loading: boolean; error: string; onAuth: () => void; onOpenLesson: (route?: LessonRoute) => void; onRefresh: () => Promise<void> }) {
+  const root = useScrollReveal('.learning-steps li, .learning-catalog-heading, .learning-card, .learning-closing');
   const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
-  return <main className="page learn-page">
+  return <main className="page learn-page learn-editorial" ref={root}>
     <section className="learning-intro">
       <div>
         <span className="section-kicker"><Sparkles size={14} /> Học nhạc cụ Việt Nam</span>
-        <h1 className="learn-script-title">
-          <span className="script-title-green">Thanh âm bạn yêu</span>
-          <span className="script-title-orange">Hành trình bạn chọn</span>
+        <h1 className="learn-editorial-title">
+          <span>Thanh âm bạn yêu.</span>
+          <em>Hành trình<br />bạn chọn.</em>
         </h1>
         <p>Chọn nhạc cụ, xem lộ trình và tìm khóa học phù hợp. Bắt đầu từ một nốt nhạc, theo nhịp của riêng bạn.</p>
         <a className="primary" href="#chon-nhac-cu">Chọn nhạc cụ để học <ArrowRight size={18} /></a>
@@ -156,6 +131,8 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
       })}</div>
       <p className="learning-image-note">Ảnh nhạc cụ là minh họa, không dùng làm sơ đồ cấu tạo.</p>
     </section>
+    <section className="learning-closing"><span className="section-kicker">Mỗi ngày, một bước tiến</span><h2>Từ nốt nhạc đầu tiên,<br /><em>đến giai điệu của riêng bạn.</em></h2><p>Chọn một nhạc cụ yêu thích và bắt đầu theo nhịp của bạn.</p><a href="#chon-nhac-cu">Tìm lộ trình của bạn <ArrowRight size={18} /></a></section>
+    <footer className="ex-footer"><a href="/">VRhythm</a><span>Di sản · Nhịp điệu · Công nghệ</span><a href="/explore">Khám phá nhạc cụ ↗</a></footer>
   </main>;
 }
 
@@ -166,16 +143,5 @@ function Profile({ user, onAuth }: { user: AuthResponse | null; onAuth: () => vo
 }
 
 function InstrumentPage({ instrument }: { instrument: Instrument }) {
-  if (instrument.id === 'sao') return <BambooFluteArticle />;
-  return <main className="page instrument-detail"><a href="/explore" className="text-button"><ArrowLeft size={18} /> Khám phá nhạc cụ</a><article className="instrument-page-layout">
-    <div className="modal-art" style={{ '--instrument-accent': instrument.accent } as React.CSSProperties}><img className={instrument.transparentImage ? 'transparent-instrument' : ''} src={instrument.transparentImage ?? instrument.image} alt={instrument.name} /><span>{instrument.symbol}</span><div className="modal-image-caption">Hiện vật · {instrument.family}</div></div>
-    <div className="modal-content heritage-content">
-      <div className="section-kicker"><Sparkles size={14} /> Hồ sơ di sản · {instrument.latinName}</div><h1 id={`instrument-${instrument.id}`}>{instrument.name}</h1><p className="modal-tone">{instrument.tone}</p><p className="modal-lead">{instrument.description}</p>
-      <div className="heritage-metadata"><span><small>Họ nhạc cụ</small><strong>{instrument.family}</strong></span><span><small>Không gian văn hóa</small><strong>{instrument.origin}</strong></span><span><small>Chất liệu chính</small><strong>{instrument.materials}</strong></span><span><small>Cách tạo âm</small><strong>{instrument.playingStyle}</strong></span></div>
-      <section className="story-section"><div className="story-number">01</div><div><h3>Lịch sử & hành trình</h3><p>{instrument.history}</p></div></section>
-      <section className="story-section"><div className="story-number">02</div><div><h3>Trong đời sống văn hóa</h3><p>{instrument.culturalContext}</p></div></section>
-      <section className="story-section"><div className="story-number">03</div><div><h3>Dấu hiệu nhận biết</h3><ul>{instrument.facts.map(fact => <li key={fact}>{fact}</li>)}</ul></div></section>
-      <div className="modal-cultural-note"><Landmark size={18} /><span><small>Giá trị văn hóa</small><strong>{instrument.culturalValue}</strong></span></div>
-    </div>
-  </article><section className="home-cta"><div><span className="eyebrow"><Sparkles size={14} /> Tiếp nối câu chuyện bằng tiếng đàn của bạn</span><h2>Học {instrument.name.toLocaleLowerCase('vi')}</h2><p>Xem nội dung khóa học, lộ trình và đăng ký học.</p></div><a className="primary" href={`/learn/${instrument.id}`}>Bắt đầu học <ArrowRight size={17} /></a></section></main>;
+  return instrument.id === 'sao' ? <BambooFluteArticle /> : <InstrumentStory instrument={instrument} />;
 }

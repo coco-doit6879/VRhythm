@@ -30,16 +30,29 @@ export function LandingPage() {
   }, []);
   useGSAP(() => {
     const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const elements = root.current?.querySelectorAll<HTMLElement>(
+        '.lp-section-heading, .lp-index-preview, .lp-index-list > li, .lp-chapters-heading, .lp-chapter-meta, .lp-chapter-art, .lp-chapter-copy, .lp-quote h2, .lp-quote-body, .lp-final-copy'
+      );
+      const cleanups: (() => void)[] = [];
+      elements?.forEach(element => {
+        const tween = gsap.from(element, {
+          y: 32, opacity: 0, duration: .85, ease: 'power2.out',
+          scrollTrigger: { trigger: element, start: 'top 92%', once: true },
+        });
+        // Keyboard navigation must never land on an invisible control.
+        const revealOnFocus = () => tween.progress(1);
+        element.addEventListener('focusin', revealOnFocus);
+        cleanups.push(() => element.removeEventListener('focusin', revealOnFocus));
+      });
+      let active = true;
+      void document.fonts.ready.then(() => { if (active) ScrollTrigger.refresh(); });
+      return () => { active = false; cleanups.forEach(cleanup => cleanup()); };
+    });
     media.add('(min-width: 900px) and (prefers-reduced-motion: no-preference)', () => {
       const lenis = new Lenis({ duration: 1.05, anchors: { offset: -90 } });
       const tick = (time: number) => lenis.raf(time * 1000);
       lenis.on('scroll', ScrollTrigger.update); gsap.ticker.add(tick);
-      root.current?.querySelectorAll<HTMLElement>('.lp-chapter').forEach(section => {
-        const timeline = gsap.timeline({ scrollTrigger: { trigger: section, start: 'top 88px', end: '+=50%', pin: true, scrub: .6, invalidateOnRefresh: true } });
-        timeline.from(section.querySelector('.lp-chapter-art'), { y: 65, rotation: -7, opacity: .45, duration: 1 });
-        timeline.from(section.querySelectorAll('.lp-chapter-line'), { y: 24, opacity: .35, stagger: .15, duration: .6 }, 0);
-      });
-      gsap.from('.lp-quote h2 span', { y: 25, opacity: .3, stagger: .2, scrollTrigger: { trigger: '.lp-quote', start: 'top 75%', end: 'center 65%', scrub: .5 } });
       gsap.from('.lp-final-left', { x: -100, rotation: -12, scrollTrigger: { trigger: '.lp-final', start: 'top bottom', end: 'center 65%', scrub: .5 } });
       gsap.from('.lp-final-right', { x: 100, rotation: 12, scrollTrigger: { trigger: '.lp-final', start: 'top bottom', end: 'center 65%', scrub: .5 } });
       void document.fonts.ready.then(() => { if (mounted.current) ScrollTrigger.refresh(); });

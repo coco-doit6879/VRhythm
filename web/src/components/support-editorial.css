@@ -1,0 +1,90 @@
+/* Shared editorial treatment for course detail, account and lesson surfaces. */
+.support-shell { --ink:var(--lp-ink); --muted:var(--lp-muted); --line:var(--lp-line); --teal:var(--lp-orange); --orange:var(--lp-orange); --cream:#29382d; }
+.app-shell.support-shell .page { width:min(1200px,calc(100% - 96px)); padding:32px 0 70px; position:relative; isolation:isolate; }
+.app-shell.support-shell .page :is(h1,h2,h3) { font-family:var(--lp-serif); font-weight:400; color:var(--lp-ink); }
+.app-shell.support-shell .page h1 { font-size:clamp(42px,5vw,72px); line-height:1.2; letter-spacing:-1px; }
+.support-shell .page :is(a,button,input,summary):focus-visible { outline:2px solid var(--lp-orange); outline-offset:4px; }
+.support-shell .page .section-kicker,.support-shell .page .eyebrow { color:var(--lp-orange); font-size:10px; letter-spacing:1.3px; text-transform:uppercase; }
+.support-shell .page .text-button { color:var(--lp-muted); min-height:44px; }
+.support-shell .page .primary { display:inline-flex; align-items:center; justify-content:center; gap:12px; background:var(--lp-orange); color:var(--lp-paper); border:1px solid var(--lp-orange); border-radius:0; box-shadow:none; min-height:48px; padding:14px 22px; font:500 13px/1.6 var(--lp-sans); text-decoration:none; }
+.support-shell .page .primary:hover { background:#d8b985; color:var(--lp-paper); }
+.support-shell .page button:disabled { opacity:.5; cursor:not-allowed; }
+.support-shell .instrument-page-hero { grid-template-columns:1.15fr 1fr; gap:75px; padding:45px 0 65px; background:transparent; border:0; border-radius:0; margin:0; }
+.app-shell.support-shell .instrument-learning .hero-explore-btn { color:var(--lp-paper)!important; }
+.support-shell .instrument-page-hero p { font-size:14px; line-height:1.95; max-width:490px; margin:25px 0 30px; }
+.support-shell .instrument-page-hero img { height:440px; padding:40px; border-radius:0; background:#29382d; }
+.support-shell .course-overview { background:transparent; border:0; border-top:1px solid var(--lp-line); border-radius:0; margin:0 0 60px; padding:42px 0 0; }
+.app-shell.support-shell .course-overview h2 { font-size:clamp(30px,3.3vw,44px); max-width:900px; margin:20px 0; }
+.support-shell .course-overview header>p { max-width:850px; font-size:14px; }
+.app-shell.support-shell .course-overview h3 { font-size:28px; margin:35px 0 20px; }
+.support-shell .course-topics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); list-style:none; padding:0; gap:0 35px; color:var(--lp-muted); font-size:14px; }
+.support-shell .course-topics li { padding:16px 0; border-bottom:1px solid var(--lp-line); }
+.support-shell .course-roadmap { border-top:1px solid var(--lp-line); }
+.support-shell .course-roadmap summary { min-height:56px; padding:22px 12px; color:var(--lp-ink); }
+.support-shell .course-roadmap summary::marker { color:var(--lp-orange); }
+.support-shell .course-roadmap summary span { font-weight:500; }
+.support-shell .course-roadmap summary small { display:inline-block; }
+.support-shell .course-roadmap details[open] { background:#29382d; }
+.support-shell .course-roadmap ol { padding:0 24px 20px 46px; font-size:14px; }
+.support-shell .course-roadmap li { padding:15px 8px; line-height:1.8; }
+.support-shell .course-roadmap li::marker { color:var(--lp-orange); }
+.support-shell .course-enrollment { display:flex; align-items:center; justify-content:space-between; gap:28px; background:#29382d; border:1px solid var(--lp-line); padding:26px 30px; }
+.support-shell .course-enrollment p { font-size:13px; margin:0; }
+.support-shell .course-enrollment button { flex-shrink:0; }
+.support-shell .course-state,.support-shell .lesson-load-error { background:#29382d; border:1px solid var(--lp-line); padding:28px; margin-block:30px; line-height:1.9; }
+.support-shell .course-state.error { border-left:3px solid var(--lp-red); }
+.support-shell .auth-layout { padding-block:35px; gap:70px; align-items:center; }
+.support-shell .auth-story { background:transparent; border:0; border-radius:0; padding:25px 0; }
+.app-shell.support-shell .auth-editorial-title { font-size:clamp(44px,5vw,72px); line-height:1.3; margin:24px 0; }
+.support-shell .auth-editorial-title :is(span,em) { display:block; }
+.app-shell.support-shell .auth-editorial-title em { color:var(--lp-orange); font-style:italic; }
+.support-shell .auth-story .quote { color:var(--lp-muted)!important; font-size:14px; line-height:1.9; }
+.support-shell .auth-card { background:#29382d; border:1px solid var(--lp-line); border-radius:0; box-shadow:none; padding:35px; }
+.app-shell.support-shell .auth-card h2 { font-size:29px; }
+.support-shell .auth-tabs { border-bottom:1px solid var(--lp-line); }
+.support-shell .auth-tabs button { min-height:48px; color:var(--lp-muted); background:transparent; }
+.support-shell .auth-tabs button.active { color:var(--lp-orange); border-color:var(--lp-orange); }
+.support-shell .auth-card label { color:var(--lp-ink); font-size:12px; }
+.app-shell.support-shell .auth-card input { background:var(--lp-paper); color:var(--lp-ink); border:1px solid var(--lp-line); border-radius:0; min-height:48px; }
+.app-shell.support-shell .auth-card input::placeholder { color:var(--lp-muted); }
+.app-shell.support-shell .auth-card .social-button { background:transparent; color:var(--lp-ink)!important; border-color:var(--lp-line); border-radius:0; min-height:48px; }
+.app-shell.support-shell .social-button:hover { background:#34483a; }
+.support-shell .profile-empty,.support-shell .profile-hero,.support-shell .profile-details { background:#29382d; border:1px solid var(--lp-line); border-radius:0; box-shadow:none; }
+.support-shell .profile-avatar { color:var(--lp-paper); background:var(--lp-orange); }
+.support-shell .profile-details strong { overflow-wrap:anywhere; }
+.app-shell.support-shell .course-player .practice-card,.app-shell.support-shell .course-player .lesson-sidebar { background:#29382d; color:var(--lp-ink); border-color:var(--lp-line); border-radius:0; }
+.app-shell.support-shell .course-player .lesson-header h1 { font-size:clamp(32px,4vw,52px); }
+.app-shell.support-shell .course-player .lesson-content h2 { font-size:28px; }
+.app-shell.support-shell .course-player .chapter-group h2 { font:500 15px/1.7 var(--lp-sans); }
+.support-shell .course-player .lesson-item { background:transparent; color:var(--lp-ink); text-align:left; }
+.app-shell.support-shell .course-player .lesson-item.current { color:var(--lp-orange); }
+.support-shell .course-player .lesson-item small { color:var(--lp-muted); }
+.app-shell.support-shell .course-player .lesson-answer { border-radius:0; }
+.app-shell.support-shell .course-player .lesson-answer:has(input:checked) { background:#3c4936; border-color:var(--lp-orange); }
+.app-shell.support-shell .course-player :is(.practice-target,.practice-hint,.lesson-feedback) { background:var(--lp-paper); color:var(--lp-ink); border:1px solid var(--lp-line); border-radius:0; }
+.app-shell.support-shell .course-player :is(.practice-hint.wrong,.lesson-feedback.error) { color:#f0b2a0; background:#442e28; border-color:var(--lp-red); }
+.support-shell .course-player .record-button { background:var(--lp-orange); color:var(--lp-paper); border-radius:0; }
+.support-shell .course-player .pitch-readout { color:var(--lp-ink); }
+.support-shell .course-player .completion-done { color:var(--lp-orange); }
+.app-shell.support-shell .course-player .lesson-sheet { --ink:#203e32; --muted:#526052; --teal:#446b43; color:#203e32; }
+.app-shell.support-shell .course-player .lesson-sheet .sheet-svg-wrap { background:#efe5ce; border-radius:0; }
+@media(max-width:1000px) {
+  .app-shell.support-shell .page { width:calc(100% - 64px); }
+  .support-shell .instrument-page-hero,.support-shell .auth-layout { gap:35px; }
+  .support-shell .instrument-page-hero img { height:350px; }
+  .support-shell .course-enrollment { align-items:start; flex-direction:column; }
+}
+@media(max-width:760px) {
+  .support-shell .instrument-page-hero { grid-template-columns:1fr; }
+  .support-shell .auth-layout { grid-template-columns:1fr; }
+}
+@media(max-width:620px) {
+  .app-shell.support-shell .page { width:calc(100% - 40px); padding-top:24px; }
+  .support-shell .instrument-page-hero { padding:25px 0 40px; }
+  .support-shell .instrument-page-hero img { height:320px; }
+  .support-shell .course-topics { grid-template-columns:1fr; }
+  .support-shell .course-enrollment,.support-shell .course-state,.support-shell .auth-card { padding:22px 18px; }
+  .support-shell .auth-layout { padding-top:0; gap:24px; }
+  .support-shell .course-roadmap summary { padding-inline:8px; }
+  .support-shell .course-roadmap ol { padding-left:35px; }
+}
