@@ -1,4 +1,5 @@
 import { ArrowLeft, Sparkles } from 'lucide-react';
+import { InstrumentBackdrop } from './InstrumentBackdrop';
 import './bamboo-flute-article.css';
 
 const sources = [
@@ -40,8 +41,10 @@ function FluteDiagram({ comparison = false }: { comparison?: boolean }) {
   </figure>;
 }
 
+
 export function BambooFluteArticle() {
   return <main className="flute-article">
+    <InstrumentBackdrop id="sao" />
     <div className="flute-wrap">
       <a className="flute-back" href="/explore"><ArrowLeft size={16} /> Tất cả nhạc cụ</a>
       <header className="flute-heading">

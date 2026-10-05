@@ -1,8 +1,10 @@
 import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import type { Instrument } from '../data/mock';
+import { InstrumentBackdrop } from './InstrumentBackdrop';
 
 export function InstrumentStory({ instrument: item }: { instrument: Instrument }) {
   return <main className="story-page">
+    <InstrumentBackdrop id={item.id} />
     <a className="story-back" href="/explore"><ArrowLeft size={16} /> Bộ sưu tập nhạc cụ</a>
     <header className="story-hero">
       <div className="story-intro"><p className="story-label">Hồ sơ di sản / {item.family}</p><h1>{item.name}</h1><p className="story-tone">{item.tone}</p><p className="story-lead">{item.description}</p><a className="story-button" href={`/learn/${item.id}`}>Bắt đầu học <ArrowUpRight size={18} /></a><span className="story-latin">{item.latinName}</span></div>
