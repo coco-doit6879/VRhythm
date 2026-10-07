@@ -1,3 +1,5 @@
+import { renderSaoTrucPcm, SAO_TRUC_SAMPLE_RATE } from './PhysicalFluteEngine.ts';
+
 type Voice = { stop: () => void };
 const pitches: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 export function noteFrequency(note: string) {
@@ -33,6 +35,30 @@ export class InstrumentSynth {
     if (!this.enabled || this.disposed || !ctx || ctx.state !== 'running' || !/^[a-z]+$/.test(instrumentId)) return;
     let frequency: number;
     try { frequency = noteFrequency(note); } catch { return; }
+    if (instrumentId === 'sao') {
+      if (frequency < noteFrequency('C4') || frequency > noteFrequency('C7')) return;
+      // The Vietnamese flute is wholly procedural; never probe /audio/sao for recordings.
+      const pcm = renderSaoTrucPcm([{ note, duration: 1.1 }]);
+      const buffer = ctx.createBuffer(1, pcm.length, SAO_TRUC_SAMPLE_RATE);
+      buffer.copyToChannel(new Float32Array(pcm), 0);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      if (this.voices.size >= 8) this.voices.values().next().value?.stop();
+      let stopped = false;
+      const voice: Voice = { stop: () => {
+        if (stopped) return;
+        stopped = true;
+        source.onended = null;
+        try { source.stop(); } catch { /* already ended */ }
+        source.disconnect();
+        this.voices.delete(voice);
+      } };
+      this.voices.add(voice);
+      source.onended = voice.stop;
+      source.start(ctx.currentTime);
+      return;
+    }
     // Preserve immediate response; a discovered sample is used on subsequent notes.
     const key = `${instrumentId}/${note}`;
     const sample = this.samples.get(key);
@@ -42,10 +68,9 @@ export class InstrumentSynth {
     const gain = ctx.createGain();
     const nodes: AudioNode[] = [gain];
     const sources: AudioScheduledSourceNode[] = [];
-    const flute = instrumentId === 'sao';
     const bowed = instrumentId === 'nhi';
-    const duration = sample ? Math.min(sample.duration, 5) : flute || bowed ? 1.35 : 1.9;
-    const attack = flute || bowed ? .09 : .006;
+    const duration = sample ? Math.min(sample.duration, 5) : bowed ? 1.35 : 1.9;
+    const attack = bowed ? .09 : .006;
     gain.gain.setValueAtTime(0, now);
     gain.gain.linearRampToValueAtTime(.12, now + attack);
     gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
@@ -55,25 +80,16 @@ export class InstrumentSynth {
       const source = ctx.createBufferSource(); source.buffer = sample; source.connect(gain); sources.push(source); nodes.push(source);
     } else {
       const osc = ctx.createOscillator();
-      osc.type = flute || instrumentId === 'bau' ? 'sine' : 'triangle';
+      osc.type = instrumentId === 'bau' ? 'sine' : 'triangle';
       osc.frequency.value = frequency;
       const filter = ctx.createBiquadFilter(); filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(frequency * (flute ? 2 : 7), now);
+      filter.frequency.setValueAtTime(frequency * 7, now);
       filter.frequency.exponentialRampToValueAtTime(frequency * 1.2, now + duration);
       osc.connect(filter); filter.connect(gain); nodes.push(osc, filter); sources.push(osc);
-      if (flute || bowed) {
+      if (bowed) {
         const vibrato = ctx.createOscillator(); const depth = ctx.createGain();
         vibrato.frequency.value = 5; depth.gain.value = frequency * .004;
         vibrato.connect(depth); depth.connect(osc.frequency); nodes.push(vibrato, depth); sources.push(vibrato);
-      }
-      if (flute) {
-        const noise = ctx.createBufferSource();
-        const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duration), ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * .15;
-        noise.buffer = buffer;
-        const band = ctx.createBiquadFilter(); band.type = 'bandpass'; band.frequency.value = frequency * 2; band.Q.value = 3;
-        noise.connect(band); band.connect(gain); nodes.push(noise, band); sources.push(noise);
       }
     }
     let stopped = false;
