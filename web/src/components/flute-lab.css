@@ -1,0 +1,24 @@
+.flute-lab { min-height: 100vh; background: #f5f7f2; color: #20382d; font-family: 'Be Vietnam Pro', Arial, sans-serif; padding: 2.5rem 1rem; }
+.flute-lab * { box-sizing: border-box; }
+.flute-lab-inner { max-width: 900px; margin: 0 auto; }
+.flute-lab-kicker { color: #9b4d28; font-size: .8rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.flute-lab h1 { margin: .5rem 0 1rem; font-family: 'Be Vietnam Pro', Arial, sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; }
+.flute-lab p { line-height: 1.65; }
+.flute-lab-controls { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin: 2rem 0 1.5rem; }
+.flute-lab-controls label { display: grid; gap: .5rem; font-weight: 600; }
+.flute-lab select { min-width: min(100%, 18rem); border: 1px solid #aabca9; border-radius: .5rem; padding: .75rem; background: #fff; color: inherit; font: inherit; }
+.flute-lab-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.flute-lab button { border: 1px solid #2d6147; border-radius: .5rem; background: #2d6147; color: #fff; padding: .75rem 1rem; font: inherit; font-weight: 700; cursor: pointer; }
+.flute-lab button:hover { background: #214a36; }
+.flute-lab button:focus-visible, .flute-lab select:focus-visible { outline: 3px solid #c37339; outline-offset: 3px; }
+.flute-lab button.flute-lab-stop { background: transparent; color: #2d6147; }
+.flute-lab button:disabled { opacity: .45; cursor: not-allowed; }
+.flute-lab-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin-bottom: .75rem; font-size: .9rem; }
+.flute-lab progress { display: block; width: 100%; height: .65rem; accent-color: #2d6147; }
+.flute-lab-now { min-height: 2rem; font-weight: 600; }
+.flute-lab-notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: .5rem; list-style: none; margin: 1.5rem 0 0; padding: 0; }
+.flute-lab-notes li { display: grid; gap: .2rem; background: #fff; border: 1px solid #d7e1d4; border-radius: .5rem; padding: .6rem .75rem; }
+.flute-lab-notes li[aria-current='true'] { border-color: #b3582e; background: #fae9dc; }
+.flute-lab-notes li span, .flute-lab-notes li small { color: #5b7162; font-size: .75rem; }
+.flute-lab-error { color: #9a3020; font-weight: 600; }
+@media (max-width: 520px) { .flute-lab { padding: 1.5rem 1rem; } .flute-lab-controls, .flute-lab-controls label, .flute-lab select { width: 100%; } }
