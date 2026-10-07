@@ -84,10 +84,6 @@
 .lp-row-arrow { opacity:.45; }
 .lp-index-expand { display:none; }
 .lp-index-detail[hidden] { display:none; }
-.lp-hover-art { position:fixed; top:0; left:0; width:160px; height:190px; z-index:101; pointer-events:none; opacity:0; transition:opacity .15s; }
-.lp-hover-art.is-visible { opacity:1; }
-.lp-hover-art img { width:100%; height:100%; }
-@media(hover:none),(prefers-reduced-motion:reduce) { .lp-hover-art { display:none; } }
 .lp-index-footnote { display:flex; justify-content:space-between; gap:24px; margin-top:35px!important; padding-top:22px; border-top:1px solid var(--lp-line); font-size:9px; color:var(--lp-muted); line-height:1.8; }
 .lp-chapters-heading { padding-block:110px 70px; display:grid; grid-template-columns:1fr 1.35fr 1fr; align-items:end; gap:24px; }
 .lp-chapters-heading>.lp-label { align-self:start; }
@@ -273,3 +269,10 @@
   .lp *, .lp *::before, .lp *::after { scroll-behavior:auto!important; transition:none!important; animation:none!important; }
   .lp-preview-item { transform:none!important; }
 }
+
+/* A quiet bronze drum silhouette behind the opening instrument. */
+.lp-hero { isolation:isolate; }
+.lp-drum-backdrop { position:absolute; z-index:-1; pointer-events:none; width:100vw; height:calc(100% + 110px); top:-64px; left:50%; transform:translateX(-50%); overflow:hidden; mask-image:linear-gradient(to bottom,#000 0%,#000 62%,transparent 100%); }
+.lp-drum-backdrop img { position:absolute; width:clamp(780px,78vw,1250px); max-width:none; height:auto; right:-22%; top:-150px; opacity:.12; filter:blur(2px); transform:rotate(-16deg); mask-image:linear-gradient(90deg,transparent 0%,#000 30%); }
+@media(max-width:1000px) { .lp-drum-backdrop img { width:900px; right:-450px; top:80px; opacity:.10; } }
+@media(max-width:600px) { .lp-drum-backdrop img { width:660px; right:-360px; top:70px; opacity:.09; filter:blur(1.5px); } }

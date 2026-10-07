@@ -58,6 +58,7 @@ test('Consistency learning empty error and async scroll reveal', async ({ page }
 });
 
 test('Consistency account pages and profile states', async ({ page }, testInfo) => {
+  await page.route('**/api/user/profile', r => r.fulfill({ json: { success: true, data: { userId: 1, fullName: 'Nguyễn Minh An', email: 'minhan@example.com', role: 'Learner' } } }));
   for (const path of ['/login', '/register', '/profile']) {
     await page.goto(path);
     if (path !== '/profile') await expect(page.locator('.social-button')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
@@ -72,11 +73,11 @@ test('Consistency account pages and profile states', async ({ page }, testInfo) 
 test('Consistency all four lesson formats and locked lesson', async ({ page }, testInfo) => {
   let unlocked = true;
   await page.route('**/api/courses/91', route => route.fulfill({ json: { ...course(), isUnlocked: unlocked } }));
-  await page.route('**/api/lessons/101', route => route.fulfill({ json: { id: 101, title: 'Làm quen thanh âm', type: 'Theory', theory: { content: 'Lắng nghe âm thanh và giữ tư thế thoải mái.\nLuyện tập chậm, đều đặn theo nhịp của bạn.' } } }));
+  await page.route('**/api/lessons/101', route => route.fulfill({ json: { id: 101, title: 'Làm quen thanh âm', type: 'Theory', content: 'Lắng nghe âm thanh và giữ tư thế thoải mái.\nLuyện tập chậm, đều đặn theo nhịp của bạn.' } }));
   await page.route('**/api/lessons/102', route => route.fulfill({ json: { id: 102, title: 'Quan sát cách tạo âm', type: 'Video', video: { content: 'Quan sát và luyện tập theo hướng dẫn.' } } }));
   await page.route('**/api/lessons/102/video-url?*', route => route.fulfill({ json: '' }));
   await page.route('**/api/quizzes/103', route => route.fulfill({ json: { title: 'Kiến thức nhập môn', passPercentage: 70, questions: [{ id: 1, prompt: 'Nên bắt đầu luyện tập như thế nào?', options: [{ id: 1, text: 'Chậm và đều đặn' }, { id: 2, text: 'Nhanh nhất có thể' }] }] } }));
-  await page.route('**/api/practical/104', route => route.fulfill({ json: { title: 'Luyện nốt đầu tiên', expectedNotes: [{ sortOrder: 0, note: 'C4' }, { sortOrder: 1, note: 'D4' }] } }));
+  await page.route('**/api/practical/104', route => route.fulfill({ json: { title: 'Luyện nốt đầu tiên', notes: [{ sortOrder: 0, note: 'C4' }, { sortOrder: 1, note: 'D4' }] } }));
   for (const [i, type] of lessonTypes.entries()) {
     await page.goto(`/lesson/91/chapter/11/lesson/${101+i}`);
     await expect(page.locator('.practice-card')).toBeVisible();

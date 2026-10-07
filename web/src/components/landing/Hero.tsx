@@ -4,6 +4,7 @@ const StringCanvas = lazy(() => import('./StringCanvas'));
 
 export function Hero({ playNote }: { playNote: (id: string, note: string) => void }) {
   return <section className="lp-hero lp-wrap" aria-labelledby="lp-title">
+    <div className="lp-drum-backdrop" aria-hidden="true"><img src="/images/dong-son-drum.svg" alt="" width="1000" height="1000" decoding="async" /></div>
     <div className="lp-hero-copy">
       <p className="lp-label"><span className="lp-rule" /> Di sản Việt · Thanh âm của bạn</p>
       <h1 id="lp-title">Việt Nam<br />trong từng<br /><em>thanh âm.</em></h1>

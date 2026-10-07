@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5205';
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://vrhythm-api-latest.onrender.com').replace(/\/+$/, '');
 
 export type CourseSummary = {
   id: number;
@@ -41,7 +41,7 @@ export type AuthResponse = {
 
 export type UserProfile = Pick<AuthResponse, 'userId' | 'fullName' | 'email' | 'role' | 'avatarUrl'>;
 
-export type LessonDetail = { id: number; title: string; type: string; theory?: { content?: string }; video?: { content?: string; durationSeconds?: number } };
+export type LessonDetail = { id: number; title: string; type: string; content?: string; durationSeconds?: number; theory?: { content?: string }; video?: { content?: string; durationSeconds?: number } };
 export type QuizDetail = { title: string; passPercentage: number; questions: Array<{ id: number; prompt: string; options: Array<{ id: number; text: string }> }> };
 export type PracticalDetail = { title: string; sheetMusicJson?: string; expectedNotes: Array<{ sortOrder: number; note: string }> };
 
@@ -51,12 +51,14 @@ export type LoginPayload = {
 };
 
 export type RegisterPayload = LoginPayload & {
+  confirmPassword: string;
   fullName: string;
 };
 
 const storageKey = 'vrhythm_web_auth';
 
 function normalizeAuth(value: AuthResponse | (Partial<AuthResponse> & { profile?: UserProfile })): AuthResponse | null {
+  if (!value || typeof value !== 'object') return null;
   const profile = 'profile' in value ? value.profile : undefined;
   const token = value.token;
   const userId = value.userId ?? profile?.userId;
@@ -104,23 +106,51 @@ export function courseErrorMessage(error: unknown): string {
   return 'Không thể kết nối để tải khóa học. Vui lòng kiểm tra mạng và thử lại.';
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const auth = authStorage.read();
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-  });
-
-  const data = await res.json().catch(() => null);
-  if (!res.ok) {
-    throw new ApiError(res.status, data?.message ?? 'Request failed');
+function responseMessage(data: any): string {
+  if (data?.errors && typeof data.errors === 'object') {
+    const messages = Object.values(data.errors).flat().filter((item): item is string => typeof item === 'string');
+    if (messages.length) return messages.join(' ');
   }
+  return typeof data?.message === 'string' && data.message ? data.message : 'Yêu cầu chưa thực hiện được. Vui lòng kiểm tra thông tin và thử lại.';
+}
 
-  return (data?.data ?? data) as T;
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const auth = path.startsWith('/api/auth/') ? null : authStorage.read();
+  const controller = new AbortController();
+  let timedOut = false;
+  const cancel = () => controller.abort();
+  init?.signal?.addEventListener('abort', cancel, { once: true });
+  if (init?.signal?.aborted) cancel();
+  const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, 20000);
+  try {
+    const res = await fetch(BASE_URL + path, {
+      ...init, signal: controller.signal,
+      headers: {
+        ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(auth?.token ? { Authorization: 'Bearer ' + auth.token } : {}),
+        ...(init?.headers ?? {}),
+      },
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data?.success === false) throw new ApiError(res.status, responseMessage(data));
+    if (res.status === 204) return undefined as T;
+    if (data === null) throw new Error('Phản hồi máy chủ không hợp lệ. Vui lòng thử lại.');
+    return (typeof data === 'object' && 'data' in data ? data.data : data) as T;
+  } catch (error) {
+    if (timedOut) throw new Error('Máy chủ phản hồi quá lâu. Vui lòng thử lại sau.');
+    if (error instanceof TypeError) throw new Error('Không kết nối được máy chủ. Vui lòng kiểm tra mạng và địa chỉ API.');
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+    init?.signal?.removeEventListener('abort', cancel);
+  }
+}
+
+async function authenticate(path: string, payload: LoginPayload | RegisterPayload): Promise<AuthResponse> {
+  const response = await request<AuthResponse>(path, { method: 'POST', body: JSON.stringify(payload) });
+  const auth = normalizeAuth(response);
+  if (!auth) throw new Error('Máy chủ chưa cấp phiên đăng nhập hợp lệ. Vui lòng thử đăng nhập lại.');
+  return auth;
 }
 
 // Course reads are safe to cancel; never automatically retry enrollment writes.
@@ -142,9 +172,12 @@ async function readCourse<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const api = {
-  getLesson(id: number, signal?: AbortSignal) { return readCourse<LessonDetail>(`/api/lessons/${id}`, signal); },
+  async getLesson(id: number, signal?: AbortSignal) {
+    const data = await readCourse<LessonDetail>(`/api/lessons/${id}`, signal);
+    return { ...data, theory: data.theory ?? (data.type === 'Theory' ? { content: data.content } : undefined), video: data.video ?? (data.type === 'Video' ? { content: data.content, durationSeconds: data.durationSeconds } : undefined) };
+  },
   getQuiz(id: number, signal?: AbortSignal) { return readCourse<QuizDetail>(`/api/quizzes/${id}`, signal); },
-  getPractical(id: number, signal?: AbortSignal) { return readCourse<PracticalDetail>(`/api/practical/${id}`, signal); },
+  async getPractical(id: number, signal?: AbortSignal) { const data = await readCourse<PracticalDetail & { notes?: PracticalDetail["expectedNotes"] }>(`/api/practical/${id}`, signal); return { ...data, expectedNotes: data.expectedNotes ?? data.notes ?? [] }; },
   getVideoUrl(courseId: number, lessonId: number, signal?: AbortSignal) { return readCourse<string>(`/api/lessons/${lessonId}/video-url?courseId=${courseId}`, signal); },
   getCourse(id: number, signal?: AbortSignal) {
     return readCourse<CourseDetail>(`/api/courses/${id}`, signal);
@@ -163,16 +196,10 @@ export const api = {
     return request<object>(`/api/courses/${courseId}/${action}`, { method: 'POST' });
   },
   login(payload: LoginPayload) {
-    return request<AuthResponse>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+    return authenticate('/api/auth/login', { email: payload.email.trim(), password: payload.password });
   },
   register(payload: RegisterPayload) {
-    return request<AuthResponse>('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+    return authenticate('/api/auth/register', { ...payload, fullName: payload.fullName.trim(), email: payload.email.trim() });
   },
   completeTheory(lessonId: number) {
     return request<object>(`/api/theory/${lessonId}/complete`, { method: 'POST' });

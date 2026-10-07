@@ -77,7 +77,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
   const openAuth = (mode: 'login' | 'register' = 'login') => navigate('auth', mode);
-  const signIn = async (data: { fullName?: string; email: string; password: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && instruments.some(item => returnTo === `/learn/${item.id}`)) window.location.assign(returnTo); else navigate('learn'); };
+  const signIn = async (data: { fullName?: string; email: string; password: string; confirmPassword?: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password, confirmPassword: data.confirmPassword ?? '' }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && instruments.some(item => returnTo === `/learn/${item.id}`)) window.location.assign(returnTo); else navigate('learn'); };
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
   const supportSurface = !['home', 'explore'].includes(view) && !(view === 'learn' && !isInstrumentRoute);
   return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
@@ -136,10 +136,22 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
   </main>;
 }
 
-function Profile({ user, onAuth }: { user: AuthResponse | null; onAuth: () => void }) {
+function Profile({ user: cachedUser, onAuth }: { user: AuthResponse | null; onAuth: () => void }) {
+  const [profile, setProfile] = useState(cachedUser);
+  const [profileError, setProfileError] = useState('');
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    let active = true;
+    setProfile(cachedUser); setProfileError('');
+    if (cachedUser) api.getProfile().then(value => {
+      if (active) setProfile({ ...cachedUser, ...value });
+    }).catch(() => { if (active) setProfileError('Chưa cập nhật được hồ sơ. Đang hiển thị thông tin của phiên đăng nhập.'); });
+    return () => { active = false; };
+  }, [cachedUser, retry]);
+  const user = profile;
   if (!user) return <main className="page profile-page"><section className="profile-empty"><div className="section-kicker"><Sparkles size={14} /> Hồ sơ người học</div><UserRound size={38} /><h1>Hồ sơ người học</h1><p>Đăng nhập để xem thông tin tài khoản của bạn.</p><button className="primary" onClick={onAuth}>Đăng nhập</button></section></main>;
   const initials = user.fullName.split(' ').filter(Boolean).slice(-2).map(part => part[0]).join('').toLocaleUpperCase('vi');
-  return <main className="page profile-page"><section className="profile-hero"><div className="profile-avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="Ảnh đại diện" /> : initials}</div><div><div className="section-kicker"><Sparkles size={14} /> Hồ sơ người học</div><h1>{user.fullName}</h1><p>Thông tin tài khoản được đồng bộ trực tiếp từ VRhythm.</p></div></section><section className="profile-details"><div><Mail /><span>Email</span><strong>{user.email}</strong></div><div><ShieldCheck /><span>Vai trò</span><strong>{user.role === 'Learner' ? 'Người học' : user.role}</strong></div><div><UserRound /><span>Mã người dùng</span><strong>#{user.userId}</strong></div></section></main>;
+  return <main className="page profile-page"><section className="profile-hero"><div className="profile-avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="Ảnh đại diện" /> : initials}</div><div><div className="section-kicker"><Sparkles size={14} /> Hồ sơ người học</div><h1>{user.fullName}</h1><p>Thông tin tài khoản VRhythm.</p></div></section><section className="profile-details">{profileError && <div role="alert"><p>{profileError}</p><button onClick={() => setRetry(n => n + 1)}>Thử lại</button></div>}<div><Mail /><span>Email</span><strong>{user.email}</strong></div><div><ShieldCheck /><span>Vai trò</span><strong>{user.role === 'Learner' ? 'Người học' : user.role}</strong></div><div><UserRound /><span>Mã người dùng</span><strong>#{user.userId}</strong></div></section></main>;
 }
 
 function InstrumentPage({ instrument }: { instrument: Instrument }) {

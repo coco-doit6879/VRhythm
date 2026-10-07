@@ -6,7 +6,7 @@ Learner-facing web application for VRhythm. This is intentionally separate from 
 
 - Home narrative and CTA
 - Instrument exploration with reusable cards and detail modal
-- Mock-friendly login/register UI using the existing auth contract
+- Email/password login and registration using the backend auth contract (Google sign-in not configured)
 - Learning dashboard with instrument selection, course cards, XP, streak, progress, and learning path
 - Web Sheet Engine preview component prepared for the full SVG renderer port from the mobile app
 
@@ -28,4 +28,4 @@ npm install
 npm run dev
 ```
 
-The app falls back to local mock course data when the API is unavailable. Set `VITE_API_BASE_URL` to connect to the existing API, for example `http://localhost:5000`.
+The app defaults to https://vrhythm-api-latest.onrender.com for development and production. To use a local backend, set VITE_API_BASE_URL in web/.env.local (for example http://localhost:5205) and restart Vite. API failures display a retry state; course data is not replaced with mock content. See API-AUDIT.md for verified endpoints and limitations.
