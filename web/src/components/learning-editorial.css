@@ -57,3 +57,27 @@
   .learn-editorial .learning-card:hover img { transform:none; }
 }
 .learn-editorial,.ex-page { position:relative; isolation:isolate; z-index:0; }
+
+/* Shared heritage backdrop for the Explore and Learn introductions. */
+:is(.ex-page,.learn-editorial)::before {
+  content:'';
+  position:absolute;
+  z-index:-1;
+  pointer-events:none;
+  top:-55px;
+  left:50%;
+  transform:translateX(-50%);
+  width:100vw;
+  height:850px;
+  background:url('/images/dong-son-drum.svg') no-repeat right -270px top -170px / 1080px 1080px;
+  opacity:.09;
+  filter:blur(2px);
+  clip-path:inset(0);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 35%,transparent 95%);
+}
+@media(max-width:1000px) {
+  :is(.ex-page,.learn-editorial)::before { background-size:850px 850px; background-position:right -390px top -50px; height:950px; opacity:.08; }
+}
+@media(max-width:600px) {
+  :is(.ex-page,.learn-editorial)::before { background-size:660px 660px; background-position:right -340px top 30px; height:800px; opacity:.07; filter:blur(1.5px); }
+}
