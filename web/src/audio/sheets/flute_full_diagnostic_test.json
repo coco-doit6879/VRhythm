@@ -1,0 +1,963 @@
+{
+  "metadata": {
+    "title": "Flute Full Diagnostic Test",
+    "composer": "Diagnostic",
+    "tempo": 60,
+    "sourceNotationTempo": 60,
+    "keySignature": "C",
+    "timeSignature": {
+      "beats": 4,
+      "beatType": 4
+    },
+    "startOffsetBeats": 0,
+    "sourceNotationTransposedOctaves": 0,
+    "sourceMeasures": 30,
+    "arrangement": "Full monophonic flute diagnostic: pitch, duration, articulation, scales, intervals, octave jumps and rapid register changes.",
+    "testSections": [
+      "1. Chromatic pitch sweep C4-C7",
+      "2. Duration sweep on C5: 16, 8, q, q., h",
+      "3. Repeated-note articulation on E5",
+      "4. C-major scale C4-C7 ascending/descending",
+      "5. Increasing intervals from C5",
+      "6. Octave jumps",
+      "7. Fast mixed-register stress test"
+    ]
+  },
+  "notes": [
+    {
+      "id": "m01n01",
+      "pitch": "C4",
+      "duration": "q"
+    },
+    {
+      "id": "m01n02",
+      "pitch": "C#4",
+      "duration": "q"
+    },
+    {
+      "id": "m01n03",
+      "pitch": "D4",
+      "duration": "q"
+    },
+    {
+      "id": "m01n04",
+      "pitch": "D#4",
+      "duration": "q"
+    },
+    {
+      "id": "m01n05",
+      "pitch": "E4",
+      "duration": "q"
+    },
+    {
+      "id": "m01n06",
+      "pitch": "F4",
+      "duration": "q"
+    },
+    {
+      "id": "m01n07",
+      "pitch": "F#4",
+      "duration": "q"
+    },
+    {
+      "id": "m01n08",
+      "pitch": "G4",
+      "duration": "q"
+    },
+    {
+      "id": "m02n01",
+      "pitch": "G#4",
+      "duration": "q"
+    },
+    {
+      "id": "m02n02",
+      "pitch": "A4",
+      "duration": "q"
+    },
+    {
+      "id": "m02n03",
+      "pitch": "A#4",
+      "duration": "q"
+    },
+    {
+      "id": "m02n04",
+      "pitch": "B4",
+      "duration": "q"
+    },
+    {
+      "id": "m02n05",
+      "pitch": "C5",
+      "duration": "q"
+    },
+    {
+      "id": "m02n06",
+      "pitch": "C#5",
+      "duration": "q"
+    },
+    {
+      "id": "m02n07",
+      "pitch": "D5",
+      "duration": "q"
+    },
+    {
+      "id": "m02n08",
+      "pitch": "D#5",
+      "duration": "q"
+    },
+    {
+      "id": "m03n01",
+      "pitch": "E5",
+      "duration": "q"
+    },
+    {
+      "id": "m03n02",
+      "pitch": "F5",
+      "duration": "q"
+    },
+    {
+      "id": "m03n03",
+      "pitch": "F#5",
+      "duration": "q"
+    },
+    {
+      "id": "m03n04",
+      "pitch": "G5",
+      "duration": "q"
+    },
+    {
+      "id": "m03n05",
+      "pitch": "G#5",
+      "duration": "q"
+    },
+    {
+      "id": "m03n06",
+      "pitch": "A5",
+      "duration": "q"
+    },
+    {
+      "id": "m03n07",
+      "pitch": "A#5",
+      "duration": "q"
+    },
+    {
+      "id": "m03n08",
+      "pitch": "B5",
+      "duration": "q"
+    },
+    {
+      "id": "m04n01",
+      "pitch": "C6",
+      "duration": "q"
+    },
+    {
+      "id": "m04n02",
+      "pitch": "C#6",
+      "duration": "q"
+    },
+    {
+      "id": "m04n03",
+      "pitch": "D6",
+      "duration": "q"
+    },
+    {
+      "id": "m04n04",
+      "pitch": "D#6",
+      "duration": "q"
+    },
+    {
+      "id": "m04n05",
+      "pitch": "E6",
+      "duration": "q"
+    },
+    {
+      "id": "m04n06",
+      "pitch": "F6",
+      "duration": "q"
+    },
+    {
+      "id": "m04n07",
+      "pitch": "F#6",
+      "duration": "q"
+    },
+    {
+      "id": "m04n08",
+      "pitch": "G6",
+      "duration": "q"
+    },
+    {
+      "id": "m05n01",
+      "pitch": "G#6",
+      "duration": "q"
+    },
+    {
+      "id": "m05n02",
+      "pitch": "A6",
+      "duration": "q"
+    },
+    {
+      "id": "m05n03",
+      "pitch": "A#6",
+      "duration": "q"
+    },
+    {
+      "id": "m05n04",
+      "pitch": "B6",
+      "duration": "q"
+    },
+    {
+      "id": "m05n05",
+      "pitch": "C7",
+      "duration": "q"
+    },
+    {
+      "id": "m06n01",
+      "pitch": "C5",
+      "duration": "16"
+    },
+    {
+      "id": "m06n02",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n03",
+      "pitch": "C5",
+      "duration": "q"
+    },
+    {
+      "id": "m06n04",
+      "pitch": "C5",
+      "duration": "q."
+    },
+    {
+      "id": "m06n05",
+      "pitch": "C5",
+      "duration": "h"
+    },
+    {
+      "id": "m07n01",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n02",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n03",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n04",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n05",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n06",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n07",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n08",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m09n01",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n02",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n03",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n04",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n05",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n06",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n07",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n08",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m11n01",
+      "pitch": "E5",
+      "duration": "q"
+    },
+    {
+      "id": "m11n02",
+      "pitch": "E5",
+      "duration": "q"
+    },
+    {
+      "id": "m11n03",
+      "pitch": "E5",
+      "duration": "q"
+    },
+    {
+      "id": "m11n04",
+      "pitch": "E5",
+      "duration": "q"
+    },
+    {
+      "id": "m12n01",
+      "pitch": "C4",
+      "duration": "8"
+    },
+    {
+      "id": "m12n02",
+      "pitch": "D4",
+      "duration": "8"
+    },
+    {
+      "id": "m12n03",
+      "pitch": "E4",
+      "duration": "8"
+    },
+    {
+      "id": "m12n04",
+      "pitch": "F4",
+      "duration": "8"
+    },
+    {
+      "id": "m12n05",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m12n06",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m12n07",
+      "pitch": "B4",
+      "duration": "8"
+    },
+    {
+      "id": "m12n08",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m13n01",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m13n02",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m13n03",
+      "pitch": "F5",
+      "duration": "8"
+    },
+    {
+      "id": "m13n04",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m13n05",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m13n06",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m13n07",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m13n08",
+      "pitch": "D6",
+      "duration": "8"
+    },
+    {
+      "id": "m14n01",
+      "pitch": "E6",
+      "duration": "8"
+    },
+    {
+      "id": "m14n02",
+      "pitch": "F6",
+      "duration": "8"
+    },
+    {
+      "id": "m14n03",
+      "pitch": "G6",
+      "duration": "8"
+    },
+    {
+      "id": "m14n04",
+      "pitch": "A6",
+      "duration": "8"
+    },
+    {
+      "id": "m14n05",
+      "pitch": "B6",
+      "duration": "8"
+    },
+    {
+      "id": "m14n06",
+      "pitch": "C7",
+      "duration": "8"
+    },
+    {
+      "id": "m14n07",
+      "pitch": "B6",
+      "duration": "8"
+    },
+    {
+      "id": "m14n08",
+      "pitch": "A6",
+      "duration": "8"
+    },
+    {
+      "id": "m15n01",
+      "pitch": "G6",
+      "duration": "8"
+    },
+    {
+      "id": "m15n02",
+      "pitch": "F6",
+      "duration": "8"
+    },
+    {
+      "id": "m15n03",
+      "pitch": "E6",
+      "duration": "8"
+    },
+    {
+      "id": "m15n04",
+      "pitch": "D6",
+      "duration": "8"
+    },
+    {
+      "id": "m15n05",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m15n06",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m15n07",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m15n08",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m16n01",
+      "pitch": "F5",
+      "duration": "8"
+    },
+    {
+      "id": "m16n02",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m16n03",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m16n04",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m16n05",
+      "pitch": "B4",
+      "duration": "8"
+    },
+    {
+      "id": "m16n06",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m16n07",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m16n08",
+      "pitch": "F4",
+      "duration": "8"
+    },
+    {
+      "id": "m17n01",
+      "pitch": "E4",
+      "duration": "8"
+    },
+    {
+      "id": "m17n02",
+      "pitch": "D4",
+      "duration": "8"
+    },
+    {
+      "id": "m17n03",
+      "pitch": "C4",
+      "duration": "8"
+    },
+    {
+      "id": "m18n01",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m18n02",
+      "pitch": "C#5",
+      "duration": "8"
+    },
+    {
+      "id": "m18n03",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m18n04",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m18n05",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m18n06",
+      "pitch": "D#5",
+      "duration": "8"
+    },
+    {
+      "id": "m18n07",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m18n08",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m19n01",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m19n02",
+      "pitch": "F5",
+      "duration": "8"
+    },
+    {
+      "id": "m19n03",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m19n04",
+      "pitch": "F#5",
+      "duration": "8"
+    },
+    {
+      "id": "m19n05",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m19n06",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m19n07",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m19n08",
+      "pitch": "G#5",
+      "duration": "8"
+    },
+    {
+      "id": "m20n01",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m20n02",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m20n03",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m20n04",
+      "pitch": "A#5",
+      "duration": "8"
+    },
+    {
+      "id": "m20n05",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m20n06",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m20n07",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m20n08",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m21n01",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m21n02",
+      "pitch": "D6",
+      "duration": "8"
+    },
+    {
+      "id": "m21n03",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m21n04",
+      "pitch": "E6",
+      "duration": "8"
+    },
+    {
+      "id": "m21n05",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m21n06",
+      "pitch": "G6",
+      "duration": "8"
+    },
+    {
+      "id": "m21n07",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m21n08",
+      "pitch": "C7",
+      "duration": "8"
+    },
+    {
+      "id": "m23n01",
+      "pitch": "C4",
+      "duration": "8"
+    },
+    {
+      "id": "m23n02",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m23n03",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m23n04",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m23n05",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m23n06",
+      "pitch": "C7",
+      "duration": "8"
+    },
+    {
+      "id": "m23n07",
+      "pitch": "D4",
+      "duration": "8"
+    },
+    {
+      "id": "m23n08",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m24n01",
+      "pitch": "E4",
+      "duration": "8"
+    },
+    {
+      "id": "m24n02",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m24n03",
+      "pitch": "F4",
+      "duration": "8"
+    },
+    {
+      "id": "m24n04",
+      "pitch": "F5",
+      "duration": "8"
+    },
+    {
+      "id": "m24n05",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m24n06",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m24n07",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m24n08",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m25n01",
+      "pitch": "B4",
+      "duration": "8"
+    },
+    {
+      "id": "m25n02",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m26n01",
+      "pitch": "C4",
+      "duration": "16"
+    },
+    {
+      "id": "m26n02",
+      "pitch": "G4",
+      "duration": "16"
+    },
+    {
+      "id": "m26n03",
+      "pitch": "C5",
+      "duration": "16"
+    },
+    {
+      "id": "m26n04",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m26n05",
+      "pitch": "G5",
+      "duration": "16"
+    },
+    {
+      "id": "m26n06",
+      "pitch": "C6",
+      "duration": "16"
+    },
+    {
+      "id": "m26n07",
+      "pitch": "G5",
+      "duration": "16"
+    },
+    {
+      "id": "m26n08",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m27n01",
+      "pitch": "D4",
+      "duration": "16"
+    },
+    {
+      "id": "m27n02",
+      "pitch": "A4",
+      "duration": "16"
+    },
+    {
+      "id": "m27n03",
+      "pitch": "D5",
+      "duration": "16"
+    },
+    {
+      "id": "m27n04",
+      "pitch": "F5",
+      "duration": "16"
+    },
+    {
+      "id": "m27n05",
+      "pitch": "A5",
+      "duration": "16"
+    },
+    {
+      "id": "m27n06",
+      "pitch": "D6",
+      "duration": "16"
+    },
+    {
+      "id": "m27n07",
+      "pitch": "A5",
+      "duration": "16"
+    },
+    {
+      "id": "m27n08",
+      "pitch": "F5",
+      "duration": "16"
+    },
+    {
+      "id": "m28n01",
+      "pitch": "E4",
+      "duration": "16"
+    },
+    {
+      "id": "m28n02",
+      "pitch": "B4",
+      "duration": "16"
+    },
+    {
+      "id": "m28n03",
+      "pitch": "E5",
+      "duration": "16"
+    },
+    {
+      "id": "m28n04",
+      "pitch": "G5",
+      "duration": "16"
+    },
+    {
+      "id": "m28n05",
+      "pitch": "B5",
+      "duration": "16"
+    },
+    {
+      "id": "m28n06",
+      "pitch": "E6",
+      "duration": "16"
+    },
+    {
+      "id": "m28n07",
+      "pitch": "B5",
+      "duration": "16"
+    },
+    {
+      "id": "m28n08",
+      "pitch": "G5",
+      "duration": "16"
+    },
+    {
+      "id": "m29n01",
+      "pitch": "C4",
+      "duration": "16"
+    },
+    {
+      "id": "m29n02",
+      "pitch": "C5",
+      "duration": "16"
+    },
+    {
+      "id": "m29n03",
+      "pitch": "C6",
+      "duration": "16"
+    },
+    {
+      "id": "m29n04",
+      "pitch": "C7",
+      "duration": "16"
+    },
+    {
+      "id": "m29n05",
+      "pitch": "G6",
+      "duration": "16"
+    },
+    {
+      "id": "m29n06",
+      "pitch": "G5",
+      "duration": "16"
+    },
+    {
+      "id": "m29n07",
+      "pitch": "G4",
+      "duration": "16"
+    },
+    {
+      "id": "m29n08",
+      "pitch": "C4",
+      "duration": "16"
+    }
+  ]
+}

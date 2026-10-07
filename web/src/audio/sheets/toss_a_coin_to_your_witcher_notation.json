@@ -1,0 +1,540 @@
+{
+  "metadata": {
+    "title": "Toss A Coin To Your Witcher - visible flute excerpt",
+    "composer": "Sonya Belousova & Giona Ostinelli",
+    "tempo": 95,
+    "keySignature": "Bb minor (5 flats)",
+    "timeSignature": {
+      "beats": 4,
+      "beatType": 4
+    },
+    "startOffsetBeats": 0,
+    "sourceNotationTransposedOctaves": 0,
+    "sourceMeasures": 15,
+    "arrangement": "Monophonic flute line transcribed from the user-provided score image. Piano accompaniment omitted. Flats are written explicitly because the synth does not automatically apply key signatures. Visible tempo changes 95→105→102, dynamics p/mp, rests, slurs and breath points are represented."
+  },
+  "notationGuide": {
+    "pitch": {
+      "examples": [
+        "C5",
+        "C#5",
+        "Bb4"
+      ],
+      "description": "Tên nốt A–G, dấu # hoặc b nếu có, rồi số quãng tám. Engine phát từ C4 đến C7. Dấu bình là tên nốt không có #/b; key signature không tự đổi cao độ."
+    },
+    "duration": {
+      "values": [
+        "w",
+        "h",
+        "q",
+        "8",
+        "e",
+        "16",
+        "s",
+        "q.",
+        "q.."
+      ],
+      "description": "w=4 phách, h=2, q=1, 8/e=1/2, 16/s=1/4. Một chấm nhân 1.5; hai chấm nhân 1.75. Có thể thêm chấm vào mọi loại trường độ."
+    },
+    "rest": {
+      "example": {
+        "id": "rest-example",
+        "rest": true,
+        "duration": "q"
+      },
+      "description": "Dấu lặng chiếm thời gian nhưng không có pitch. Không nối tie hoặc slur qua dấu lặng."
+    },
+    "tempo": {
+      "description": "metadata.tempo là BPM ban đầu (lấy nốt đen làm một phách). tempo trên một entry đổi BPM từ entry đó, kể cả dấu lặng; khoảng hợp lệ >0 đến 300."
+    },
+    "tuplet": {
+      "example": {
+        "actual": 3,
+        "normal": 2
+      },
+      "description": "Liên ba: 3 nốt chiếm thời gian 2 nốt cùng loại. Có thể dùng actual 2–9, normal 1–8; khai báo trên từng nốt thuộc nhóm."
+    },
+    "dynamic": {
+      "values": [
+        "ppp",
+        "pp",
+        "p",
+        "mp",
+        "mf",
+        "f",
+        "ff",
+        "fff"
+      ],
+      "description": "Cường độ hơi từ rất nhẹ đến rất mạnh; có hiệu lực từ entry này cho đến dynamic kế tiếp."
+    },
+    "tie": {
+      "values": [
+        "start",
+        "continue",
+        "stop"
+      ],
+      "description": "Nối các nốt liền kề CÙNG cao độ thành một âm giữ liên tục, không đánh lại."
+    },
+    "slur": {
+      "values": [
+        "start",
+        "continue",
+        "stop"
+      ],
+      "description": "Luyến các cao độ trong cùng một câu, giữ luồng hơi; không được đi qua dấu lặng hoặc lồng nhiều slur. Khác tie."
+    },
+    "articulation": {
+      "values": [
+        "staccato",
+        "tenuto",
+        "accent",
+        "marcato"
+      ],
+      "description": "staccato: tách ngắn; tenuto: liền; accent: nhấn; marcato: nhấn mạnh hơn."
+    },
+    "breathMark": {
+      "example": true,
+      "description": "Đặt trên nốt trước chỗ lấy hơi; rút ngắn phần cuối nốt để tạo khe thở nhỏ."
+    },
+    "startOffsetBeats": {
+      "description": "metadata.startOffsetBeats thêm khoảng chờ tính bằng phách trước nốt đầu tiên (0–16)."
+    }
+  },
+  "notes": [
+    {
+      "id": "m01r01",
+      "rest": true,
+      "duration": "q",
+      "tempo": 95
+    },
+    {
+      "id": "m01n01",
+      "pitch": "C5",
+      "duration": "8.",
+      "dynamic": "p"
+    },
+    {
+      "id": "m01n02",
+      "pitch": "Bb4",
+      "duration": "16"
+    },
+    {
+      "id": "m01n03",
+      "pitch": "Ab4",
+      "duration": "8"
+    },
+    {
+      "id": "m01n04",
+      "pitch": "Gb4",
+      "duration": "8"
+    },
+    {
+      "id": "m01n05",
+      "pitch": "Ab4",
+      "duration": "q"
+    },
+    {
+      "id": "m02r01",
+      "rest": true,
+      "duration": "h"
+    },
+    {
+      "id": "m02n01",
+      "pitch": "C5",
+      "duration": "8."
+    },
+    {
+      "id": "m02n02",
+      "pitch": "Db5",
+      "duration": "16"
+    },
+    {
+      "id": "m02n03",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m02n04",
+      "pitch": "Bb4",
+      "duration": "16"
+    },
+    {
+      "id": "m02n05",
+      "pitch": "Ab4",
+      "duration": "16"
+    },
+    {
+      "id": "m03n01",
+      "pitch": "Ab4",
+      "duration": "q"
+    },
+    {
+      "id": "m03r01",
+      "rest": true,
+      "duration": "8"
+    },
+    {
+      "id": "m03n02",
+      "pitch": "Ab4",
+      "duration": "8"
+    },
+    {
+      "id": "m03n03",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m03n04",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m03n05",
+      "pitch": "Eb5",
+      "duration": "q"
+    },
+    {
+      "id": "m04n01",
+      "pitch": "C5",
+      "duration": "q"
+    },
+    {
+      "id": "m04r01",
+      "rest": true,
+      "duration": "8"
+    },
+    {
+      "id": "m04n02",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m04n03",
+      "pitch": "C5",
+      "duration": "8.",
+      "slur": "start"
+    },
+    {
+      "id": "m04n04",
+      "pitch": "Db5",
+      "duration": "16",
+      "slur": "continue"
+    },
+    {
+      "id": "m04n05",
+      "pitch": "Eb5",
+      "duration": "q",
+      "slur": "continue"
+    },
+    {
+      "id": "m04n06",
+      "pitch": "C5",
+      "duration": "q",
+      "slur": "stop"
+    },
+    {
+      "id": "m05n01",
+      "pitch": "C5",
+      "duration": "q"
+    },
+    {
+      "id": "m05r01",
+      "rest": true,
+      "duration": "q"
+    },
+    {
+      "id": "m05n02",
+      "pitch": "Db5",
+      "duration": "h",
+      "breathMark": true
+    },
+    {
+      "id": "m06r01",
+      "rest": true,
+      "duration": "w",
+      "tempo": 105
+    },
+    {
+      "id": "m07r01",
+      "rest": true,
+      "duration": "q",
+      "tempo": 102
+    },
+    {
+      "id": "m07r02",
+      "rest": true,
+      "duration": "8."
+    },
+    {
+      "id": "m07n01",
+      "pitch": "Gb4",
+      "duration": "16"
+    },
+    {
+      "id": "m07n02",
+      "pitch": "C5",
+      "duration": "8."
+    },
+    {
+      "id": "m07n03",
+      "pitch": "Bb4",
+      "duration": "16"
+    },
+    {
+      "id": "m07n04",
+      "pitch": "Ab4",
+      "duration": "8"
+    },
+    {
+      "id": "m07n05",
+      "pitch": "Gb4",
+      "duration": "8"
+    },
+    {
+      "id": "m08n01",
+      "pitch": "Ab4",
+      "duration": "q.",
+      "slur": "start"
+    },
+    {
+      "id": "m08n02",
+      "pitch": "Gb4",
+      "duration": "16",
+      "slur": "continue"
+    },
+    {
+      "id": "m08n03",
+      "pitch": "Ab4",
+      "duration": "16",
+      "slur": "continue"
+    },
+    {
+      "id": "m08n04",
+      "pitch": "C5",
+      "duration": "8.",
+      "slur": "continue"
+    },
+    {
+      "id": "m08n05",
+      "pitch": "Db5",
+      "duration": "16",
+      "slur": "continue"
+    },
+    {
+      "id": "m08n06",
+      "pitch": "C5",
+      "duration": "8",
+      "slur": "stop"
+    },
+    {
+      "id": "m09n01",
+      "pitch": "Gb4",
+      "duration": "8"
+    },
+    {
+      "id": "m09n02",
+      "pitch": "Ab4",
+      "duration": "q"
+    },
+    {
+      "id": "m09n03",
+      "pitch": "Ab4",
+      "duration": "8"
+    },
+    {
+      "id": "m09n04",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n05",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n06",
+      "pitch": "Eb5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n07",
+      "pitch": "C5",
+      "duration": "8",
+      "slur": "start"
+    },
+    {
+      "id": "m10n01",
+      "pitch": "Db5",
+      "duration": "8",
+      "slur": "stop"
+    },
+    {
+      "id": "m10n02",
+      "pitch": "Ab4",
+      "duration": "q"
+    },
+    {
+      "id": "m10n03",
+      "pitch": "Ab4",
+      "duration": "8"
+    },
+    {
+      "id": "m10n04",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m10n05",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m10n06",
+      "pitch": "Eb5",
+      "duration": "8"
+    },
+    {
+      "id": "m10n07",
+      "pitch": "C5",
+      "duration": "q",
+      "slur": "start"
+    },
+    {
+      "id": "m11n01",
+      "pitch": "Db5",
+      "duration": "h",
+      "slur": "stop"
+    },
+    {
+      "id": "m11r01",
+      "rest": true,
+      "duration": "q"
+    },
+    {
+      "id": "m11n02",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m11n03",
+      "pitch": "Bb4",
+      "duration": "8",
+      "slur": "start"
+    },
+    {
+      "id": "m12n01",
+      "pitch": "C5",
+      "duration": "h",
+      "slur": "stop"
+    },
+    {
+      "id": "m12r01",
+      "rest": true,
+      "duration": "h"
+    },
+    {
+      "id": "m13r01",
+      "rest": true,
+      "duration": "h"
+    },
+    {
+      "id": "m13n01",
+      "pitch": "C5",
+      "duration": "8",
+      "dynamic": "mp"
+    },
+    {
+      "id": "m13n02",
+      "pitch": "Bb4",
+      "duration": "8"
+    },
+    {
+      "id": "m13n03",
+      "pitch": "Ab4",
+      "duration": "8"
+    },
+    {
+      "id": "m13n04",
+      "pitch": "Gb4",
+      "duration": "8"
+    },
+    {
+      "id": "m14n01",
+      "pitch": "Ab4",
+      "duration": "q"
+    },
+    {
+      "id": "m14r01",
+      "rest": true,
+      "duration": "8"
+    },
+    {
+      "id": "m14n02",
+      "pitch": "Gb4",
+      "duration": "8"
+    },
+    {
+      "id": "m14n03",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m14n04",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m14n05",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m14n06",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m14n07",
+      "pitch": "Bb4",
+      "duration": "8"
+    },
+    {
+      "id": "m15n01",
+      "pitch": "Ab4",
+      "duration": "q"
+    },
+    {
+      "id": "m15r01",
+      "rest": true,
+      "duration": "q"
+    },
+    {
+      "id": "m15n02",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m15n03",
+      "pitch": "Db5",
+      "duration": "8"
+    },
+    {
+      "id": "m15n04",
+      "pitch": "Eb5",
+      "duration": "8"
+    },
+    {
+      "id": "m15n05",
+      "pitch": "C5",
+      "duration": "8",
+      "slur": "start"
+    },
+    {
+      "id": "m15n06",
+      "pitch": "Db5",
+      "duration": "q",
+      "slur": "stop",
+      "breathMark": true
+    }
+  ]
+}

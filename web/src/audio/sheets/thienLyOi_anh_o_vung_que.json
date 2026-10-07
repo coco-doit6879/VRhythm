@@ -1,0 +1,194 @@
+{
+  "metadata": {
+    "title": "Thiên Lý Ơi - Anh ở vùng quê",
+    "composer": "J97",
+    "tempo": 65,
+    "sourceNotationTempo": 65,
+    "keySignature": "C",
+    "timeSignature": {
+      "beats": 4,
+      "beatType": 4
+    },
+    "startOffsetBeats": 0,
+    "sourceNotationTransposedOctaves": 0,
+    "sourceMeasures": 7,
+    "arrangement": "Giai điệu sáo đơn âm, bắt đầu từ 'Anh ở vùng quê khu nghèo khó đó' và kết thúc tại 'Em có thể ở lại đây không'."
+  },
+  "notes": [
+    {
+      "id": "m01n01",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m01n02",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m01n03",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m01n04",
+      "pitch": "C5",
+      "duration": "q"
+    },
+    {
+      "id": "m01n05",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m01n06",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m01n07",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m01n08",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m02n01",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m02n02",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m02n03",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m02n04",
+      "pitch": "C5",
+      "duration": "q."
+    },
+    {
+      "id": "m03n01",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m03n02",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m03n03",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m03n04",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m03n05",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m03n06",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m03n07",
+      "pitch": "C5",
+      "duration": "q"
+    },
+    {
+      "id": "m04n01",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m04n02",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m04n03",
+      "pitch": "G4",
+      "duration": "8"
+    },
+    {
+      "id": "m04n04",
+      "pitch": "A4",
+      "duration": "8"
+    },
+    {
+      "id": "m04n05",
+      "pitch": "E4",
+      "duration": "8"
+    },
+    {
+      "id": "m04n06",
+      "pitch": "G4",
+      "duration": "q."
+    },
+    {
+      "id": "m05n01",
+      "pitch": "C5",
+      "duration": "q"
+    },
+    {
+      "id": "m05n02",
+      "pitch": "D5",
+      "duration": "q"
+    },
+    {
+      "id": "m05n03",
+      "pitch": "E5",
+      "duration": "h"
+    },
+    {
+      "id": "m06n01",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n02",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n03",
+      "pitch": "C5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n04",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n05",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n06",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n07",
+      "pitch": "C5",
+      "duration": "q"
+    }
+  ]
+}

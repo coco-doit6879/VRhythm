@@ -1,0 +1,344 @@
+{
+  "metadata": {
+    "title": "A Town With An Ocean View - Part 1",
+    "composer": "Joe Hisaishi",
+    "tempo": 80,
+    "sourceNotationTempo": 100,
+    "keySignature": "G",
+    "timeSignature": {
+      "beats": 4,
+      "beatType": 4
+    },
+    "startOffsetBeats": 0,
+    "sourceNotationTransposedOctaves": 0,
+    "sourceMeasures": 13,
+    "arrangement": "Monophonic flute melody transcribed from the user-provided Part 1 sheet image."
+  },
+  "notes": [
+    {
+      "id": "m01n01",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m01n02",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m01n03",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m01n04",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m01n05",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m01n06",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m01n07",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m01n08",
+      "pitch": "F#5",
+      "duration": "8"
+    },
+    {
+      "id": "m02n01",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m02n02",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m02n03",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m02n04",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m02n05",
+      "pitch": "D6",
+      "duration": "q."
+    },
+    {
+      "id": "m02n06",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m03n01",
+      "pitch": "B5",
+      "duration": "q."
+    },
+    {
+      "id": "m03n02",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m03n03",
+      "pitch": "A5",
+      "duration": "q."
+    },
+    {
+      "id": "m03n04",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m04n01",
+      "pitch": "E6",
+      "duration": "h"
+    },
+    {
+      "id": "m05n01",
+      "pitch": "E6",
+      "duration": "h."
+    },
+    {
+      "id": "m05n02",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n01",
+      "pitch": "D6",
+      "duration": "q."
+    },
+    {
+      "id": "m06n02",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m06n03",
+      "pitch": "D6",
+      "duration": "q."
+    },
+    {
+      "id": "m06n04",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m07n01",
+      "pitch": "B5",
+      "duration": "q"
+    },
+    {
+      "id": "m07n02",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m07n03",
+      "pitch": "G5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n04",
+      "pitch": "A5",
+      "duration": "16"
+    },
+    {
+      "id": "m07n05",
+      "pitch": "B5",
+      "duration": "q"
+    },
+    {
+      "id": "m07n06",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m08n01",
+      "pitch": "F#5",
+      "duration": "8"
+    },
+    {
+      "id": "m08n02",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m08n03",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m08n04",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m08n05",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m08n06",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m08n07",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m08n08",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n01",
+      "pitch": "F#5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n02",
+      "pitch": "E5",
+      "duration": "8"
+    },
+    {
+      "id": "m09n03",
+      "pitch": "E5",
+      "duration": "q."
+    },
+    {
+      "id": "m09n04",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m10n01",
+      "pitch": "D6",
+      "duration": "q."
+    },
+    {
+      "id": "m10n02",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m10n03",
+      "pitch": "B5",
+      "duration": "q"
+    },
+    {
+      "id": "m10n04",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m11n01",
+      "pitch": "B5",
+      "duration": "q"
+    },
+    {
+      "id": "m11n02",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m11n03",
+      "pitch": "G5",
+      "duration": "16"
+    },
+    {
+      "id": "m11n04",
+      "pitch": "A5",
+      "duration": "16"
+    },
+    {
+      "id": "m11n05",
+      "pitch": "A5",
+      "duration": "q."
+    },
+    {
+      "id": "m11n06",
+      "pitch": "D5",
+      "duration": "8"
+    },
+    {
+      "id": "m12n01",
+      "pitch": "F#5",
+      "duration": "8"
+    },
+    {
+      "id": "m12n02",
+      "pitch": "G5",
+      "duration": "8"
+    },
+    {
+      "id": "m12n03",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m12n04",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m12n05",
+      "pitch": "C6",
+      "duration": "8"
+    },
+    {
+      "id": "m12n06",
+      "pitch": "D6",
+      "duration": "8"
+    },
+    {
+      "id": "m12n07",
+      "pitch": "E6",
+      "duration": "8"
+    },
+    {
+      "id": "m12n08",
+      "pitch": "D6",
+      "duration": "8"
+    },
+    {
+      "id": "m12n09",
+      "pitch": "B5",
+      "duration": "8"
+    },
+    {
+      "id": "m12n10",
+      "pitch": "A5",
+      "duration": "8"
+    },
+    {
+      "id": "m13n01",
+      "pitch": "D6",
+      "duration": "h."
+    },
+    {
+      "id": "m13n02",
+      "pitch": "D5",
+      "duration": "8"
+    }
+  ]
+}

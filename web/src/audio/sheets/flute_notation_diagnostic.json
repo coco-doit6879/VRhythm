@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "title": "Thử ký hiệu sheet nhạc",
+    "composer": "VRhythm",
+    "tempo": 100,
+    "startOffsetBeats": 1,
+    "arrangement": "Ví dụ JSON đơn âm cho bộ tổng hợp sáo trúc; mở tại /lab/sao để nghe."
+  },
+  "notationGuide": {
+    "pitch": {
+      "examples": ["C5", "C#5", "Bb4"],
+      "description": "Tên nốt A–G, dấu # hoặc b nếu có, rồi số quãng tám. Engine phát từ C4 đến C7. Dấu bình là tên nốt không có #/b; key signature không tự đổi cao độ."
+    },
+    "duration": {
+      "values": ["w", "h", "q", "8", "e", "16", "s", "q.", "q.."],
+      "description": "w=4 phách, h=2, q=1, 8/e=1/2, 16/s=1/4. Một chấm nhân 1.5; hai chấm nhân 1.75. Có thể thêm chấm vào mọi loại trường độ."
+    },
+    "rest": {
+      "example": { "id": "rest-example", "rest": true, "duration": "q" },
+      "description": "Dấu lặng chiếm thời gian nhưng không có pitch. Không nối tie hoặc slur qua dấu lặng."
+    },
+    "tempo": {
+      "description": "metadata.tempo là BPM ban đầu (lấy nốt đen làm một phách). tempo trên một entry đổi BPM từ entry đó, kể cả dấu lặng; khoảng hợp lệ >0 đến 300."
+    },
+    "tuplet": {
+      "example": { "actual": 3, "normal": 2 },
+      "description": "Liên ba: 3 nốt chiếm thời gian 2 nốt cùng loại. Có thể dùng actual 2–9, normal 1–8; khai báo trên từng nốt thuộc nhóm."
+    },
+    "dynamic": {
+      "values": ["ppp", "pp", "p", "mp", "mf", "f", "ff", "fff"],
+      "description": "Cường độ hơi từ rất nhẹ đến rất mạnh; có hiệu lực từ entry này cho đến dynamic kế tiếp."
+    },
+    "tie": {
+      "values": ["start", "continue", "stop"],
+      "description": "Nối các nốt liền kề CÙNG cao độ thành một âm giữ liên tục, không đánh lại."
+    },
+    "slur": {
+      "values": ["start", "continue", "stop"],
+      "description": "Luyến các cao độ trong cùng một câu, giữ luồng hơi; không được đi qua dấu lặng hoặc lồng nhiều slur. Khác tie."
+    },
+    "articulation": {
+      "values": ["staccato", "tenuto", "accent", "marcato"],
+      "description": "staccato: tách ngắn; tenuto: liền; accent: nhấn; marcato: nhấn mạnh hơn."
+    },
+    "breathMark": {
+      "example": true,
+      "description": "Đặt trên nốt trước chỗ lấy hơi; rút ngắn phần cuối nốt để tạo khe thở nhỏ."
+    },
+    "startOffsetBeats": {
+      "description": "metadata.startOffsetBeats thêm khoảng chờ tính bằng phách trước nốt đầu tiên (0–16)."
+    }
+  },
+  "notes": [
+    { "id": "n01", "pitch": "C5", "duration": "q", "dynamic": "mp", "slur": "start" },
+    { "id": "n02", "pitch": "C#5", "duration": "8", "slur": "continue" },
+    { "id": "n03", "pitch": "D5", "duration": "8", "slur": "stop" },
+    { "id": "n04", "pitch": "E5", "duration": "q", "tie": "start" },
+    { "id": "n05", "pitch": "E5", "duration": "8", "tie": "continue" },
+    { "id": "n06", "pitch": "E5", "duration": "8", "tie": "stop" },
+    { "id": "r01", "rest": true, "duration": "8" },
+    { "id": "n07", "pitch": "G5", "duration": "8", "articulation": "staccato", "dynamic": "f" },
+    { "id": "n08", "pitch": "A5", "duration": "q", "articulation": "accent" },
+    { "id": "n09", "pitch": "G5", "duration": "q", "articulation": "tenuto" },
+    { "id": "n10", "pitch": "F5", "duration": "8", "tuplet": { "actual": 3, "normal": 2 } },
+    { "id": "n11", "pitch": "E5", "duration": "8", "tuplet": { "actual": 3, "normal": 2 } },
+    { "id": "n12", "pitch": "D5", "duration": "8", "tuplet": { "actual": 3, "normal": 2 } },
+    { "id": "r02", "rest": true, "duration": "q", "tempo": 80, "dynamic": "p" },
+    { "id": "n13", "pitch": "D5", "duration": "q", "breathMark": true },
+    { "id": "n14", "pitch": "C5", "duration": "q..", "articulation": "marcato" },
+    { "id": "n15", "pitch": "Bb4", "duration": "h", "dynamic": "pp" },
+    { "id": "n16", "pitch": "C5", "duration": "w", "dynamic": "mf" },
+    { "id": "n17", "pitch": "G5", "duration": "16", "dynamic": "ff" },
+    { "id": "n18", "pitch": "A5", "duration": "s", "dynamic": "fff" },
+    { "id": "n19", "pitch": "G5", "duration": "e", "dynamic": "ppp" },
+    { "id": "n20", "pitch": "F5", "duration": "q.", "dynamic": "mp" },
+    { "id": "r03", "rest": true, "duration": "16" },
+    { "id": "n21", "pitch": "E5", "duration": "h", "dynamic": "p" }
+  ]
+}
