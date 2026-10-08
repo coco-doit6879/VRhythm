@@ -49,9 +49,16 @@
 .app-shell.support-shell .auth-card input::placeholder { color:var(--lp-muted); }
 .app-shell.support-shell .auth-card .social-button { background:transparent; color:var(--lp-ink)!important; border-color:var(--lp-line); border-radius:0; min-height:48px; }
 .app-shell.support-shell .social-button:hover { background:#34483a; }
-.support-shell .profile-empty,.support-shell .profile-hero,.support-shell .profile-details { background:#29382d; border:1px solid var(--lp-line); border-radius:0; box-shadow:none; }
+.support-shell .profile-empty,.support-shell .profile-hero,.support-shell .profile-details,.support-shell .profile-stat-card,.support-shell .profile-journey { background:#29382d; border:1px solid var(--lp-line); border-radius:0; box-shadow:none; }
 .support-shell .profile-avatar { color:var(--lp-paper); background:var(--lp-orange); }
 .support-shell .profile-details strong { overflow-wrap:anywhere; }
+.support-shell .profile-stat-icon { background:rgba(232,141,53,.14); color:var(--lp-orange); border-radius:0; }
+.support-shell .profile-stat-val { color:var(--lp-ink); }
+.support-shell .profile-stat-lbl { color:var(--lp-muted); }
+.support-shell .profile-secondary-btn { background:transparent; color:var(--lp-ink); border:1px solid var(--lp-line); border-radius:0; min-height:48px; }
+.support-shell .profile-secondary-btn:hover { background:#34483a; border-color:var(--lp-orange); }
+.support-shell .profile-alert { background:#24362a; border:1px solid rgba(244,162,97,.45); border-radius:0; color:var(--lp-ink); }
+.support-shell .profile-alert-btn { background:var(--lp-orange); color:var(--lp-paper)!important; border-radius:0; min-height:48px; }
 .app-shell.support-shell .course-player .practice-card,.app-shell.support-shell .course-player .lesson-sidebar { background:#29382d; color:var(--lp-ink); border-color:var(--lp-line); border-radius:0; }
 .app-shell.support-shell .course-player .lesson-header h1 { font-size:clamp(32px,4vw,52px); }
 .app-shell.support-shell .course-player .lesson-content h2 { font-size:28px; }

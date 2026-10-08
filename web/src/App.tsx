@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './instrument-pages.css';
 import { BambooFluteArticle } from './components/BambooFluteArticle';
 import { LandingPage } from './components/landing/LandingPage';
-import { ArrowLeft, ArrowRight, Landmark, Mail, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ArrowRight, Award, BookOpen, CheckCircle2, Compass, Landmark, LogOut, Mail, RefreshCw, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
 import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
@@ -11,7 +11,7 @@ import { InstrumentStory } from './components/InstrumentStory';
 import { useScrollReveal } from './components/useScrollReveal';
 import { LessonPlayer } from './components/LessonPlayer';
 import { instruments, type Instrument } from './data/mock';
-import { api, authStorage, courseErrorMessage, type AuthResponse, type CourseSummary, type LearnerCourseSummary } from './services/api';
+import { api, authStorage, courseErrorMessage, ApiError, type AuthResponse, type CourseSummary, type LearnerCourseSummary } from './services/api';
 
 type View = 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson';
 type LessonRoute = { courseId: number; chapterId: number; lessonId: number };
@@ -87,7 +87,7 @@ export default function App() {
     {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
     {view === 'learn' && selectedInstrument && <InstrumentLearning instrument={selectedInstrument} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} onLesson={openLesson} />}
     {view === 'learn' && !isInstrumentRoute && <Learn user={authUser} courses={courses} loading={coursesLoading} error={coursesError} onAuth={() => openAuth('login')} onOpenLesson={openLesson} onRefresh={loadCourses} />}
-    {view === 'profile' && <Profile user={authUser} onAuth={() => openAuth('login')} />}
+    {view === 'profile' && <Profile user={authUser} onAuth={() => openAuth('login')} onSignOut={signOut} onNavigate={navigate} />}
     {view === 'lesson' && <LessonPlayer route={lessonRoute} onBack={() => navigate('learn')} onOpenLesson={openLesson} />}
     {view === 'auth' && <main className="page"><AuthPanel mode={authMode} onModeChange={mode => navigate('auth', mode)} onSubmit={signIn} /></main>}
   </div>;
@@ -131,22 +131,153 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
   </main>;
 }
 
-function Profile({ user: cachedUser, onAuth }: { user: AuthResponse | null; onAuth: () => void }) {
+function Profile({
+  user: cachedUser,
+  onAuth,
+  onSignOut,
+  onNavigate,
+}: {
+  user: AuthResponse | null;
+  onAuth: () => void;
+  onSignOut: () => void;
+  onNavigate: (view: View) => void;
+}) {
   const [profile, setProfile] = useState(cachedUser);
   const [profileError, setProfileError] = useState('');
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [learnerCourses, setLearnerCourses] = useState<LearnerCourseSummary[]>([]);
+
   useEffect(() => {
     let active = true;
-    setProfile(cachedUser); setProfileError('');
-    if (cachedUser) api.getProfile().then(value => {
-      if (active) setProfile({ ...cachedUser, ...value });
-    }).catch(() => { if (active) setProfileError('Chưa cập nhật được hồ sơ. Đang hiển thị thông tin của phiên đăng nhập.'); });
+    setProfile(cachedUser);
+    setProfileError('');
+    setIsSessionExpired(false);
+
+    if (cachedUser) {
+      setRefreshing(true);
+      const profilePromise = api.getProfile().then(value => {
+        if (active) {
+          setProfile({ ...cachedUser, ...value });
+          setProfileError('');
+        }
+      }).catch((err: unknown) => {
+        if (!active) return;
+        if (err instanceof ApiError && err.status === 401) {
+          setIsSessionExpired(true);
+          setProfileError('Phiên đăng nhập đã hết hạn. Đang hiển thị thông tin lưu trên thiết bị, vui lòng đăng nhập lại để cập nhật.');
+        } else {
+          setIsSessionExpired(false);
+          setProfileError('Chưa thể đồng bộ hồ sơ mới nhất từ máy chủ. Đang hiển thị thông tin lưu trên thiết bị.');
+        }
+      });
+
+      const coursesPromise = api.getLearnerCourses().then(list => {
+        if (active && Array.isArray(list)) setLearnerCourses(list);
+      }).catch(() => {});
+
+      Promise.allSettled([profilePromise, coursesPromise]).finally(() => {
+        if (active) setRefreshing(false);
+      });
+    }
+
     return () => { active = false; };
   }, [cachedUser, retry]);
   const user = profile;
   if (!user) return <main className="page profile-page"><section className="profile-empty"><div className="section-kicker"><Sparkles size={14} /> Hồ sơ người học</div><UserRound size={38} /><h1>Hồ sơ người học</h1><p>Đăng nhập để xem thông tin tài khoản của bạn.</p><button className="primary" onClick={onAuth}>Đăng nhập</button></section></main>;
   const initials = user.fullName.split(' ').filter(Boolean).slice(-2).map(part => part[0]).join('').toLocaleUpperCase('vi');
-  return <main className="page profile-page"><section className="profile-hero"><div className="profile-avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="Ảnh đại diện" /> : initials}</div><div><div className="section-kicker"><Sparkles size={14} /> Hồ sơ người học</div><h1>{user.fullName}</h1><p>Thông tin tài khoản VRhythm.</p></div></section><section className="profile-details">{profileError && <div role="alert"><p>{profileError}</p><button onClick={() => setRetry(n => n + 1)}>Thử lại</button></div>}<div><Mail /><span>Email</span><strong>{user.email}</strong></div><div><ShieldCheck /><span>Vai trò</span><strong>{user.role === 'Learner' ? 'Người học' : user.role}</strong></div><div><UserRound /><span>Mã người dùng</span><strong>#{user.userId}</strong></div></section></main>;
+  const enrolledCourses = learnerCourses.filter(c => c.isEnrolled);
+  const completedLessons = enrolledCourses.reduce((sum, c) => sum + (c.completedLessons || 0), 0);
+  const avgProgress = enrolledCourses.length
+    ? Math.round(enrolledCourses.reduce((sum, c) => sum + (c.progressPercent || 0), 0) / enrolledCourses.length)
+    : 0;
+
+  return (
+    <main className="page profile-page">
+      <section className="profile-hero">
+        <div className="profile-avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="Ảnh đại diện" /> : initials}</div>
+        <div className="profile-hero-info">
+          <div className="profile-kicker-row">
+            <span className="section-kicker"><Sparkles size={14} /> Hồ sơ người học</span>
+            <span className="profile-role-badge">{user.role === 'Learner' ? 'Học viên VRhythm' : user.role}</span>
+          </div>
+          <h1>{user.fullName}</h1>
+          <p>Thông tin tài khoản VRhythm · Cùng giữ gìn giai điệu dân tộc.</p>
+        </div>
+        <div className="profile-hero-actions">
+          <button className="primary profile-hero-btn" onClick={() => onNavigate('learn')}>
+            Tiếp tục học <ArrowRight size={16} />
+          </button>
+          <button className="profile-secondary-btn" onClick={onSignOut}>
+            <LogOut size={15} /> Đăng xuất
+          </button>
+        </div>
+      </section>
+
+      {profileError && (
+        <div className="profile-alert" role="alert">
+          <div className="profile-alert-content">
+            <AlertCircle size={20} className="profile-alert-icon" />
+            <div className="profile-alert-text">
+              <strong>{isSessionExpired ? 'Phiên đăng nhập đã hết hạn' : 'Đồng bộ hồ sơ'}</strong>
+              <p>{profileError}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="profile-alert-btn"
+            onClick={() => (isSessionExpired ? onAuth() : setRetry(n => n + 1))}
+            disabled={refreshing}
+          >
+            <RefreshCw size={14} className={refreshing ? 'spin-icon' : ''} />
+            {isSessionExpired ? 'Đăng nhập lại' : (refreshing ? 'Đang thử lại...' : 'Thử lại')}
+          </button>
+        </div>
+      )}
+
+      <section className="profile-stats-grid" aria-label="Thống kê học tập">
+        <div className="profile-stat-card">
+          <div className="profile-stat-icon"><BookOpen size={20} /></div>
+          <div>
+            <div className="profile-stat-val">{enrolledCourses.length}</div>
+            <div className="profile-stat-lbl">Khóa học đăng ký</div>
+          </div>
+        </div>
+        <div className="profile-stat-card">
+          <div className="profile-stat-icon"><CheckCircle2 size={20} /></div>
+          <div>
+            <div className="profile-stat-val">{completedLessons}</div>
+            <div className="profile-stat-lbl">Bài học hoàn thành</div>
+          </div>
+        </div>
+        <div className="profile-stat-card">
+          <div className="profile-stat-icon"><Award size={20} /></div>
+          <div>
+            <div className="profile-stat-val">{avgProgress}%</div>
+            <div className="profile-stat-lbl">Tiến độ tổng thể</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="profile-details" aria-label="Chi tiết tài khoản">
+        <div><Mail /><span>Email tài khoản</span><strong>{user.email}</strong></div>
+        <div><ShieldCheck /><span>Vai trò hệ thống</span><strong>{user.role === 'Learner' ? 'Người học' : user.role}</strong></div>
+        <div><UserRound /><span>Mã người dùng</span><strong>#{user.userId}</strong></div>
+      </section>
+
+      <section className="profile-journey">
+        <div className="profile-journey-text">
+          <span className="section-kicker"><Compass size={14} /> Khám phá nhạc cụ dân tộc</span>
+          <h2>Tìm hiểu 6 nhạc cụ truyền thống</h2>
+          <p>Khám phá âm sắc, câu chuyện lịch sử và cấu tạo của Sáo trúc, Đàn bầu, Đàn tranh, Đàn nguyệt, Đàn tỳ bà và Đàn nhị.</p>
+        </div>
+        <button className="primary" onClick={() => onNavigate('explore')}>
+          Khám phá ngay <ArrowRight size={16} />
+        </button>
+      </section>
+    </main>
+  );
 }
 
 function InstrumentPage({ instrument }: { instrument: Instrument }) {

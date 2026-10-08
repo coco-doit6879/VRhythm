@@ -70,6 +70,20 @@ test('Consistency account pages and profile states', async ({ page }, testInfo) 
   await audit(page, testInfo, 'profile-signed-in');
 });
 
+test('Consistency profile error fallback and alert layout', async ({ page }, testInfo) => {
+  await page.route('**/api/user/profile', r => r.fulfill({ status: 500, json: { success: false, message: 'Server error' } }));
+  await page.goto('/profile');
+  await page.evaluate(() => localStorage.setItem('vrhythm_web_auth', JSON.stringify({ userId: 4, fullName: 'Thành Trung', email: 'thanhtrungshark29@gmail.com', role: 'Learner', token: 'test-fixture-only' })));
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Thành Trung' })).toBeVisible();
+  const alert = page.locator('.profile-alert');
+  await expect(alert).toBeVisible();
+  await expect(alert.getByRole('button', { name: /Thử lại/ })).toBeVisible();
+  const details = page.locator('.profile-details > div');
+  await expect(details).toHaveCount(3);
+  await audit(page, testInfo, 'profile-error-fallback');
+});
+
 test('Consistency all four lesson formats and locked lesson', async ({ page }, testInfo) => {
   let unlocked = true;
   await page.route('**/api/courses/91', route => route.fulfill({ json: { ...course(), isUnlocked: unlocked } }));
