@@ -154,6 +154,15 @@ test('Consistency profile enrolled courses and learning resume', async ({ page }
   await expect(cards.first()).toContainText('3 / 8 bài học');
   await expect(cards.last()).toContainText('Đã hoàn thành');
   await audit(page, testInfo, 'profile-enrolled-courses');
+
+  await page.goto('/learn');
+  await expect(page.getByRole('heading', { name: 'Khóa học của bạn' })).toBeVisible();
+  const learnCards = page.locator('.learning-enrolled-section .profile-course-card');
+  await expect(learnCards).toHaveCount(2);
+  await expect(learnCards.first()).toContainText('Nhập môn Sáo trúc');
+  await audit(page, testInfo, 'learn-enrolled-courses');
+
+  await page.goto('/profile');
   await cards.first().getByRole('button', { name: 'Tiếp tục học' }).click();
   await expect(page).toHaveURL(/\/lesson\/91\/chapter\/11\/lesson\/104$/);
 });

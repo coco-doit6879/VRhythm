@@ -83,6 +83,10 @@
 }
 
 .learn-editorial .learning-intro { display:block; max-width:760px; padding-bottom:50px; }
+.learn-editorial .learning-enrolled-section { margin-bottom:60px; padding-bottom:50px; border-bottom:1px solid var(--lp-line); }
+.learn-editorial .learning-enrolled-header { margin-bottom:28px; }
+.learn-editorial .learning-enrolled-header h2 { font-family:var(--lp-serif); font-size:clamp(30px,3.3vw,44px); font-weight:400; font-style:normal; color:var(--lp-ink); margin:10px 0 6px; line-height:1.25; }
+.learn-editorial .learning-enrolled-header p { color:var(--lp-muted); font-size:14px; line-height:1.7; margin:0; }
 .ex-intro-grid { margin-bottom:35px; }
 .ex-archive { padding-top:40px; }
 .ex-card-bottom { justify-content:flex-end; }
