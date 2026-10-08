@@ -13,7 +13,7 @@
   text-align: center;
   font-family: 'Playfair Display', serif !important;
   font-weight: 700 !important;
-  font-style: italic !important;
+  font-style: normal !important;
   letter-spacing: 0;
   margin: 16px 0 24px;
 }
@@ -43,7 +43,7 @@
   font-family: 'Playfair Display', serif !important;
   font-size: clamp(38px, 5.2vw, 68px) !important;
   line-height: 1.25;
-  font-style: italic !important;
+  font-style: normal !important;
   font-weight: 700 !important;
   text-transform: none !important;
   text-align: center !important;
@@ -85,7 +85,7 @@
   text-align: center;
   font-family: 'Playfair Display', serif !important;
   font-weight: 700 !important;
-  font-style: italic !important;
+  font-style: normal !important;
   letter-spacing: 0;
   margin: 10px 0 0;
 }

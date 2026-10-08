@@ -244,7 +244,7 @@ function Profile({
         if (active && Array.isArray(list)) setLearnerCourses(list);
       }).catch(() => {});
 
-      Promise.allSettled([profilePromise, coursesPromise]).finally(() => {
+      profilePromise.finally(() => {
         if (active) setRefreshing(false);
       });
     }

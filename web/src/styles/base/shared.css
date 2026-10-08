@@ -104,7 +104,7 @@ select { font-family:'Be Vietnam Pro', sans-serif; font-variant-numeric:tabular-
 h1,
 h2,
 h3,
-.page-intro h1 { font-family:'Playfair Display', serif; font-style:italic; }
+.page-intro h1 { font-family:'Playfair Display', serif; font-style:normal; }
 .stat-row strong,
 .streak-card strong,
 .progress-label strong { font-variant-numeric:tabular-nums; }

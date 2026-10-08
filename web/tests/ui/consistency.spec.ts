@@ -72,6 +72,7 @@ test('Consistency account pages and profile states', async ({ page }, testInfo) 
 
 test('Consistency profile error fallback and alert layout', async ({ page }, testInfo) => {
   await page.route('**/api/user/profile', r => r.fulfill({ status: 500, json: { success: false, message: 'Server error' } }));
+  await page.route('**/api/courses/learning', r => r.fulfill({ json: [] }));
   await page.goto('/profile');
   await page.evaluate(() => localStorage.setItem('vrhythm_web_auth', JSON.stringify({ userId: 4, fullName: 'Thành Trung', email: 'thanhtrungshark29@gmail.com', role: 'Learner', token: 'test-fixture-only' })));
   await page.reload();

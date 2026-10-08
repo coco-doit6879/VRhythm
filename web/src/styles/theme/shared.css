@@ -25,7 +25,8 @@ button,
 input,
 select,
 textarea { font-family:'Be Vietnam Pro',sans-serif; }
-.app-shell :is(h1,h2,h3,h4) { font-family:'Playfair Display',serif!important; font-style:italic!important; }
+.app-shell :is(h1,h2,h3,h4) { font-family:'Playfair Display',serif!important; font-style:normal; }
+.app-shell :is(h1,h2,h3,h4) em { font-style:italic; }
 .app-shell :is(.brand-mark,.logo-sigil,.logo-sigil span,.hero-proof strong,.stat-row strong,.streak-card strong,.focus-card strong,.target-note strong,.score-number,.quiz-prompt,.flute-controls strong,.chapter-group h3,.chapter-group h3 small,.pitch-readout strong,.practice-top strong,.story-number,.fact-column b,.instrument-switch>span,.carousel-active-label) { font-family:'Be Vietnam Pro',sans-serif; }
 .app-shell :is(h1,h2,h3) { line-height:1.3; }
 .app-shell :is(h1,h2) { font-weight:700; }

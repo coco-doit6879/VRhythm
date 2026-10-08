@@ -4,7 +4,7 @@
 .story-back { display:inline-flex; gap:12px; align-items:center; min-height:44px; font-size:12px; color:var(--lp-muted)!important; }
 .story-hero { display:grid; grid-template-columns:1.05fr 1fr; gap:70px; align-items:center; padding:35px 0 60px; }
 .story-label { font:500 10px/1.8 var(--lp-sans); text-transform:uppercase; letter-spacing:1.5px; color:var(--lp-orange); }
-.app-shell.landing-shell .story-page :is(h1,h2) { font-family:var(--lp-serif); font-weight:400; font-style:italic; }
+.app-shell.landing-shell .story-page :is(h1,h2) { font-family:var(--lp-serif); font-weight:400; font-style:normal; }
 .story-page h1 { font-size:clamp(54px,6vw,86px); line-height:1.2; margin:22px 0; }
 .story-tone { font:italic 25px/1.5 var(--lp-serif); color:var(--lp-orange); }
 .story-lead { font-size:15px; line-height:1.9; color:var(--lp-muted); max-width:470px; margin:24px 0 30px; }
@@ -40,7 +40,7 @@
 .landing-shell .flute-article a { color:var(--lp-orange); }
 .landing-shell .flute-back { min-height:44px; align-items:center; gap:10px; }
 .landing-shell .flute-heading { display:grid; grid-template-columns:1fr .85fr; align-items:center; gap:80px; max-width:none; padding:35px 0 60px; }
-.app-shell.landing-shell .flute-article :is(h1,h2,h3) { font-family:var(--lp-serif); font-weight:400; font-style:italic; }
+.app-shell.landing-shell .flute-article :is(h1,h2,h3) { font-family:var(--lp-serif); font-weight:400; font-style:normal; }
 .landing-shell .flute-heading h1 { font-size:clamp(60px,6vw,88px); line-height:1.2; margin:20px 0; letter-spacing:-2px; }
 .landing-shell .flute-heading-deck { font:italic 400 clamp(32px,3.3vw,48px)/1.35 var(--lp-serif); margin:0 0 25px; }
 .landing-shell .flute-heading-deck em { color:var(--lp-orange); }

@@ -4,7 +4,7 @@
 .explore-page { padding-top:0; }
 .explore-hero:where(.explore-page, .explore-page *) { min-height:440px; display:grid; grid-template-columns:1fr 340px; gap:40px; align-items:center; padding:64px 0 54px; }
 .explore-hero-copy:where(.explore-page, .explore-page *) { width:100%; }
-.explore-hero-copy:where(.explore-page, .explore-page *) h1 { max-width:900px; margin:18px 0 22px; font:italic 500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',serif; letter-spacing:-1.2px; text-wrap:balance; }
+.explore-hero-copy:where(.explore-page, .explore-page *) h1 { max-width:900px; margin:18px 0 22px; font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',serif; letter-spacing:-1.2px; text-wrap:balance; }
 .explore-hero-copy:where(.explore-page, .explore-page *) h1 em { color:var(--orange); }
 .explore-hero-copy:where(.explore-page, .explore-page *) p { max-width:650px; margin:0; color:var(--muted); font-size:16px; line-height:1.75; }
 
@@ -22,7 +22,7 @@
 .heritage-guide:where(.explore-page, .explore-page *) strong { font-size:16px; font-weight:700; }
 .heritage-guide:where(.explore-page, .explore-page *) small { color:var(--muted); font-size:13px; line-height:1.45; }
 .archive-heading:where(.explore-page, .explore-page *) { display:flex; align-items:end; justify-content:space-between; gap:30px; margin-bottom:30px; }
-.archive-heading:where(.explore-page, .explore-page *) h2 { margin:10px 0 0; font:italic 500 clamp(30px,4vw,44px)/1.2 'Playfair Display',serif; letter-spacing:-.5px; }
+.archive-heading:where(.explore-page, .explore-page *) h2 { margin:10px 0 0; font:500 clamp(30px,4vw,44px)/1.2 'Playfair Display',serif; letter-spacing:-.5px; }
 .explore-page .explore-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
 .explore-page .instrument-card { display:grid; grid-template-columns:46% 54%; height:320px; min-height:320px; }
 .explore-page .instrument-art { height:320px; min-height:320px; background:linear-gradient(135deg,#2D6A4F,#1A2E22); }
@@ -31,7 +31,7 @@
 .explore-page .instrument-card:hover .instrument-art img { transform:scale(1.06); }
 .explore-page .instrument-card-copy { display:flex; flex-direction:column; align-items:flex-start; padding:34px 30px 28px; }
 .explore-page .instrument-card-copy small { max-width:85%; font:700 11px/1.55 'Be Vietnam Pro',sans-serif; letter-spacing:1.1px; }
-.explore-page .instrument-card h3 { margin:14px 0 13px; font:italic 600 31px/1.12 'Playfair Display',serif; letter-spacing:-.3px; }
+.explore-page .instrument-card h3 { margin:14px 0 13px; font:600 31px/1.12 'Playfair Display',serif; letter-spacing:-.3px; }
 .explore-page .instrument-card p { display:-webkit-box; overflow:hidden; margin:0; color:var(--muted); font:400 13px/1.7 'Be Vietnam Pro',sans-serif; -webkit-box-orient:vertical; -webkit-line-clamp:3; }
 
 @media (max-width:900px) {
