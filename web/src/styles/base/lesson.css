@@ -339,10 +339,10 @@
   }
 }
 .lesson-header:where(.lesson-page, .lesson-page *) h1,
-.target-note:where(.lesson-page, .lesson-page *) strong { font-family:'Playfair Display', Georgia, 'Times New Roman', serif; }
+.target-note:where(.lesson-page, .lesson-page *) strong { font-family:'Playfair Display', serif; font-style:italic; }
 .practice-top:where(.lesson-page, .lesson-page *) strong { font-variant-numeric:tabular-nums; }
 .practice-top:where(.lesson-page, .lesson-page *) strong {
-  font-family:'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+  font-family:'Be Vietnam Pro', sans-serif;
   font-variant-numeric:lining-nums tabular-nums;
   font-feature-settings:'lnum' 1, 'tnum' 1;
   line-height:1;
@@ -352,7 +352,7 @@
 .chapter-group:where(.lesson-page, .lesson-page *) .lesson-item { width:100%; text-align:left; background:transparent; }
 .pitch-recorder:where(.lesson-page, .lesson-page *) { margin-top:28px; padding-top:24px; border-top:1px solid var(--line); }
 .recorder-heading:where(.lesson-page, .lesson-page *) { display:flex; align-items:center; justify-content:space-between; gap:16px; }
-.recorder-heading:where(.lesson-page, .lesson-page *) h3 { margin:7px 0 0; font:600 23px 'Playfair Display',Georgia,serif; }
+.recorder-heading:where(.lesson-page, .lesson-page *) h3 { margin:7px 0 0; font:italic 600 23px 'Playfair Display',serif; }
 .record-button:where(.lesson-page, .lesson-page *) { display:inline-flex; align-items:center; gap:7px; padding:10px 13px; color:#fff; border-radius:5px; background:var(--teal); font-size:12px; font-weight:700; }
 .record-button:where(.lesson-page, .lesson-page *).active { background:var(--orange); }
 .pitch-readout:where(.lesson-page, .lesson-page *) { display:flex; align-items:baseline; gap:12px; margin-top:22px; }
@@ -363,7 +363,7 @@
 .pitch-result:where(.lesson-page, .lesson-page *).adjust { color:var(--orange); }
 .recorder-error:where(.lesson-page, .lesson-page *) { margin:10px 0 0; color:#c85c48; font-size:12px; }
 @media (max-width:620px) { .recorder-heading:where(.lesson-page, .lesson-page *) { align-items:flex-start; flex-direction:column; }.record-button:where(.lesson-page, .lesson-page *) { width:100%; justify-content:center; }.pitch-readout:where(.lesson-page, .lesson-page *) { margin-top:18px; } }
-.lesson-content:where(.lesson-page, .lesson-page *) h2 { margin:10px 0 14px; font:500 clamp(28px,3vw,42px)/1.1 'Playfair Display',Georgia,serif; }
+.lesson-content:where(.lesson-page, .lesson-page *) h2 { margin:10px 0 14px; font:italic 500 clamp(28px,3vw,42px)/1.1 'Playfair Display',serif; }
 .lesson-content:where(.lesson-page, .lesson-page *)>p { max-width:680px; color:var(--muted); line-height:1.8; }
 .content-kicker:where(.lesson-page, .lesson-page *) { color:var(--teal); font-size:11px; font-weight:700; letter-spacing:1.3px; text-transform:uppercase; }
 .lesson-points:where(.lesson-page, .lesson-page *) { display:grid; gap:12px; margin-top:28px; }

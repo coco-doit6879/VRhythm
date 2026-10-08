@@ -94,25 +94,25 @@ body { background:radial-gradient(circle at 8% 2%,rgba(82,183,136,.13) 0,transpa
 .focus-card svg { color:#f1b66d; }
 .focus-card small,
 .focus-card span { color:#d5e8e2; font-size:11px; }
-.focus-card strong { font:600 21px/1.25 'Playfair Display',Georgia,serif; }
+.focus-card strong { font:italic 600 21px/1.25 'Playfair Display',serif; }
 .course-state { min-height:150px; display:grid; place-items:center; gap:12px; padding:30px; color:var(--muted); border:1px dashed var(--line); border-radius:8px; text-align:center; }
 .course-state.error { color:#c85c48; }
 body,
 button,
 input,
-select { font-family:'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; font-variant-numeric:tabular-nums; }
+select { font-family:'Be Vietnam Pro', sans-serif; font-variant-numeric:tabular-nums; }
 h1,
 h2,
 h3,
-.page-intro h1 { font-family:'Playfair Display', Georgia, 'Times New Roman', serif; }
+.page-intro h1 { font-family:'Playfair Display', serif; font-style:italic; }
 .stat-row strong,
 .streak-card strong,
 .progress-label strong { font-variant-numeric:tabular-nums; }
-.sheet-clef { font-family:'Times New Roman', 'Segoe UI Symbol', serif; }
+.sheet-clef { font-family:'Playfair Display', serif; font-style:italic; }
 .stat-row strong,
 .streak-card strong,
 .progress-label strong {
-  font-family:'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+  font-family:'Be Vietnam Pro', sans-serif;
   font-variant-numeric:lining-nums tabular-nums;
   font-feature-settings:'lnum' 1, 'tnum' 1;
   line-height:1;
@@ -122,7 +122,7 @@ h3,
 .video-frame iframe { width:100%; height:100%; border:0; }
 .video-note { margin:14px 0 5px; font-size:12px; }
 .family-filters { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-.family-filters button { flex:0 0 auto; padding:9px 16px; color:var(--muted); border:1px solid var(--line); border-radius:99px; background:var(--cream); font:700 12px 'Be Vietnam Pro','Segoe UI',sans-serif; }
+.family-filters button { flex:0 0 auto; padding:9px 16px; color:var(--muted); border:1px solid var(--line); border-radius:99px; background:var(--cream); font:700 12px 'Be Vietnam Pro',sans-serif; }
 .family-filters button:hover,
 .family-filters button.active { color:#fff; border-color:var(--teal); background:var(--teal); }
 .profile-link { display:inline-flex; align-items:center; gap:7px; margin-top:auto; padding-top:23px; color:var(--teal); font-size:12px; font-weight:700; }
@@ -132,8 +132,8 @@ h3,
 .heritage-modal .modal-art img { object-fit:contain!important; padding:36px 20px; image-rendering:-webkit-optimize-contrast; filter:drop-shadow(0 16px 28px rgba(0,0,0,0.25)); }
 .modal-image-caption { position:absolute; left:24px; bottom:22px; padding:8px 11px; color:#fff; border-radius:3px; background:rgba(24,43,34,.72); font-size:11px; letter-spacing:.9px; text-transform:uppercase; }
 .heritage-content { padding:58px 52px 48px; }
-.heritage-content h2 { margin:13px 0 4px; font:500 50px/1.08 'Playfair Display',Georgia,serif; letter-spacing:-.7px; }
-.heritage-content .modal-lead { margin-top:18px; color:var(--ink); font:500 18px/1.75 'Playfair Display',serif; }
+.heritage-content h2 { margin:13px 0 4px; font:italic 500 50px/1.08 'Playfair Display',serif; letter-spacing:-.7px; }
+.heritage-content .modal-lead { margin-top:18px; color:var(--ink); font:italic 500 18px/1.75 'Playfair Display',serif; }
 .heritage-metadata { display:grid; grid-template-columns:1fr 1fr; gap:0; margin:34px 0 12px; border-block:1px solid var(--line); }
 .heritage-metadata span { display:grid; gap:6px; padding:18px 16px 18px 0; }
 .heritage-metadata span:nth-child(odd) { border-right:1px solid var(--line); }
@@ -144,7 +144,7 @@ h3,
 .heritage-metadata strong { font-size:15px; line-height:1.5; }
 .story-section { display:grid; grid-template-columns:36px 1fr; gap:16px; padding:28px 0; border-bottom:1px solid var(--line); }
 .story-number { color:var(--orange); font:700 15px 'Be Vietnam Pro',sans-serif; }
-.story-section h3 { margin:0 0 10px; font:600 22px 'Playfair Display',serif; }
+.story-section h3 { margin:0 0 10px; font:italic 600 22px 'Playfair Display',serif; }
 .story-section p { margin:0; color:var(--muted); font-size:15px; line-height:1.8; }
 .story-section ul { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none; }
 .story-section li { padding:8px 14px; color:var(--teal); border:1px solid var(--line); border-radius:4px; background:color-mix(in srgb,var(--teal) 8%,transparent); font-size:13px; font-weight:600; }

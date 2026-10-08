@@ -4,7 +4,7 @@
 .profile-avatar:where(.profile-page, .profile-page *) { width:104px; height:104px; flex:0 0 auto; display:grid; place-items:center; overflow:hidden; color:var(--ink); border-radius:50%; background:#f1b66d; font-size:30px; font-weight:700; }
 .profile-avatar:where(.profile-page, .profile-page *) img { width:100%; height:100%; object-fit:cover; }
 .profile-hero:where(.profile-page, .profile-page *) .section-kicker { color:#f1b66d; }
-.profile-hero:where(.profile-page, .profile-page *) h1 { margin:10px 0 8px; font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',Georgia,serif; letter-spacing:-1.2px; }
+.profile-hero:where(.profile-page, .profile-page *) h1 { margin:10px 0 8px; font:italic 500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',serif; letter-spacing:-1.2px; }
 .profile-hero:where(.profile-page, .profile-page *) p { margin:0; color:#d5e8e2; }
 
 .profile-hero-info:where(.profile-page, .profile-page *) { flex:1; }
@@ -26,7 +26,7 @@
 .profile-stats-grid:where(.profile-page, .profile-page *) { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:24px; }
 .profile-stat-card:where(.profile-page, .profile-page *) { display:flex; align-items:center; gap:16px; padding:20px 22px; border:1px solid var(--line); border-radius:10px; background:var(--cream); }
 .profile-stat-icon:where(.profile-page, .profile-page *) { width:44px; height:44px; display:grid; place-items:center; border-radius:8px; background:rgba(241,182,109,.15); color:var(--orange); flex-shrink:0; }
-.profile-stat-val:where(.profile-page, .profile-page *) { font:500 26px/1.1 'Playfair Display',Georgia,serif; color:var(--ink); }
+.profile-stat-val:where(.profile-page, .profile-page *) { font:700 26px/1.1 'Be Vietnam Pro',sans-serif; color:var(--ink); font-variant-numeric:tabular-nums; }
 .profile-stat-lbl:where(.profile-page, .profile-page *) { font-size:12px; color:var(--muted); margin-top:4px; }
 
 .profile-details:where(.profile-page, .profile-page *) { display:grid; grid-template-columns:repeat(3,1fr); margin-top:24px; border:1px solid var(--line); border-radius:10px; background:var(--cream); }
