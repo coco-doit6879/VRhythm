@@ -37,7 +37,8 @@
 .support-shell .auth-story { background:transparent; border:0; border-radius:0; padding:25px 0; }
 .app-shell.support-shell .auth-editorial-title { font-size:clamp(44px,5vw,72px); line-height:1.3; margin:24px 0; }
 .support-shell .auth-editorial-title :is(span,em) { display:block; }
-.app-shell.support-shell .auth-editorial-title em { color:var(--lp-orange); font-style:italic; }
+.app-shell.support-shell .auth-editorial-title em { color:var(--lp-orange); font-family:'Playfair Display',serif!important; font-style:italic; }
+.support-shell em { font-family:'Playfair Display',serif!important; font-style:italic; }
 .support-shell .auth-story .quote { color:var(--lp-muted)!important; font-size:14px; line-height:1.9; }
 .support-shell .auth-card { background:#29382d; border:1px solid var(--lp-line); border-radius:0; box-shadow:none; padding:35px; }
 .app-shell.support-shell .auth-card h2 { font-size:29px; }

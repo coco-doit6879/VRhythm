@@ -5,7 +5,7 @@
 .explore-hero:where(.explore-page, .explore-page *) { min-height:440px; display:grid; grid-template-columns:1fr 340px; gap:40px; align-items:center; padding:64px 0 54px; }
 .explore-hero-copy:where(.explore-page, .explore-page *) { width:100%; }
 .explore-hero-copy:where(.explore-page, .explore-page *) h1 { max-width:900px; margin:18px 0 22px; font:700 clamp(38px, 5vw, 60px)/1.18 'Be Vietnam Pro',sans-serif; letter-spacing:-1.2px; text-wrap:balance; }
-.explore-hero-copy:where(.explore-page, .explore-page *) h1 em { color:var(--orange); }
+.explore-hero-copy:where(.explore-page, .explore-page *) h1 em { color:var(--orange); font-family:'Playfair Display',serif!important; font-style:italic; }
 .explore-hero-copy:where(.explore-page, .explore-page *) p { max-width:650px; margin:0; color:var(--muted); font-size:16px; line-height:1.75; }
 
 .explore-hero-card:where(.explore-page, .explore-page *) { padding:30px; border-radius:12px; background:#132218; border:1px solid #2A4035; color:#fff; box-shadow:var(--shadow); display:grid; gap:18px; }

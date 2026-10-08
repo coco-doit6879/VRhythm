@@ -9,7 +9,7 @@
   letter-spacing:-.035em;
   text-wrap:balance;
 }
-.app-shell .page :is(h1,h2) em { font-style:italic; color:var(--orange); }
+.app-shell .page :is(h1,h2) em { font-family:'Playfair Display',serif!important; font-style:italic; color:var(--orange); }
 .app-shell .page h2 { font-family:'Be Vietnam Pro', sans-serif; font-style:normal; font-weight:700; line-height:1.3; text-wrap:balance; }
 .keep-together { white-space:nowrap; }
 .app-shell :is(button,a):focus-visible { outline:3px solid var(--teal); outline-offset:4px; }

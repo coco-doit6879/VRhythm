@@ -6,7 +6,8 @@
 .story-label { font:500 10px/1.8 var(--lp-sans); text-transform:uppercase; letter-spacing:1.5px; color:var(--lp-orange); }
 .app-shell.landing-shell .story-page :is(h1,h2) { font-family:var(--lp-serif); font-weight:700; font-style:normal; }
 .story-page h1 { font-size:clamp(54px,6vw,86px); line-height:1.2; margin:22px 0; }
-.story-tone { font:italic 25px/1.5 var(--lp-serif); color:var(--lp-orange); }
+.story-tone { font:italic 25px/1.5 'Playfair Display',serif; color:var(--lp-orange); }
+.story-page em { font-family:'Playfair Display',serif!important; font-style:italic; color:var(--lp-orange); }
 .story-lead { font-size:15px; line-height:1.9; color:var(--lp-muted); max-width:470px; margin:24px 0 30px; }
 .landing-shell .story-button { display:inline-flex; align-items:center; gap:28px; padding:16px 22px; min-height:50px; color:var(--lp-paper); background:var(--lp-orange); text-decoration:none; font:500 12px var(--lp-sans); }
 .story-latin { display:block; font:italic 14px var(--lp-serif); color:var(--lp-muted); margin-top:35px; }
@@ -43,7 +44,7 @@
 .app-shell.landing-shell .flute-article :is(h1,h2,h3) { font-family:var(--lp-serif); font-weight:700; font-style:normal; }
 .landing-shell .flute-heading h1 { font-size:clamp(60px,6vw,88px); line-height:1.2; margin:20px 0; letter-spacing:-2px; }
 .landing-shell .flute-heading-deck { font:italic 400 clamp(32px,3.3vw,48px)/1.35 var(--lp-serif); margin:0 0 25px; }
-.landing-shell .flute-heading-deck em { color:var(--lp-orange); }
+.landing-shell .flute-heading-deck em { color:var(--lp-orange); font-family:'Playfair Display',serif!important; font-style:italic; }
 .landing-shell .flute-subtitle { color:var(--lp-muted); font-size:14px; max-width:440px; margin:0 0 30px; }
 .landing-shell .flute-article .story-button { color:var(--lp-paper); }
 .flute-portrait { margin:0; }

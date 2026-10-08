@@ -1,7 +1,7 @@
 /* auth: base. Keep page/component layout within its boundary. */
 .auth-layout { min-height:620px; display:grid; grid-template-columns:1fr 440px; align-items:center; gap:100px; }
 .auth-story:where(.auth-layout, .auth-layout *) h1 { max-width:650px; margin:18px 0 22px; font:700 clamp(38px, 5vw, 60px)/1.18 'Be Vietnam Pro',sans-serif; letter-spacing:-1.2px; }
-.auth-story:where(.auth-layout, .auth-layout *) h1 em { color:var(--orange); }
+.auth-story:where(.auth-layout, .auth-layout *) h1 em { color:var(--orange); font-family:'Playfair Display',serif!important; font-style:italic; }
 
 .app-shell .auth-story:where(.auth-layout, .auth-layout *) h1.auth-script-title,
 .auth-script-title {
