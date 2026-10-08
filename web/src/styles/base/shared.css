@@ -1,20 +1,7 @@
 /* shared: base. Keep page/component layout within its boundary. */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap');
-@font-face {
-  font-family: 'Bachelorette';
-  src: url('/fonts/bachelorette.otf') format('opentype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Bachelorette';
-  src: url('/fonts/bachelorette.otf') format('opentype');
-  font-weight: 100 900;
-  font-style: italic;
-  font-display: swap;
-}
-:root { --ink:#24342f; --muted:#718079; --paper:#f6f2e9; --cream:#fcfaf5; --line:#dfe1d6; --teal:#3e7169; --orange:#d98b46; --shadow:0 24px 60px rgba(47,62,52,.10); font-family:'DM Sans',sans-serif; color:var(--ink); background:var(--paper); }
+
+
+:root { --ink:#24342f; --muted:#718079; --paper:#f6f2e9; --cream:#fcfaf5; --line:#dfe1d6; --teal:#3e7169; --orange:#d98b46; --shadow:0 24px 60px rgba(47,62,52,.10); font-family:'Be Vietnam Pro',sans-serif; color:var(--ink); background:var(--paper); }
 * { box-sizing:border-box; } body { margin:0; background:radial-gradient(circle at 8% 2%,#fff8e7 0,transparent 30%),var(--paper); } button,
 input,
 select { font:inherit; } button { cursor:pointer; border:0; color:inherit; } .app-shell { min-height:100vh; }.text-button { display:inline-flex; align-items:center; gap:8px; background:transparent; color:var(--muted); font-weight:600; }.page { width:min(1200px,calc(100% - 48px)); margin:auto; padding:70px 0 100px; }.eyebrow,
@@ -43,7 +30,7 @@ h2 em { color:var(--orange); }.page-intro>p { max-width:540px; color:var(--muted
 .page-intro,
 .dashboard-top,
 .home-cta { align-items:start; flex-direction:column; }.home-cta { padding:30px; margin-top:70px; }.dashboard-top h1 { font-size:44px; }.stat-row { grid-template-columns:1fr; }.stat-row>div { border-right:0; border-bottom:1px solid var(--line); }.sheet-canvas { padding:15px; gap:9px; }.sheet-controls { flex-wrap:wrap; }.sheet-progress { flex-basis:100%; margin:8px 0 0; }.instrument-modal { grid-template-columns:1fr; max-height:90vh; overflow:auto; }.modal-art { min-height:180px; }.modal-art span { font-size:90px; }.modal-content { padding:30px 24px; } }
-.sheet-svg-wrap { width:100%; overflow-x:auto; background:#fbf9f1; }.sheet-svg { display:block; min-width:620px; width:100%; height:auto; }.sheet-lines line { stroke:#263630; stroke-width:1.2; }.sheet-clef { fill:#263630; font:76px 'Playfair Display'; }.sheet-time { fill:#263630; font:600 20px 'DM Sans'; }.sheet-bar { stroke:#88968c; stroke-width:1; }.sheet-bar.final { stroke:#263630; stroke-width:1.5; }.sheet-note { color:#263630; }.sheet-note.active { color:var(--orange); }.note-head { fill:#fbf9f1; stroke:currentColor; stroke-width:2.2; }.note-head.filled { fill:currentColor; }.note-stem,
+.sheet-svg-wrap { width:100%; overflow-x:auto; background:#fbf9f1; }.sheet-svg { display:block; min-width:620px; width:100%; height:auto; }.sheet-lines line { stroke:#263630; stroke-width:1.2; }.sheet-clef { fill:#263630; font:76px 'Playfair Display'; }.sheet-time { fill:#263630; font:600 20px 'Be Vietnam Pro'; }.sheet-bar { stroke:#88968c; stroke-width:1; }.sheet-bar.final { stroke:#263630; stroke-width:1.5; }.sheet-note { color:#263630; }.sheet-note.active { color:var(--orange); }.note-head { fill:#fbf9f1; stroke:currentColor; stroke-width:2.2; }.note-head.filled { fill:currentColor; }.note-stem,
 .sheet-ledger { stroke:currentColor; stroke-width:2; }.note-flag { fill:none; stroke:currentColor; stroke-width:2; }.sheet-cursor { stroke:var(--orange); stroke-width:2; stroke-dasharray:5 4; opacity:.9; }.real-sheet { margin:25px 0; padding:18px 8px; border-block:1px solid var(--line); background:#fbf9f1; }.real-sheet .sheet-svg { min-width:760px; }.sheet-canvas { overflow:hidden; }.sheet-canvas .sheet-svg-wrap { min-height:180px; }
 .instrument-art img,
 .modal-art img { width:100%; height:100%; display:block; object-fit:cover; }.instrument-art span,
@@ -113,7 +100,7 @@ body { background:radial-gradient(circle at 8% 2%,rgba(82,183,136,.13) 0,transpa
 body,
 button,
 input,
-select { font-family:'DM Sans', 'Segoe UI', Arial, sans-serif; font-variant-numeric:tabular-nums; }
+select { font-family:'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; font-variant-numeric:tabular-nums; }
 h1,
 h2,
 h3,
@@ -125,7 +112,7 @@ h3,
 .stat-row strong,
 .streak-card strong,
 .progress-label strong {
-  font-family:'DM Sans', 'Segoe UI', Arial, sans-serif;
+  font-family:'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
   font-variant-numeric:lining-nums tabular-nums;
   font-feature-settings:'lnum' 1, 'tnum' 1;
   line-height:1;
@@ -135,7 +122,7 @@ h3,
 .video-frame iframe { width:100%; height:100%; border:0; }
 .video-note { margin:14px 0 5px; font-size:12px; }
 .family-filters { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-.family-filters button { flex:0 0 auto; padding:9px 16px; color:var(--muted); border:1px solid var(--line); border-radius:99px; background:var(--cream); font:700 12px 'DM Sans','Segoe UI',sans-serif; }
+.family-filters button { flex:0 0 auto; padding:9px 16px; color:var(--muted); border:1px solid var(--line); border-radius:99px; background:var(--cream); font:700 12px 'Be Vietnam Pro','Segoe UI',sans-serif; }
 .family-filters button:hover,
 .family-filters button.active { color:#fff; border-color:var(--teal); background:var(--teal); }
 .profile-link { display:inline-flex; align-items:center; gap:7px; margin-top:auto; padding-top:23px; color:var(--teal); font-size:12px; font-weight:700; }
@@ -156,7 +143,7 @@ h3,
 .modal-cultural-note small { color:var(--muted); font-size:11px; font-weight:700; letter-spacing:1.1px; text-transform:uppercase; }
 .heritage-metadata strong { font-size:15px; line-height:1.5; }
 .story-section { display:grid; grid-template-columns:36px 1fr; gap:16px; padding:28px 0; border-bottom:1px solid var(--line); }
-.story-number { color:var(--orange); font:700 15px 'DM Sans',sans-serif; }
+.story-number { color:var(--orange); font:700 15px 'Be Vietnam Pro',sans-serif; }
 .story-section h3 { margin:0 0 10px; font:600 22px 'Playfair Display',serif; }
 .story-section p { margin:0; color:var(--muted); font-size:15px; line-height:1.8; }
 .story-section ul { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none; }

@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Patrick+Hand&display=swap');
 
 .flute-article { color:#263d42; background:radial-gradient(ellipse at 100% 0%,#eed1bc 0,transparent 28%),radial-gradient(ellipse at 0% 35%,#d4e8e4 0,transparent 38%),#f0ecde; font-family:'Be Vietnam Pro',sans-serif; padding:32px 0 80px; }
 .flute-wrap { width:min(1220px,calc(100% - 64px)); margin:auto; }
@@ -11,7 +10,7 @@
 .flute-script-title {
   max-width: 100%;
   text-align: center;
-  font-family: 'Bachelorette', cursive, 'Playfair Display', serif !important;
+  font-family: 'Playfair Display', serif !important;
   font-weight: 700 !important;
   font-style: italic !important;
   letter-spacing: 0;
@@ -67,9 +66,9 @@
 .flute-culture .flute-photo { margin:0; }
 .flute-culture img { aspect-ratio:4/5; object-position:44% center; }
 .flute-paper { margin:32px 0; padding:30px; background:radial-gradient(ellipse at top left,#d9c09870,transparent 65%),repeating-linear-gradient(0deg,transparent 0 31px,#98845b10 31px 32px),#f0e1bd; box-shadow:0 8px 25px #76604015; border:1px solid #d8c69f; border-radius:3px 14px 4px 8px; color:#504736; }
-.flute-paper .flute-paper-title { font:30px 'Patrick Hand',cursive; text-align:center; margin:0 0 12px; }
+.flute-paper .flute-paper-title { font:30px 'Playfair Display',cursive; text-align:center; margin:0 0 12px; }
 .flute-table-scroll { overflow-x:auto; }
-.flute-paper table { width:100%; min-width:530px; border-collapse:collapse; font:20px/1.5 'Patrick Hand',cursive; }
+.flute-paper table { width:100%; min-width:530px; border-collapse:collapse; font:20px/1.5 'Playfair Display',cursive; }
 .flute-paper caption { font:11px/1.8 'Be Vietnam Pro',sans-serif; text-align:center; margin-bottom:24px; }
 .flute-paper th,.flute-paper td { padding:15px 12px; text-align:left; vertical-align:top; border-bottom:1px solid #a9957159; }
 .flute-paper th { font-weight:400; }

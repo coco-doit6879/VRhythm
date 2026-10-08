@@ -8,7 +8,7 @@ import type { InstrumentSynth } from '../../audio/instrumentSynth';
 import { Hero } from './Hero';
 import { InstrumentIndex } from './InstrumentIndex';
 import { InstrumentChapter } from './InstrumentChapter';
-import { QuoteSection, FinalCTA } from './ClosingSections';
+import { FinalCTA } from './ClosingSections';
 import { chapters } from './instruments';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -45,6 +45,20 @@ export function LandingPage() {
         element.addEventListener('focusin', revealOnFocus);
         cleanups.push(() => element.removeEventListener('focusin', revealOnFocus));
       });
+      root.current?.querySelectorAll<HTMLElement>('.lp-chapter').forEach((section, index) => {
+        const image = section.querySelector<HTMLImageElement>('.lp-chapter-art img');
+        if (!image) return;
+        const smallScreen = window.matchMedia('(max-width: 620px)').matches;
+        const tilt = smallScreen ? 3 : 6;
+        const travel = smallScreen ? 6 : 12;
+        const direction = index % 2 === 0 ? 1 : -1;
+        const baseRotation = Number(gsap.getProperty(image, 'rotation')) || 0;
+        gsap.fromTo(image,
+          { yPercent: travel, rotation: baseRotation - tilt * direction },
+          { yPercent: -travel, rotation: baseRotation + tilt * direction, ease: 'none',
+            scrollTrigger: { trigger: section, start: 'top bottom', end: 'bottom top', scrub: .7, invalidateOnRefresh: true } }
+        );
+      });
       let active = true;
       void document.fonts.ready.then(() => { if (active) ScrollTrigger.refresh(); });
       return () => { active = false; cleanups.forEach(cleanup => cleanup()); };
@@ -53,8 +67,6 @@ export function LandingPage() {
       const lenis = new Lenis({ duration: 1.05, anchors: { offset: -90 } });
       const tick = (time: number) => lenis.raf(time * 1000);
       lenis.on('scroll', ScrollTrigger.update); gsap.ticker.add(tick);
-      gsap.from('.lp-final-left', { x: -100, rotation: -12, scrollTrigger: { trigger: '.lp-final', start: 'top bottom', end: 'center 65%', scrub: .5 } });
-      gsap.from('.lp-final-right', { x: 100, rotation: 12, scrollTrigger: { trigger: '.lp-final', start: 'top bottom', end: 'center 65%', scrub: .5 } });
       void document.fonts.ready.then(() => { if (mounted.current) ScrollTrigger.refresh(); });
       return () => { gsap.ticker.remove(tick); lenis.destroy(); };
     });
@@ -70,9 +82,9 @@ export function LandingPage() {
     <a className="lp-skip" href="#nhac-cu">Đến danh sách nhạc cụ</a>
     <Hero playNote={playNote} />
     <InstrumentIndex playNote={playNote} />
-    <div className="lp-chapters-heading lp-wrap"><p className="lp-label">02 / Tìm thanh âm của bạn</p><h2>Mỗi nhạc cụ,<br /><i>một khởi đầu.</i></h2><p>Không cần biết chơi từ trước.<br />Chỉ cần một thanh âm bạn yêu thích.</p></div>
-    {chapters.map((chapter, index) => <InstrumentChapter key={chapter.id} chapter={chapter} index={index} />)}
-    <QuoteSection /><FinalCTA />
-    <div className="lp-sound-control"><span role="status">{audioError ? 'Trình duyệt chưa bật được âm thanh. Hãy thử lại.' : ''}</span><button disabled={!ready || audioPending} aria-label={sound ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-pressed={sound} onClick={() => void toggleSound()}>{sound ? <Volume2 size={17} /> : <VolumeX size={17} />}<span>Âm thanh {sound ? 'bật' : 'tắt'}</span></button></div>
+    <div className="lp-chapters-heading lp-wrap"><p className="lp-label">Nhạc cụ nổi bật</p><h2>Mỗi nhạc cụ,<br /><i>một khởi đầu</i></h2><p>Không cần biết chơi từ trước<br />Chỉ cần một thanh âm bạn yêu thích</p></div>
+    {chapters.map(chapter => <InstrumentChapter key={chapter.id} chapter={chapter} />)}
+    <FinalCTA />
+    <div className="lp-sound-control"><span role="status">{audioError ? 'Trình duyệt chưa bật được âm thanh. Hãy thử lại' : ''}</span><button disabled={!ready || audioPending} aria-label={sound ? 'Tắt âm thanh' : 'Bật âm thanh'} aria-pressed={sound} onClick={() => void toggleSound()}>{sound ? <Volume2 size={17} /> : <VolumeX size={17} />}<span>Âm thanh {sound ? 'bật' : 'tắt'}</span></button></div>
   </main>;
 }

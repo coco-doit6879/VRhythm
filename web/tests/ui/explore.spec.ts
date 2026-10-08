@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('Explore layout, images, wrapping and touch targets', async ({ page }, testInfo) => {
   await page.goto('/explore');
   await page.evaluate(() => document.fonts.ready);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mỗi nhạc cụ,một câu chuyệnvăn hóa.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Mỗi nhạc cụ,một câu chuyệnvăn hóa');
   expect(await page.getByRole('heading', { level: 1 }).evaluate(el => getComputedStyle(el).fontFamily)).toContain('Playfair Display');
   await expect(page.locator('.ex-card')).toHaveCount(6);
   await expect(page.locator('.nav button[aria-current=page]')).toHaveText('Khám phá');

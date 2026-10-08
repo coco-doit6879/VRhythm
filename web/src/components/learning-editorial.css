@@ -81,3 +81,8 @@
 @media(max-width:600px) {
   :is(.ex-page,.learn-editorial)::before { background-size:660px 660px; background-position:right -340px top 30px; height:800px; opacity:.07; filter:blur(1.5px); }
 }
+
+.learn-editorial .learning-intro { display:block; max-width:760px; padding-bottom:50px; }
+.ex-intro-grid { margin-bottom:35px; }
+.ex-archive { padding-top:40px; }
+.ex-card-bottom { justify-content:flex-end; }
