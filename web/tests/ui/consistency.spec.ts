@@ -13,7 +13,7 @@ async function audit(page: Page, info: TestInfo, name: string) {
     targets: [...document.querySelectorAll('main .primary, main input, main summary')].filter(el => el.getBoundingClientRect().width > 0 && !(el instanceof HTMLInputElement && ['radio','checkbox'].includes(el.type))).every(el => el.getBoundingClientRect().height >= 44),
   }));
   expect(geometry.overflow).toBeLessThanOrEqual(1);
-  if (geometry.font) expect(geometry.font).toContain('Playfair Display');
+  if (geometry.font) expect(geometry.font).toContain('Be Vietnam Pro');
   expect(geometry.targets).toBe(true);
   await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
   await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true });

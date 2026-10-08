@@ -1,13 +1,13 @@
 /* auth: base. Keep page/component layout within its boundary. */
 .auth-layout { min-height:620px; display:grid; grid-template-columns:1fr 440px; align-items:center; gap:100px; }
-.auth-story:where(.auth-layout, .auth-layout *) h1 { max-width:650px; margin:18px 0 22px; font:500 clamp(38px, 5vw, 60px)/1.18 'Playfair Display',serif; letter-spacing:-1.2px; }
+.auth-story:where(.auth-layout, .auth-layout *) h1 { max-width:650px; margin:18px 0 22px; font:700 clamp(38px, 5vw, 60px)/1.18 'Be Vietnam Pro',sans-serif; letter-spacing:-1.2px; }
 .auth-story:where(.auth-layout, .auth-layout *) h1 em { color:var(--orange); }
 
 .app-shell .auth-story:where(.auth-layout, .auth-layout *) h1.auth-script-title,
 .auth-script-title {
   max-width: 100%;
   text-align: center;
-  font-family: 'Playfair Display', serif !important;
+  font-family: 'Be Vietnam Pro', sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
   letter-spacing: 0;
@@ -47,7 +47,7 @@
 .auth-tabs:where(.auth-layout, .auth-layout *) { display:flex; gap:20px; border-bottom:1px solid var(--line); margin-bottom:28px; }
 .auth-tabs:where(.auth-layout, .auth-layout *) button { padding:0 0 14px; background:transparent; color:var(--muted); font-weight:700; border-bottom:2px solid transparent; }
 .auth-tabs:where(.auth-layout, .auth-layout *) button.active { color:var(--teal); border-bottom-color:var(--orange); }
-.auth-card:where(.auth-layout, .auth-layout *) h2 { margin:0; font:500 30px 'Playfair Display'; }
+.auth-card:where(.auth-layout, .auth-layout *) h2 { margin:0; font:700 30px 'Be Vietnam Pro',sans-serif; }
 .auth-card:where(.auth-layout, .auth-layout *) form { display:grid; gap:16px; margin-top:25px; }
 .auth-card:where(.auth-layout, .auth-layout *) label { display:grid; gap:7px; font-size:12px; font-weight:700; }
 .auth-card:where(.auth-layout, .auth-layout *) input { width:100%; padding:12px 13px; border:1px solid var(--line); border-radius:4px; background:#fffdfa; outline:0; }

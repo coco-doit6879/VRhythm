@@ -24,7 +24,7 @@
 .explore-script-title {
   max-width: 100%;
   text-align: center;
-  font-family: 'Playfair Display', serif !important;
+  font-family: 'Be Vietnam Pro', sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
   letter-spacing: 0;
@@ -72,7 +72,7 @@
 
 .app-shell .archive-heading:where(.explore-page, .explore-page *) h2.archive-script-title,
 .archive-script-title {
-  font-family: 'Playfair Display', serif !important;
+  font-family: 'Be Vietnam Pro', sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
   color: #234827 !important;

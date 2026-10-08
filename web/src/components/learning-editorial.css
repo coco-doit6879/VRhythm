@@ -3,8 +3,8 @@
 .learn-editorial :is(a,button):focus-visible { outline:2px solid var(--lp-orange); outline-offset:5px; }
 .learn-editorial .section-kicker { color:var(--lp-orange); font:500 10px/1.8 var(--lp-sans); text-transform:uppercase; letter-spacing:1.5px; }
 .learn-editorial .learning-intro { grid-template-columns:1.5fr 1fr; gap:90px; padding:65px 0 80px; }
-.app-shell.landing-shell .learn-editorial :is(h1,h2,h3) { font-family:var(--lp-serif); font-weight:400; font-style:normal; }
-.app-shell.landing-shell .learn-editorial h1.learn-editorial-title { display:block; font-family:var(--lp-serif)!important; font-style:normal; font-size:clamp(48px,5.4vw,78px); line-height:1.22; letter-spacing:-1.8px; margin:25px 0; }
+.app-shell.landing-shell .learn-editorial :is(h1,h2,h3) { font-family:var(--lp-serif); font-weight:700; font-style:normal; }
+.app-shell.landing-shell .learn-editorial h1.learn-editorial-title { display:block; font-family:var(--lp-serif)!important; font-style:normal; font-size:clamp(48px,5.4vw,78px); line-height:1.22; letter-spacing:-1.8px; margin:25px 0; font-weight:700; }
 .learn-editorial h1 :is(span,em) { display:block; }
 .learn-editorial .learning-intro h1 em,.learn-editorial .learning-closing em { color:var(--lp-orange); font-style:italic; }
 .learn-editorial .learning-intro p { color:var(--lp-muted); font-size:14px; line-height:1.9; max-width:470px; }
@@ -85,7 +85,7 @@
 .learn-editorial .learning-intro { display:block; max-width:760px; padding-bottom:50px; }
 .learn-editorial .learning-enrolled-section { margin-bottom:60px; padding-bottom:50px; border-bottom:1px solid var(--lp-line); }
 .learn-editorial .learning-enrolled-header { margin-bottom:28px; }
-.learn-editorial .learning-enrolled-header h2 { font-family:var(--lp-serif); font-size:clamp(30px,3.3vw,44px); font-weight:400; font-style:normal; color:var(--lp-ink); margin:10px 0 6px; line-height:1.25; }
+.learn-editorial .learning-enrolled-header h2 { font-family:var(--lp-serif); font-size:clamp(30px,3.3vw,44px); font-weight:700; font-style:normal; color:var(--lp-ink); margin:10px 0 6px; line-height:1.25; }
 .learn-editorial .learning-enrolled-header p { color:var(--lp-muted); font-size:14px; line-height:1.7; margin:0; }
 .ex-intro-grid { margin-bottom:35px; }
 .ex-archive { padding-top:40px; }

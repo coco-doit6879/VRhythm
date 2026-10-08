@@ -11,7 +11,7 @@
 .hero-script-title {
   max-width: 100%;
   text-align: center;
-  font-family: 'Playfair Display', serif !important;
+  font-family: 'Be Vietnam Pro', sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
   letter-spacing: 0;
@@ -40,7 +40,7 @@
 .app-shell .home-page>.manifesto .manifesto-script-title,
 .manifesto-script-title {
   color: #ff4400 !important;
-  font-family: 'Playfair Display', serif !important;
+  font-family: 'Be Vietnam Pro', sans-serif !important;
   font-size: clamp(38px, 5.2vw, 68px) !important;
   line-height: 1.25;
   font-style: normal !important;
@@ -83,7 +83,7 @@
 .cta-script-title {
   max-width: 100%;
   text-align: center;
-  font-family: 'Playfair Display', serif !important;
+  font-family: 'Be Vietnam Pro', sans-serif !important;
   font-weight: 700 !important;
   font-style: normal !important;
   letter-spacing: 0;

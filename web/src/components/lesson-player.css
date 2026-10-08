@@ -3,8 +3,8 @@
 .app-shell .course-player .lesson-grid { grid-template-columns: minmax(0, 1fr) 300px; align-items: start; gap: 24px; }
 .app-shell .course-player .practice-card, .app-shell .course-player .lesson-sidebar { min-width: 0; padding: 24px; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
 .app-shell .course-player .lesson-header { padding-block: 32px 24px; }
-.app-shell .course-player .lesson-header h1 { font: 700 clamp(28px, 4vw, 44px)/1.25 'Playfair Display', serif; overflow-wrap: anywhere; }
-.app-shell .course-player .lesson-content h2 { font: 650 24px/1.35 'Playfair Display', serif; }
+.app-shell .course-player .lesson-header h1 { font: 700 clamp(28px, 4vw, 44px)/1.25 'Be Vietnam Pro', sans-serif; overflow-wrap: anywhere; }
+.app-shell .course-player .lesson-content h2 { font: 700 24px/1.35 'Be Vietnam Pro', sans-serif; }
 .app-shell .course-player .lesson-prose { white-space: pre-wrap; line-height: 1.85; overflow-wrap: anywhere; margin-block: 20px; }
 .app-shell .course-player .lesson-sidebar { order: 0; }
 .app-shell .course-player summary { min-height: 44px; cursor: pointer; font-weight: 700; }
