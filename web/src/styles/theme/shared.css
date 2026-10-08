@@ -37,7 +37,7 @@ textarea { font-family:'Be Vietnam Pro',sans-serif; }
 .app-shell .cta-btn-bright { background:#f6af86!important; color:#293e32!important; }
 .app-shell .cta-btn-bright:hover { background:#ffbf98!important; color:#293e32!important; }
 .app-shell .text-button { color:var(--teal); }
-.app-shell :is(.instrument-card,.course-card,.auth-card,.sheet-panel,.practice-card,.lesson-sidebar,.instrument-modal,.course-overview,.profile-details,.explore-hero-card,.quiz-card,.quiz-result-card,.video-lesson-card,.theory-lesson-card) { background:var(--cream); color:var(--ink); border-color:var(--line); }
+.app-shell :is(.instrument-card,.course-card,.auth-card,.sheet-panel,.practice-card,.lesson-sidebar,.instrument-modal,.course-overview,.profile-details,.explore-hero-card,.quiz-card,.quiz-result-card,.video-lesson-card,.theory-lesson-card,.profile-course-card,.profile-courses-empty) { background:var(--cream); color:var(--ink); border-color:var(--line); }
 .app-shell :is(.instrument-art,.modal-art,.hero-art,.instrument-page-hero img,.flute-visual,.parallax-scene) { background:var(--panel-gradient); }
 .app-shell :is(.instrument-showcase,.showcase-stage) { background:var(--panel-gradient); border-color:var(--line); }
 .app-shell :is(.showcase-copy h2,.home-page>.instrument-showcase .showcase-copy h2,.carousel-header h2,.streak-card strong) { color:var(--ink); }

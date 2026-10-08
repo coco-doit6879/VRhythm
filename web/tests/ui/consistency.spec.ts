@@ -107,3 +107,52 @@ test('Consistency all four lesson formats and locked lesson', async ({ page }, t
   await expect(page.getByRole('alert')).toContainText('mở khóa');
   await audit(page, testInfo, 'lesson-locked');
 });
+
+test('Consistency profile enrolled courses and learning resume', async ({ page }, testInfo) => {
+  await page.route('**/api/user/profile', r => r.fulfill({ json: { success: true, data: { userId: 1, fullName: 'Nguyễn Minh An', email: 'minhan@example.com', role: 'Learner' } } }));
+  await page.route('**/api/courses/learning', r => r.fulfill({
+    json: [
+      {
+        id: 91,
+        title: 'Nhập môn Sáo trúc',
+        instrument: 'Sáo trúc',
+        description: 'Bắt đầu từ tư thế, cách tạo âm và những nốt nhạc đầu tiên.',
+        accessType: 'Free',
+        isEnrolled: true,
+        isUnlocked: true,
+        isCompleted: false,
+        totalLessons: 8,
+        completedLessons: 3,
+        progressPercent: 38,
+        nextChapterId: 11,
+        nextLessonId: 104,
+      },
+      {
+        id: 92,
+        title: 'Cơ bản Đàn bầu',
+        instrument: 'Đàn bầu',
+        description: 'Kỹ thuật gảy que và nắn cần đàn độc huyền.',
+        accessType: 'Free',
+        isEnrolled: true,
+        isUnlocked: true,
+        isCompleted: true,
+        totalLessons: 5,
+        completedLessons: 5,
+        progressPercent: 100,
+      },
+    ],
+  }));
+  await page.goto('/profile');
+  await page.evaluate(() => localStorage.setItem('vrhythm_web_auth', JSON.stringify({ userId: 1, fullName: 'Nguyễn Minh An', email: 'minhan@example.com', role: 'Learner', token: 'test-fixture-only' })));
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Tiến độ học tập' })).toBeVisible();
+  const cards = page.locator('.profile-course-card');
+  await expect(cards).toHaveCount(2);
+  await expect(cards.first()).toContainText('Nhập môn Sáo trúc');
+  await expect(cards.first()).toContainText('38%');
+  await expect(cards.first()).toContainText('3 / 8 bài học');
+  await expect(cards.last()).toContainText('Đã hoàn thành');
+  await audit(page, testInfo, 'profile-enrolled-courses');
+  await cards.first().getByRole('button', { name: 'Tiếp tục học' }).click();
+  await expect(page).toHaveURL(/\/lesson\/91\/chapter\/11\/lesson\/104$/);
+});

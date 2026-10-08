@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './instrument-pages.css';
 import { BambooFluteArticle } from './components/BambooFluteArticle';
 import { LandingPage } from './components/landing/LandingPage';
-import { AlertCircle, ArrowLeft, ArrowRight, Award, BookOpen, CheckCircle2, Compass, Landmark, LogOut, Mail, RefreshCw, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ArrowRight, Award, BookOpen, CheckCircle2, Compass, Landmark, LogOut, Mail, Music2, Play, RefreshCw, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
 import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
@@ -87,7 +87,7 @@ export default function App() {
     {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
     {view === 'learn' && selectedInstrument && <InstrumentLearning instrument={selectedInstrument} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} onLesson={openLesson} />}
     {view === 'learn' && !isInstrumentRoute && <Learn user={authUser} courses={courses} loading={coursesLoading} error={coursesError} onAuth={() => openAuth('login')} onOpenLesson={openLesson} onRefresh={loadCourses} />}
-    {view === 'profile' && <Profile user={authUser} onAuth={() => openAuth('login')} onSignOut={signOut} onNavigate={navigate} />}
+    {view === 'profile' && <Profile user={authUser} onAuth={() => openAuth('login')} onSignOut={signOut} onNavigate={navigate} onOpenLesson={openLesson} />}
     {view === 'lesson' && <LessonPlayer route={lessonRoute} onBack={() => navigate('learn')} onOpenLesson={openLesson} />}
     {view === 'auth' && <main className="page"><AuthPanel mode={authMode} onModeChange={mode => navigate('auth', mode)} onSubmit={signIn} /></main>}
   </div>;
@@ -98,9 +98,11 @@ function parseLessonRoute(path: string): LessonRoute {
   return match ? { courseId: Number(match[1]), chapterId: Number(match[2]), lessonId: Number(match[3]) } : defaultLessonRoute;
 }
 
-function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | null; courses: Array<CourseSummary | LearnerCourseSummary>; loading: boolean; error: string; onAuth: () => void; onOpenLesson: (route?: LessonRoute) => void; onRefresh: () => Promise<void> }) {
+const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
+
+function Learn({ user, courses, loading, error, onOpenLesson, onRefresh }: { user: AuthResponse | null; courses: Array<CourseSummary | LearnerCourseSummary>; loading: boolean; error: string; onAuth: () => void; onOpenLesson: (route?: LessonRoute) => void; onRefresh: () => Promise<void> }) {
   const root = useScrollReveal('.learning-steps li, .learning-catalog-heading, .learning-card, .learning-closing');
-  const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
+  const enrolledCourses = courses.filter((c): c is LearnerCourseSummary => 'isEnrolled' in c && Boolean(c.isEnrolled));
   return <main className="page learn-page learn-editorial" ref={root}>
     <section className="learning-intro">
       <div>
@@ -114,6 +116,69 @@ function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | nu
       </div>
 
     </section>
+    {user && enrolledCourses.length > 0 && (
+      <section className="learning-enrolled-section" aria-label="Khóa học của bạn">
+        <div className="learning-enrolled-header">
+          <div>
+            <span className="section-kicker"><Sparkles size={14} /> Tiếp tục học tập</span>
+            <h2>Khóa học của bạn</h2>
+            <p>Nhanh chóng quay lại lộ trình học nhạc cụ bạn đã đăng ký</p>
+          </div>
+        </div>
+        <div className="profile-courses-grid">
+          {enrolledCourses.map(course => {
+            const instId = instruments.find(item => normalize(item.name) === normalize(course.instrument))?.id;
+            return (
+              <article className="profile-course-card" key={course.id}>
+                <div className="profile-course-card-top">
+                  <span className="profile-course-inst-tag"><Music2 size={13} /> {course.instrument}</span>
+                  <span className={`profile-course-status-badge ${course.isCompleted ? 'completed' : 'in-progress'}`}>
+                    {course.isCompleted ? <CheckCircle2 size={12} /> : <Sparkles size={12} />}
+                    {course.isCompleted ? 'Đã hoàn thành' : 'Đang học'}
+                  </span>
+                </div>
+                <div className="profile-course-card-body">
+                  <h3>{course.title}</h3>
+                  <p>{course.description || `Lộ trình luyện tập nhạc cụ ${course.instrument} cùng VRhythm.`}</p>
+                  <div className="profile-course-progress-wrap">
+                    <div className="profile-course-progress-label">
+                      <span>Tiến độ hoàn thành</span>
+                      <strong>{course.progressPercent}%</strong>
+                    </div>
+                    <div className="profile-course-progress-bar" role="progressbar" aria-valuenow={course.progressPercent} aria-valuemin={0} aria-valuemax={100} aria-label={`Tiến độ khóa học ${course.title}`}>
+                      <div className="profile-course-progress-fill" style={{ width: `${Math.min(100, Math.max(0, course.progressPercent))}%` }} />
+                    </div>
+                    <div className="profile-course-lessons-count">
+                      <span>Đã hoàn thành</span>
+                      <span><strong>{course.completedLessons}</strong> / {course.totalLessons} bài học</span>
+                    </div>
+                  </div>
+                  <div className="profile-course-card-action">
+                    <button
+                      type="button"
+                      className={course.isCompleted ? 'secondary' : 'primary'}
+                      onClick={() => {
+                        if (course.nextChapterId && course.nextLessonId) {
+                          onOpenLesson({ courseId: course.id, chapterId: course.nextChapterId, lessonId: course.nextLessonId });
+                        } else if (instId) {
+                          window.location.assign(`/learn/${instId}`);
+                        }
+                      }}
+                    >
+                      {course.isCompleted ? (
+                        <>Xem lại bài học <ArrowRight size={15} /></>
+                      ) : (
+                        <><Play size={15} fill="currentColor" /> Tiếp tục học</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )}
     <section id="chon-nhac-cu" className="learning-catalog">
       <div className="learning-catalog-heading"><div><h2>Bạn muốn học nhạc cụ nào?</h2></div></div>
       {loading && <p className="learning-notice" role="status">Đang cập nhật danh sách khóa học…</p>}
@@ -136,11 +201,13 @@ function Profile({
   onAuth,
   onSignOut,
   onNavigate,
+  onOpenLesson,
 }: {
   user: AuthResponse | null;
   onAuth: () => void;
   onSignOut: () => void;
   onNavigate: (view: View) => void;
+  onOpenLesson: (route?: LessonRoute) => void;
 }) {
   const [profile, setProfile] = useState(cachedUser);
   const [profileError, setProfileError] = useState('');
@@ -192,6 +259,19 @@ function Profile({
   const avgProgress = enrolledCourses.length
     ? Math.round(enrolledCourses.reduce((sum, c) => sum + (c.progressPercent || 0), 0) / enrolledCourses.length)
     : 0;
+
+  const handleResumeCourse = (course: LearnerCourseSummary) => {
+    if (course.nextChapterId && course.nextLessonId) {
+      onOpenLesson({ courseId: course.id, chapterId: course.nextChapterId, lessonId: course.nextLessonId });
+      return;
+    }
+    const instId = instruments.find(item => normalize(item.name) === normalize(course.instrument))?.id;
+    if (instId) {
+      window.location.assign(`/learn/${instId}`);
+      return;
+    }
+    onNavigate('learn');
+  };
 
   return (
     <main className="page profile-page">
@@ -258,6 +338,71 @@ function Profile({
             <div className="profile-stat-lbl">Tiến độ tổng thể</div>
           </div>
         </div>
+      </section>
+
+      <section className="profile-courses" aria-label="Khóa học của tôi">
+        <div className="profile-courses-header">
+          <div>
+            <span className="section-kicker"><BookOpen size={14} /> Khóa học của tôi</span>
+            <h2>Tiến độ học tập</h2>
+            <p>Theo dõi các khóa học bạn đã đăng ký và tiếp tục bài học dang dở.</p>
+          </div>
+        </div>
+
+        {enrolledCourses.length > 0 ? (
+          <div className="profile-courses-grid">
+            {enrolledCourses.map(course => (
+              <article className="profile-course-card" key={course.id}>
+                <div className="profile-course-card-top">
+                  <span className="profile-course-inst-tag"><Music2 size={13} /> {course.instrument}</span>
+                  <span className={`profile-course-status-badge ${course.isCompleted ? 'completed' : 'in-progress'}`}>
+                    {course.isCompleted ? <CheckCircle2 size={12} /> : <Sparkles size={12} />}
+                    {course.isCompleted ? 'Đã hoàn thành' : 'Đang học'}
+                  </span>
+                </div>
+                <div className="profile-course-card-body">
+                  <h3>{course.title}</h3>
+                  <p>{course.description || `Lộ trình luyện tập nhạc cụ ${course.instrument} cùng VRhythm.`}</p>
+                  <div className="profile-course-progress-wrap">
+                    <div className="profile-course-progress-label">
+                      <span>Tiến độ hoàn thành</span>
+                      <strong>{course.progressPercent}%</strong>
+                    </div>
+                    <div className="profile-course-progress-bar" role="progressbar" aria-valuenow={course.progressPercent} aria-valuemin={0} aria-valuemax={100} aria-label={`Tiến độ khóa học ${course.title}`}>
+                      <div className="profile-course-progress-fill" style={{ width: `${Math.min(100, Math.max(0, course.progressPercent))}%` }} />
+                    </div>
+                    <div className="profile-course-lessons-count">
+                      <span>Đã hoàn thành</span>
+                      <span><strong>{course.completedLessons}</strong> / {course.totalLessons} bài học</span>
+                    </div>
+                  </div>
+                  <div className="profile-course-card-action">
+                    <button
+                      type="button"
+                      className={course.isCompleted ? 'secondary' : 'primary'}
+                      onClick={() => handleResumeCourse(course)}
+                    >
+                      {course.isCompleted ? (
+                        <>Xem lại bài học <ArrowRight size={15} /></>
+                      ) : (
+                        <><Play size={15} fill="currentColor" /> Tiếp tục học</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="profile-courses-empty">
+            <div className="profile-empty-icon"><BookOpen size={24} /></div>
+            <h3>Bạn chưa đăng ký khóa học nào</h3>
+            <p>Hãy khám phá các nhạc cụ dân tộc và tham gia khóa học đầu tiên để bắt đầu hành trình âm nhạc của bạn cùng VRhythm.</p>
+            <button type="button" className="primary" onClick={() => onNavigate('learn')}>
+              Khám phá khóa học ngay <ArrowRight size={15} />
+            </button>
+          </div>
+        )}
       </section>
 
       <section className="profile-details" aria-label="Chi tiết tài khoản">
