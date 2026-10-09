@@ -1,26 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test('Instrument details retain all routes, images, facts and learning links', async ({ page }, testInfo) => {
-  for (const [id, name] of [['nguyet','Đàn nguyệt'],['tyba','Đàn tỳ bà'],['nhi','Đàn nhị'],['bau','Đàn bầu'],['tranh','Đàn tranh']]) {
-    await page.goto(`/explore/${id}`);
-    await page.evaluate(() => document.fonts.ready);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(name);
-    await expect(page.getByRole('heading', { name: 'Lịch sử & hành trình' })).toBeVisible();
-    await expect(page.locator('.story-facts>div')).toHaveCount(4);
-    await expect(page.locator('.story-button').first()).toHaveAttribute('href', `/learn/${id}`);
-    await expect.poll(() => page.locator('.story-art img').evaluate(el => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
-    const geometry = await page.evaluate(() => ({
-      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      targets: [...document.querySelectorAll('.story-button,.story-back,.story-reading nav a')].every(el => el.getBoundingClientRect().height >= 44),
-      font: getComputedStyle(document.querySelector('h1')!).fontFamily,
-    }));
-    expect(geometry.overflow).toBeLessThanOrEqual(1);
-    expect(geometry.targets).toBe(true);
-    expect(geometry.font).toContain('Playfair Display');
-    await page.screenshot({ path: testInfo.outputPath(`${id}.png`), fullPage: true });
+test('Other instrument routes remain available as a not-yet-open state', async ({ page }, testInfo) => {
+  for (const id of ['nguyet', 'tyba', 'nhi', 'bau', 'tranh']) {
+    for (const route of ['explore', 'learn']) {
+      await page.goto(`/${route}/${id}`);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Nhạc cụ này chưa mở');
+      await expect(page.locator('.course-overview,.story-facts')).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'Quay lại Khám phá' })).toHaveAttribute('href', '/explore');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    }
   }
+  await page.screenshot({ path: testInfo.outputPath('instrument-not-open.png'), fullPage: true });
 });
-
 test('Flute detail uses the supplied portrait and retains article navigation', async ({ page }, testInfo) => {
   await page.goto('/explore/sao');
   await page.evaluate(() => document.fonts.ready);

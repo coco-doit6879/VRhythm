@@ -1,7 +1,7 @@
 import { instruments } from '../../data/mock';
 
 // Keep the catalogue and route IDs in the existing source of truth.
-export const catalogue = instruments;
+export const catalogue = instruments.filter(instrument => instrument.id === 'sao');
 export const artwork: Record<string, { width: number; height: number }> = {
   sao: { width: 1024, height: 1536 }, nguyet: { width: 1024, height: 1536 },
   tranh: { width: 1536, height: 1024 }, bau: { width: 1536, height: 1024 },
@@ -9,8 +9,6 @@ export const artwork: Record<string, { width: number; height: number }> = {
 };
 export const chapters = [
   { id: 'sao', title: ['Gửi giai điệu', 'vào một hơi thở'], tone: 'Mộc mạc & trong trẻo' },
-  { id: 'nguyet', title: ['Chạm dây đàn,', 'ngân nét Việt'], tone: 'Vang sáng & giàu biểu cảm' },
-  { id: 'tranh', title: ['Từng dây đàn,', 'một sắc thái'], tone: 'Mềm mại & tinh tế' },
 ];
 export function InstrumentArt({ id, className = '' }: { id: string; className?: string }) {
   const item = catalogue.find(instrument => instrument.id === id)!;

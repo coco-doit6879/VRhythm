@@ -53,6 +53,8 @@ export type LoginPayload = {
 export type RegisterPayload = LoginPayload & {
   fullName: string;
 };
+export type LearningPackage = { code: string; name: string; amountVnd: number; accessDays: number; checkoutMode: 'Free' | 'Demo' | 'Unavailable'; courses: Array<{ id: number; title: string; accessType: string }> };
+export type CheckoutOrder = { id: string; packageCode: string; amountVnd: number; accessDays: number; status: 'Pending' | 'DemoSucceeded' | 'Failed' | 'Cancelled' | 'Expired'; isDemo: boolean; createdAt: string; expiresAt: string };
 
 const storageKey = 'vrhythm_web_auth';
 
@@ -146,6 +148,10 @@ async function readCourse<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const api = {
+  getPackages(signal?: AbortSignal) { return request<LearningPackage[]>('/api/billing/packages', { signal }); },
+  createCheckout(packageCode: string, requestId: string) { return request<CheckoutOrder>('/api/billing/orders', { method: 'POST', body: JSON.stringify({ packageCode, requestId }) }); },
+  getCheckout(id: string) { return request<CheckoutOrder>(`/api/billing/orders/${encodeURIComponent(id)}`); },
+  completeDemoCheckout(id: string, outcome: 'success' | 'failed' | 'cancelled') { return request<CheckoutOrder>(`/api/billing/orders/${encodeURIComponent(id)}/demo`, { method: 'POST', body: JSON.stringify({ outcome }) }); },
   getAuthProviders() { return request<{ googleClientId: string | null }>('/api/auth/providers'); },
   googleLogin(credential: string) {
     return request<AuthResponse>('/api/auth/google', { method: 'POST', body: JSON.stringify({ credential }) });

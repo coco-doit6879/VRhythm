@@ -1,6 +1,6 @@
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
 
-const names = [['nguyet','Đàn nguyệt'],['tyba','Đàn tỳ bà'],['nhi','Đàn nhị'],['bau','Đàn bầu'],['sao','Sáo trúc'],['tranh','Đàn tranh']];
+const names = [['sao','Sáo trúc']];
 const lessonTypes = ['Theory', 'Video', 'Quiz', 'Practical'];
 const course = (instrument = 'Sáo trúc') => ({ id: 91, title: `Nhập môn ${instrument}`, instrument, description: 'Bắt đầu từ tư thế, cách tạo âm và những nốt nhạc đầu tiên.', accessType: 'Free', isEnrolled: true, isUnlocked: true, isCompleted: false, chapters: [{ id: 11, title: 'Những bước đầu tiên', sortOrder: 1, lessons: lessonTypes.map((type, i) => ({ id: 101+i, title: `${type} · Làm quen thanh âm`, type, sortOrder: i, isCompleted: false })) }, { id: 12, title: 'Luyện tập giai điệu', sortOrder: 2, lessons: [] }] });
 
@@ -19,7 +19,7 @@ async function audit(page: Page, info: TestInfo, name: string) {
   await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true });
 }
 
-test('Consistency instrument learning covers all six populated roadmaps', async ({ page }, testInfo) => {
+test('Consistency flute learning retains populated roadmap', async ({ page }, testInfo) => {
   let name = 'Sáo trúc';
   await page.route('**/api/courses', route => route.fulfill({ json: [course(name)] }));
   await page.route('**/api/courses/91', route => route.fulfill({ json: course(name) }));

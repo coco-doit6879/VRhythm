@@ -1,0 +1,29 @@
+.app-shell .packages-page { max-width: 1040px; color: var(--lp-ink); }
+.packages-intro { padding: 28px 0 40px; max-width: 680px; }
+.app-shell .packages-intro h1 { font: 500 clamp(36px, 5vw, 64px)/1.15 var(--lp-serif); margin: 12px 0 20px; letter-spacing: -.02em; }
+.packages-intro h1 em { color: var(--lp-orange); }
+.packages-page p { line-height: 1.65; }
+.packages-list { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--lp-line); }
+.package-option { padding: 32px 36px 32px 0; min-width: 0; }
+.package-option + .package-option { padding-left: 36px; border-left: 1px solid var(--lp-line); }
+.app-shell .packages-page h2 { font: 500 32px/1.2 var(--lp-serif); margin: 0 0 20px; }
+.package-price { font-size: 32px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 0 0 16px; }
+.package-price span { font-size: 16px; font-weight: 400; color: var(--lp-muted); margin-left: 4px; }
+.package-option ul { padding-left: 20px; margin: 24px 0; min-height: 110px; }
+.package-option li { line-height: 1.7; margin-bottom: 8px; }
+.app-shell .packages-page .primary { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--lp-orange); color: var(--lp-paper); min-height: 48px; padding: 12px 24px; text-decoration: none; }
+.app-shell .packages-page .text-button { color: var(--lp-ink); min-height: 44px; }
+.packages-page button:disabled { opacity: .6; cursor: not-allowed; }
+.packages-page :is(a,button):focus-visible { outline: 2px solid var(--lp-orange); outline-offset: 4px; }
+.packages-page .package-note { font-size: 13px; color: var(--lp-muted); margin-top: 16px; max-width: 36ch; }
+.checkout-summary { padding: 32px 0; border-top: 1px solid var(--lp-line); }
+.checkout-actions { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
+.packages-error { color: var(--lp-ink); border: 1px solid var(--lp-red); padding: 16px; margin-bottom: 24px; }
+@media (max-width: 650px) {
+  .packages-list { grid-template-columns: 1fr; }
+  .package-option, .package-option + .package-option { padding: 28px 0; border-left: 0; }
+  .package-option + .package-option { border-top: 1px solid var(--lp-line); }
+  .package-option ul { min-height: 0; }
+  .package-option .primary, .checkout-actions .primary { width: 100%; }
+  .checkout-actions { flex-direction: column; align-items: stretch; }
+}

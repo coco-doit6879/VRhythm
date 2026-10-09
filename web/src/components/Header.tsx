@@ -22,6 +22,7 @@ export function Header({ active, loggedIn, onNavigate, onSignOut }: Props) {
       <button aria-current={active === 'home' ? 'page' : undefined} className={active === 'home' ? 'active' : ''} onClick={() => go('home')}>Trang chủ</button>
       <button aria-current={active === 'explore' ? 'page' : undefined} className={active === 'explore' ? 'active' : ''} onClick={() => go('explore')}>Khám phá</button>
       <button aria-current={active === 'learn' ? 'page' : undefined} className={active === 'learn' ? 'active' : ''} onClick={() => go('learn')}>Học tập</button>
+      <button aria-current={active === 'packages' ? 'page' : undefined} className={active === 'packages' ? 'active' : ''} onClick={() => go('packages')}>Gói học</button>
       {loggedIn ? <><button className={active === 'profile' ? 'active' : ''} onClick={() => go('profile')}><CircleUserRound size={15} /> Hồ sơ</button><button className="nav-account" onClick={() => { setOpen(false); onSignOut(); }}><LogOut size={15} /> Thoát</button></> : <button className={active === 'auth' ? 'active' : ''} onClick={() => go('auth')}><LogIn size={15} /> Đăng nhập</button>}
     </nav>
   </header>;

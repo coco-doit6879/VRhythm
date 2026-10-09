@@ -39,3 +39,5 @@
   .learn-editorial .learning-card:hover img { transform:none; }
 }
 .learn-editorial,.ex-page { position:relative; isolation:isolate; z-index:0; }
+.learn-editorial .learning-grid { grid-template-columns:minmax(0,560px); }
+.app-shell .learn-editorial .learning-intro .text-button { color:var(--lp-orange); min-height:44px; display:inline-flex; align-items:center; gap:10px; }

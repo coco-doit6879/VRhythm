@@ -60,6 +60,7 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
   }, [instrument.id, user?.token, revision]);
 
   const enroll = async (course: CourseDetail) => {
+    if (course.accessType !== 'Free') { window.location.assign('/packages'); return; }
     if (!user) { onAuth(); return; }
     setBusy(course.id); setError('');
     try {
@@ -93,7 +94,7 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
             <p role="status">{course.isCompleted ? 'Bạn đã hoàn thành khóa học này.' : 'Bạn đã đăng ký khóa học này.'}</p>
             <button className="primary" onClick={() => next && onLesson({ courseId: course.id, chapterId: next.chapterId, lessonId: next.id })}>{course.isCompleted ? 'Xem lại bài học' : 'Vào học'}</button>
           </> : <>
-            <button className="primary" disabled={busy !== null} onClick={() => void enroll(course)}>{busy === course.id ? 'Đang đăng ký…' : !user ? 'Đăng nhập để đăng ký học' : course.accessType === 'Free' ? 'Đăng ký học miễn phí' : 'Mở khóa khóa học'}</button>
+            <button className="primary" disabled={busy !== null} onClick={() => void enroll(course)}>{busy === course.id ? 'Đang đăng ký…' : course.accessType !== 'Free' ? 'Xem gói Plus' : !user ? 'Đăng nhập để đăng ký học' : 'Đăng ký học miễn phí'}</button>
           </>}
         </footer>
       </section>;
