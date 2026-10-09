@@ -76,7 +76,7 @@
 }
 @media(max-width:760px) {
   .support-shell .instrument-page-hero { grid-template-columns:1fr; }
-  .support-shell .auth-layout { grid-template-columns:1fr; }
+  .support-shell .auth-layout { grid-template-columns:minmax(0,1fr); }
 }
 @media(max-width:620px) {
   .app-shell.support-shell .page { width:calc(100% - 40px); padding-top:24px; }
