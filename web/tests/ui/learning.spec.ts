@@ -27,7 +27,7 @@ test('Learning editorial layout and course states', async ({ page }, info) => {
   }));
   expect(layout.overflow).toBeLessThanOrEqual(1);
   expect(layout.columns).toBe(page.viewportSize()!.width < 621 ? 1 : page.viewportSize()!.width <= 1000 ? 2 : 3);
-  expect(layout.font).toContain('Be Vietnam Pro');
+  expect(layout.font).toContain('Unbounded');
   await expect(page.getByRole('link', { name: 'Xem lộ trình học Sáo trúc' })).toHaveAttribute('href', '/learn/sao');
   await page.evaluate(() => scrollTo(0, 0));
   await page.screenshot({ path: info.outputPath('learning-full.png'), fullPage: true });
