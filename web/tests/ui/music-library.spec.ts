@@ -7,8 +7,14 @@ test('Music library shows searchable Vietnamese scores with readable sheets', as
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Thư viện âm nhạc.');
   await expect(page.locator('.library-catalog li')).toHaveCount(3);
   await expect(page.getByRole('heading', { level: 2 })).toHaveText('Lý cây xanh');
-  await expect(page.locator('.sheet-time').first()).toHaveText('2');
+  await expect(page.locator('.library-notation svg')).toBeVisible();
+  await expect(page.locator('.library-notation .vf-timesignature')).toHaveCount(1);
   await expect(page.getByRole('button', { name: 'Nghe mẫu' })).toBeVisible();
+  const middleC = page.locator('.library-notation [data-pitch="C4"]').first();
+  await expect(middleC).toBeAttached();
+  expect(await middleC.evaluate(node => Number(node.getAttribute('data-head-y')) - Number(node.getAttribute('data-staff-bottom')))).toBe(10);
+  expect(await page.locator('.library-notation svg').evaluate(node => Number(node.getAttribute('data-measures')) > Number(node.getAttribute('data-systems')))).toBe(true);
+
   await page.getByRole('searchbox').fill('beo dat');
   await expect(page.locator('.library-catalog li')).toHaveCount(1);
   await page.getByRole('searchbox').fill('khong co bai');
@@ -17,7 +23,8 @@ test('Music library shows searchable Vietnamese scores with readable sheets', as
   await page.getByRole('link', { name: /Bắc kim thang/ }).click();
   await expect(page).toHaveURL(/\/library\/bac-kim-thang$/);
   await expect(page.getByRole('heading', { level: 2 })).toHaveText('Bắc kim thang');
-  await expect(page.locator('.sheet-svg text').filter({ hasText: '♯' }).first()).toHaveCount(1);
+  await expect(page.locator('.library-notation svg text').filter({ hasText: '\uE262' }).first()).toBeAttached();
+  await expect(page.locator('.library-notation .vf-beam').first()).toBeAttached();
   await page.evaluate(() => document.fonts.ready);
   const bounds = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
@@ -29,7 +36,8 @@ test('Music library shows searchable Vietnamese scores with readable sheets', as
   expect(errors).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath('library.png'), fullPage: true });
   await page.getByRole('link', { name: /Bèo dạt mây trôi/ }).click();
-  await expect(page.locator('.library-measure')).toHaveCount(21);
+  await expect(page.locator('.library-notation svg')).toHaveAttribute('data-measures', '21');
+  await expect(page.locator('.library-notation .vf-timesignature')).toHaveCount(1);
   await page.screenshot({ path: testInfo.outputPath('library-beo.png'), fullPage: true });
 });
 
@@ -51,10 +59,10 @@ test('Music library plays real production PCM and stops on navigation', async ({
   expect(await page.evaluate(() => (window as any).libraryAudio.starts)).toBe(0);
   await page.getByRole('button', { name: 'Nghe mẫu' }).click();
   await expect(page.getByRole('button', { name: 'Dừng', exact: true })).toBeVisible();
-  await expect.poll(() => page.locator('.sheet-cursor').count()).toBe(1);
+  await expect.poll(() => page.locator('.sheet-note.active').count()).toBe(1);
   expect(await page.evaluate(() => (window as any).libraryAudio.audible)).toBe(true);
   await page.getByRole('button', { name: 'Dừng', exact: true }).click();
-  await expect(page.locator('.sheet-cursor')).toHaveCount(0);
+  await expect(page.locator('.sheet-note.active')).toHaveCount(0);
   await page.getByRole('combobox').selectOption('0.75');
   await expect(page.locator('.library-score-heading')).toContainText('75');
   await page.getByRole('button', { name: 'Nghe mẫu' }).click();

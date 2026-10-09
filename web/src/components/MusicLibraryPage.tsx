@@ -2,8 +2,8 @@ import { Play, RotateCcw, Search, Square } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PhysicalFluteEngine } from '../audio/PhysicalFluteEngine';
 import { buildScoreTimeline } from '../audio/fluteScore';
-import { musicLibrary, scoreMeasures } from '../data/musicLibrary';
-import { WebSheetMusic } from './WebSheetMusic';
+import { musicLibrary } from '../data/musicLibrary';
+import { LibraryNotation } from './LibraryNotation';
 import './music-library.css';
 
 const normalize = (text: string) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase();
@@ -39,7 +39,6 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
   const sheetPanel = useRef<HTMLDivElement>(null);
   const score = useMemo(() => ({ ...song.score, metadata: { ...song.score.metadata, tempo: song.score.metadata.tempo * speed } }), [song, speed]);
   const timeline = useMemo(() => buildScoreTimeline(score), [score]);
-  const measures = useMemo(() => scoreMeasures(score), [score]);
 
   const stop = () => {
     generation.current++;
@@ -58,14 +57,7 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
       document.removeEventListener('visibilitychange', hidden);
     };
   }, []);
-  useEffect(() => {
-    const panel = sheetPanel.current;
-    const active = panel?.querySelector('.library-measure.is-active') as HTMLElement | null;
-    if (!panel || !active) return;
-    const bounds = panel.getBoundingClientRect();
-    const target = active.getBoundingClientRect();
-    if (target.bottom > bounds.bottom || target.top < bounds.top) panel.scrollTop += target.top - bounds.top - 16;
-  }, [activeIndex]);
+
 
   const play = async () => {
     stop(); setError(''); setStarting(true);
@@ -103,10 +95,7 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
     </div>
     {error && <p className="library-error" role="alert">{error}</p>}
     <div className="library-sheet-paper" ref={sheetPanel} aria-label={`Sheet ${song.title}`} tabIndex={0}>
-      {measures.map((measure, index) => {
-        const active = activeIndex >= measure.startIndex && activeIndex < measure.startIndex + measure.notes.length;
-        return <div key={index} className={`library-measure${active ? ' is-active' : ''}`}><span className="library-bar-number">{index + 1}</span><WebSheetMusic compact score={{ metadata: { ...score.metadata, startOffsetBeats: measure.offset }, notes: measure.notes }} currentIndex={active ? activeIndex - measure.startIndex : -1} /></div>;
-      })}
+      <LibraryNotation score={score} activeIndex={activeIndex} />
     </div>
     <p className="library-score-note">Bản luyện đơn âm · Nốt sáng theo tiếng sáo khi nghe mẫu.</p>
   </section>;
