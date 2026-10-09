@@ -26,15 +26,42 @@ test('Flute chat stays collapsed, asks with sources and fits each viewport', asy
     return { left: box.left, right: box.right, top: box.top, bottom: box.bottom, height: innerHeight, width: innerWidth,
       overflow: document.documentElement.scrollWidth - innerWidth,
       targets: [...el.querySelectorAll('button,a')].every(target => target.getBoundingClientRect().height >= 44),
-      font: getComputedStyle(el.querySelector('h2')!).fontFamily };
+      font: getComputedStyle(el.querySelector('h2')!).fontFamily,
+      background: getComputedStyle(el).backgroundColor,
+      userLeft: el.querySelector('.flute-chat-question')!.getBoundingClientRect().left,
+      userRight: el.querySelector('.flute-chat-question')!.getBoundingClientRect().right,
+      assistantLeft: el.querySelector('.flute-chat-answer')!.getBoundingClientRect().left,
+      assistantRight: el.querySelector('.flute-chat-answer')!.getBoundingClientRect().right };
   });
   expect(geometry.left).toBeGreaterThanOrEqual(0); expect(geometry.right).toBeLessThanOrEqual(geometry.width);
   expect(geometry.top).toBeGreaterThanOrEqual(88); expect(geometry.bottom).toBeLessThanOrEqual(geometry.height);
   expect(geometry.overflow).toBeLessThanOrEqual(1); expect(geometry.targets).toBe(true);
   expect(geometry.font).toContain('Playfair Display');
+  expect(geometry.background).toBe('rgb(255, 255, 255)');
+  expect(geometry.userLeft).toBeGreaterThan(geometry.assistantLeft);
+  expect(geometry.userRight).toBeGreaterThan(geometry.assistantRight);
   await page.screenshot({ path: info.outputPath('flute-chat.png') });
   await page.getByLabel('Câu hỏi của bạn').press('Escape');
   await expect(page.getByRole('button', { name: 'Hỏi về sáo', exact: true })).toBeFocused();
+});
+
+test('Flute chat shows the pending question immediately and links the public introduction', async ({ page }) => {
+  await setup(page);
+  let release!: () => void;
+  const ready = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/api/chat/messages', async route => {
+    await ready;
+    await route.fulfill({ json: { ...reply, answer: 'Sáo trúc là nhạc cụ hơi thuộc nhóm sáo ngang.', sources: [{ id: 'article:sao:introduction', title: 'Sáo trúc — Tổng quan', url: '/explore/sao' }] } });
+  });
+  await page.getByRole('button', { name: 'Hỏi về sáo', exact: true }).click();
+  await page.getByLabel('Câu hỏi của bạn').fill('Sáo trúc là gì');
+  await page.getByRole('button', { name: 'Gửi câu hỏi' }).click();
+  await expect(page.locator('.flute-chat-question')).toContainText('Sáo trúc là gì');
+  await expect(page.locator('.flute-chat-log').getByRole('status')).toBeVisible();
+  release();
+  await expect(page.getByRole('link', { name: 'Sáo trúc — Tổng quan' })).toHaveAttribute('href', '/explore/sao');
+  await expect(page.locator('.flute-chat-answer')).toContainText('nhạc cụ hơi');
+  await expect(page.locator('.flute-chat-log').getByRole('status')).toHaveCount(0);
 });
 
 test('Flute chat keeps failed questions retryable and shows missing sources honestly', async ({ page }) => {

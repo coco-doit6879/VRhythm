@@ -10,6 +10,7 @@ export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth:
   const [question, setQuestion] = useState('');
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
+  const [pendingQuestion, setPendingQuestion] = useState('');
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(0);
   const input = useRef<HTMLTextAreaElement>(null);
@@ -34,7 +35,7 @@ export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth:
   const submit = async () => {
     const value = question.trim();
     if (working.current || value.length < 3 || !user || mode !== 'Demo') return;
-    working.current = true; setBusy(true); setError('');
+    working.current = true; setBusy(true); setPendingQuestion(value); setError('');
     const controller = new AbortController(); pending.current = controller;
     const timer = setTimeout(() => { if (alive.current) setError('Chat phản hồi quá lâu. Vui lòng thử lại.'); controller.abort(); }, 35000);
     try {
@@ -45,7 +46,7 @@ export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth:
     } catch (err) { if (!controller.signal.aborted && alive.current) setError(chatErrorMessage(err)); }
     finally {
       clearTimeout(timer);
-      if (pending.current === controller) { pending.current = null; working.current = false; if (alive.current) setBusy(false); }
+      if (pending.current === controller) { pending.current = null; working.current = false; if (alive.current) { setBusy(false); setPendingQuestion(''); } }
     }
   };
   return <div className="flute-chat">
@@ -55,11 +56,12 @@ export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth:
         <div className="flute-chat-log" ref={log} role="log" aria-live="polite" aria-relevant="additions text">
           {!turns.length && <p>Hỏi về nội dung bạn đang học. Câu trả lời có nguồn để bạn đọc lại.</p>}
           {turns.map((turn, index) => <div className="flute-chat-turn" key={index}>
-            <p className="flute-chat-question"><strong>Bạn</strong>{turn.question}</p>
-            <p className="flute-chat-answer"><strong>Trợ lý AI</strong>{turn.reply.answer}</p>
-            {!!turn.reply.sources.length && <nav aria-label={`Nguồn tham khảo câu ${index + 1}`}>{turn.reply.sources.filter(source => /^\/(learn\/sao|lesson\/\d+\/chapter\/\d+\/lesson\/\d+)$/.test(source.url)).map(source => <a key={source.id} href={source.url}>{source.title}</a>)}</nav>}
+            <div className="flute-chat-message flute-chat-question"><strong>Bạn</strong><p>{turn.question}</p></div>
+            <div className="flute-chat-message flute-chat-answer"><strong>Trợ lý AI</strong><p>{turn.reply.answer}</p>
+              {!!turn.reply.sources.length && <nav aria-label={`Nguồn tham khảo câu ${index + 1}`}>{turn.reply.sources.filter(source => /^\/(learn\/sao|explore\/sao|lesson\/\d+\/chapter\/\d+\/lesson\/\d+)$/.test(source.url)).map(source => <a key={source.id} href={source.url}>{source.title}</a>)}</nav>}
+            </div>
           </div>)}
-          {busy && <p role="status">Đang tìm nội dung và trả lời…</p>}
+          {busy && <div className="flute-chat-turn"><div className="flute-chat-message flute-chat-question"><strong>Bạn</strong><p>{pendingQuestion}</p></div><div className="flute-chat-message flute-chat-answer"><p role="status">Đang tìm nội dung và trả lời…</p></div></div>}
         </div>
         <div className="flute-chat-compose">
           {mode === 'Loading' && <p role="status">Đang tải chat…</p>}
@@ -69,8 +71,8 @@ export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth:
             <p className="flute-chat-note">AI dùng thử · Chỉ tham khảo tài liệu bạn được xem.</p>
             <form onSubmit={event => { event.preventDefault(); void submit(); }}>
               <label htmlFor="flute-chat-question">Câu hỏi của bạn</label>
-              <textarea id="flute-chat-question" ref={input} value={question} maxLength={600} rows={3} disabled={busy} onChange={event => setQuestion(event.target.value)} placeholder="Làm sao giữ hơi đều khi chuyển nốt?" />
-              <button className="flute-chat-send" disabled={busy || question.trim().length < 3} type="submit"><Send size={18} aria-hidden="true" /> Gửi câu hỏi</button>
+              <div className="flute-chat-input-row"><textarea id="flute-chat-question" ref={input} value={question} maxLength={600} rows={2} disabled={busy} onChange={event => setQuestion(event.target.value)} placeholder="Hỏi về sáo trúc…" />
+                <button className="flute-chat-send" aria-label="Gửi câu hỏi" disabled={busy || question.trim().length < 3} type="submit"><Send size={18} aria-hidden="true" /></button></div>
             </form>
           </>)}
           {error && <p className="flute-chat-error" role="alert">{error}</p>}
