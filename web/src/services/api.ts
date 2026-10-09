@@ -57,6 +57,7 @@ export type RegisterPayload = LoginPayload & {
 const storageKey = 'vrhythm_web_auth';
 
 function normalizeAuth(value: AuthResponse | (Partial<AuthResponse> & { profile?: UserProfile })): AuthResponse | null {
+  if (!value || typeof value !== 'object') return null;
   const profile = 'profile' in value ? value.profile : undefined;
   const token = value.token;
   const userId = value.userId ?? profile?.userId;
@@ -64,6 +65,7 @@ function normalizeAuth(value: AuthResponse | (Partial<AuthResponse> & { profile?
   const email = value.email ?? profile?.email;
   const role = value.role ?? profile?.role;
   if (!token || userId == null || !fullName || !email || !role) return null;
+  if (value.expiresAt && (!Number.isFinite(Date.parse(value.expiresAt)) || Date.parse(value.expiresAt) <= Date.now())) return null;
   return { ...value, userId, fullName, email, role, avatarUrl: value.avatarUrl ?? profile?.avatarUrl } as AuthResponse;
 }
 
@@ -72,7 +74,9 @@ export const authStorage = {
     const raw = localStorage.getItem(storageKey);
     if (!raw) return null;
     try {
-      return normalizeAuth(JSON.parse(raw));
+      const auth = normalizeAuth(JSON.parse(raw));
+      if (!auth) localStorage.removeItem(storageKey);
+      return auth;
     } catch {
       localStorage.removeItem(storageKey);
       return null;
@@ -142,6 +146,10 @@ async function readCourse<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const api = {
+  getAuthProviders() { return request<{ googleClientId: string | null }>('/api/auth/providers'); },
+  googleLogin(credential: string) {
+    return request<AuthResponse>('/api/auth/google', { method: 'POST', body: JSON.stringify({ credential }) });
+  },
   getLesson(id: number, signal?: AbortSignal) { return readCourse<LessonDetail>(`/api/lessons/${id}`, signal); },
   getQuiz(id: number, signal?: AbortSignal) { return readCourse<QuizDetail>(`/api/quizzes/${id}`, signal); },
   getPractical(id: number, signal?: AbortSignal) { return readCourse<PracticalDetail>(`/api/practical/${id}`, signal); },
@@ -171,7 +179,7 @@ export const api = {
   register(payload: RegisterPayload) {
     return request<AuthResponse>('/api/auth/register', {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...payload, confirmPassword: payload.password }),
     });
   },
   completeTheory(lessonId: number) {

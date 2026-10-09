@@ -1,0 +1,4 @@
+.google-sign-in { flex-direction: column; min-height: 44px; }
+.google-sign-in-target { width: 100%; display: flex; justify-content: center; }
+.google-sign-in-target:empty { display: block; }
+.auth-error { color: #e99581; font-size: 0.875rem; margin: 8px 0; }
