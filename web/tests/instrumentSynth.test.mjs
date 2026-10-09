@@ -22,7 +22,7 @@ class Context {
   createBiquadFilter() { return this.node(); }
   createOscillator() { const node = this.node(); this.oscillators.push(node); return node; }
   createBufferSource() { const node = this.node(); this.buffers.push(node); return node; }
-  createBuffer(_channels, size) { return { getChannelData: () => new Float32Array(size) }; }
+  createBuffer(_channels, size) { return { getChannelData: () => new Float32Array(size), copyToChannel(data) { assert.ok(data.some(value => value !== 0)); } }; }
   async resume() { this.state = 'running'; }
   async close() { this.state = 'closed'; }
   async decodeAudioData() { return { duration: 1 }; }
@@ -40,8 +40,9 @@ test('silent until explicit opt-in; mute stops and disconnects every voice', asy
   assert.equal(contexts.length, 0); assert.equal(requests.length, 0);
   assert.equal(await synth.setEnabled(true), true);
   synth.playNote('sao', 'A4');
-  assert.equal(contexts[0].oscillators[0].frequency.value, 440);
-  assert.equal(contexts[0].buffers.length, 1, 'flute includes breath noise');
+  assert.equal(contexts[0].oscillators.length, 0, 'flute does not use an oscillator');
+  assert.equal(contexts[0].buffers.length, 1, 'flute renders a procedural waveguide buffer');
+  assert.equal(requests.length, 0, 'flute does not request recorded samples');
   await synth.setEnabled(false);
   assert.ok(contexts[0].nodes.every(node => node.disconnected));
   const count = contexts[0].nodes.length; synth.playNote('tranh', 'C4');

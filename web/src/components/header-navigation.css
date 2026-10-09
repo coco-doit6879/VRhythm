@@ -1,0 +1,4 @@
+@media(min-width:621px) and (max-width:900px) {
+  .app-shell.landing-shell .nav { gap:12px; }
+  .app-shell.landing-shell .nav button { font-size:11px; white-space:nowrap; }
+}
