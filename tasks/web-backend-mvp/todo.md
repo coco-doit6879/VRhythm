@@ -38,9 +38,11 @@ Kế hoạch âm thanh cũ trong `tasks/plan.md` và `tasks/todo.md` được gi
 
 ## 5. AI Chat + RAG — feature/ai-chat-rag
 
-- [ ] Ingest tài liệu sáo/lesson thành đoạn có sourceId/version và quyền truy cập; truy hồi nội dung liên quan theo câu hỏi. Verify: tiếng Việt có/không dấu; lesson đã khóa không xuất hiện trong ngữ cảnh/citation.
-- [ ] Backend adapter OpenRouter và API chat có giới hạn input/output/history, quota user, timeout/cancellation và usage metrics. Verify: không có API key trong bundle; hết hạn mức/429/provider lỗi không gọi model trả phí ngầm.
-- [ ] Giao diện chat gọn, mở khi cần, câu trả lời có link nguồn; nói rõ khi tài liệu chưa đủ. Cache theo quyền và phiên bản corpus. Verify: câu hỏi ngoài phạm vi, prompt injection trong tài liệu, cache không rò nội dung trả phí, đo tổng token so với baseline gửi nguyên tài liệu.
+- [x] Truy hồi mô tả khóa sáo Approved và bài Theory theo quyền, sourceId và hash corpus; chuẩn hóa tiếng Việt có/không dấu. Test loại nguồn khóa/nháp/Quiz và vô hiệu cache khi quyền/nội dung đổi.
+- [x] Adapter OpenRouter miễn phí, API JWT, quota DB theo ngày Việt Nam, giới hạn input/context/output, timeout và usage. HTTP tests đạt; không fallback trả phí.
+- [x] Chat gọn mở khi cần, link nguồn, trạng thái thiếu tài liệu/lỗi, cache DB 24h. UI 3 viewport và web–API/SQLite/model fixture đạt; OpenRouter live smoke một lần đạt.
+- [ ] Đo tổng token so baseline nguyên corpus và đánh giá retrieval/prompt injection với bộ câu hỏi thực tế. Lần so token gặp free-provider429; chưa kết luận mức tiết kiệm.
+- [ ] Bật production sau quyền Plus có thời hạn từ payOS/webhook thật. Chưa áp dụng migration trên PostgreSQL người dùng. Chi tiết: `ai-chat-rag.md`.
 
 ## Nghiệm thu mỗi nhánh
 
@@ -53,7 +55,7 @@ Kế hoạch âm thanh cũ trong `tasks/plan.md` và `tasks/todo.md` được gi
 
 - Backend main có commit baseline `510b204`, nhập nguyên mã nguồn hiện có. 124 file C#/project khớp snapshot trước di chuyển.
 - Build đạt với 7 warning nullable có sẵn; 6 unit test đạt, 3 integration test chưa chạy do không bật local DB.
-- Cả hai repo có đủ 5 nhánh feature. Auth đã có implementation riêng; Practical realtime có implementation phía web. Dashboard và AI/RAG chưa triển khai; catalog/payment mẫu đã có implementation trên nhánh riêng.
+- Cả hai repo có đủ 5 nhánh feature. Auth đã có implementation riêng; Practical realtime có implementation phía web. Dashboard chưa triển khai; catalog/payment mẫu và AI/RAG Development đã có implementation trên nhánh riêng.
 - Các thay đổi thiết kế/âm thanh chưa commit được giữ nguyên, không gộp vào commit tính năng mới.
 - GitHub backend đã được người dùng publish tại https://github.com/Tecookie/Vrythm-Backend. Đã xác minh main khớp local và push đủ 5 nhánh feature qua Git; không còn phụ thuộc plugin/trình duyệt cho thao tác Git.
 

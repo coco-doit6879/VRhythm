@@ -93,6 +93,15 @@ export const authStorage = {
   },
 };
 
+export type ChatReply = { answer: string; status: 'Answered' | 'NoSources'; sources: Array<{ id: string; title: string; url: string }>; cached: boolean; promptTokens: number; completionTokens: number };
+export function chatErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 401) return 'Vui lòng đăng nhập lại để hỏi.';
+    if (error.status === 429 && error.message === 'Request failed') return 'Bạn gửi quá nhiều câu hỏi. Vui lòng đợi một lát rồi thử lại.';
+    if (error.message !== 'Request failed') return error.message;
+  }
+  return 'Không kết nối được Chat. Vui lòng thử lại.';
+}
 class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
@@ -148,6 +157,8 @@ async function readCourse<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const api = {
+  getChatStatus(signal?: AbortSignal) { return request<{ mode: 'Demo' | 'Unavailable' }>('/api/chat/status', { signal }); },
+  askFluteChat(question: string, signal?: AbortSignal) { return request<ChatReply>('/api/chat/messages', { method: 'POST', body: JSON.stringify({ question }), signal }); },
   getPackages(signal?: AbortSignal) { return request<LearningPackage[]>('/api/billing/packages', { signal }); },
   createCheckout(packageCode: string, requestId: string) { return request<CheckoutOrder>('/api/billing/orders', { method: 'POST', body: JSON.stringify({ packageCode, requestId }) }); },
   getCheckout(id: string) { return request<CheckoutOrder>(`/api/billing/orders/${encodeURIComponent(id)}`); },

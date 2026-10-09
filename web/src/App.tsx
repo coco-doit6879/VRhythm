@@ -7,6 +7,7 @@ import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
 import { PackagesPage } from './components/PackagesPage';
+import { FluteChat } from './components/FluteChat';
 import { ExplorePage } from './components/ExplorePage';
 import { InstrumentStory } from './components/InstrumentStory';
 import { useScrollReveal } from './components/useScrollReveal';
@@ -86,6 +87,7 @@ export default function App() {
   if (pathname === '/lab/sao') return <FluteLabPage />;
   return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'home' && <LandingPage />}
+    {(view === 'learn' || view === 'lesson') && (!isInstrumentRoute || selectedInstrument?.id === 'sao') && <FluteChat key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/learn/sao'); openAuth('login'); }} />}
     {isInstrumentRoute && (!selectedInstrument || selectedInstrument.id !== 'sao') && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>{selectedInstrument ? 'Nhạc cụ này chưa mở' : 'Không tìm thấy nhạc cụ'}</h1><a href="/explore">Quay lại Khám phá</a></main>}
     {view === 'explore' && !isInstrumentRoute && <ExplorePage />}
     {view === 'explore' && selectedInstrument?.id === 'sao' && <InstrumentPage instrument={selectedInstrument} />}
