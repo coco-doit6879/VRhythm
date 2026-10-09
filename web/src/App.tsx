@@ -101,40 +101,26 @@ function parseLessonRoute(path: string): LessonRoute {
 }
 
 function Learn({ courses, loading, error, onRefresh }: { user: AuthResponse | null; courses: Array<CourseSummary | LearnerCourseSummary>; loading: boolean; error: string; onAuth: () => void; onOpenLesson: (route?: LessonRoute) => void; onRefresh: () => Promise<void> }) {
-  const root = useScrollReveal('.learning-steps li, .learning-catalog-heading, .learning-card, .learning-closing');
+  const root = useScrollReveal('.learning-card');
   const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase().trim();
   return <main className="page learn-page learn-editorial" ref={root}>
     <section className="learning-intro">
-      <div>
-        <span className="section-kicker"><Sparkles size={14} /> Học nhạc cụ Việt Nam</span>
-        <h1 className="learn-editorial-title">
-          <span>Thanh âm bạn yêu.</span>
-          <em>Hành trình<br />bạn chọn.</em>
-        </h1>
-        <p>Chọn nhạc cụ, xem lộ trình và tìm khóa học phù hợp. Bắt đầu từ một nốt nhạc, theo nhịp của riêng bạn.</p>
-        <a className="primary" href="#chon-nhac-cu">Chọn nhạc cụ để học <ArrowRight size={18} /></a>
-      </div>
-      <ol className="learning-steps" aria-label="Cách bắt đầu học">
-        <li><span>01</span><div><h2>Chọn nhạc cụ</h2><p>Tìm thanh âm khiến bạn muốn thử.</p></div></li>
-        <li><span>02</span><div><h2>Xem lộ trình</h2><p>Đọc nội dung từng chương trước khi chọn khóa.</p></div></li>
-        <li><span>03</span><div><h2>Bắt đầu học</h2><p>Đăng ký khóa phù hợp và vào bài học đầu tiên.</p></div></li>
-      </ol>
+      <h1 className="learn-editorial-title">Học <em>nhạc cụ Việt Nam.</em></h1>
+      <p>Chọn nhạc cụ và xem lộ trình khóa học phù hợp với bạn.</p>
     </section>
     <section id="chon-nhac-cu" className="learning-catalog">
-      <div className="learning-catalog-heading"><div><span className="section-kicker"><Sparkles size={14} /> Từ yêu thích đến thực hành</span><h2>Bạn muốn học nhạc cụ nào?</h2></div></div>
+      <div className="learning-catalog-heading"><h2>Bạn muốn học nhạc cụ nào?</h2></div>
       {loading && <p className="learning-notice" role="status">Đang cập nhật danh sách khóa học…</p>}
       {error && <div className="learning-notice" role="alert"><span>{error} Bạn vẫn có thể chọn nhạc cụ bên dưới.</span><button className="text-button" onClick={() => void onRefresh()}>Thử lại</button></div>}
       <div className="learning-grid">{instruments.map(instrument => {
         const count = courses.filter(course => normalize(course.instrument) === normalize(instrument.name)).length;
         return <article className="learning-card" key={instrument.id}>
           <div className="learning-card-art"><span>{instrument.family}</span><img src={`/images/generated/carousel-${instrument.id}.webp`} alt={`${instrument.name} — minh họa`} loading="lazy" /></div>
-          <div className="learning-card-content"><p className="learning-tone">{instrument.tone}</p><h3>{instrument.name}</h3><p>{instrument.description}</p><div className="learning-card-footer">{!loading && !error && <small>{count > 0 ? `${count} khóa học đang mở` : 'Chưa có khóa học đang mở'}</small>}<a href={`/learn/${instrument.id}`} aria-label={`Xem lộ trình học ${instrument.name}`}>Xem lộ trình <ArrowRight size={18} /></a></div></div>
+          <div className="learning-card-content"><h3>{instrument.name}</h3><div className="learning-card-footer">{!loading && !error && <small>{count > 0 ? `${count} khóa học đang mở` : 'Chưa có khóa học đang mở'}</small>}<a href={`/learn/${instrument.id}`} aria-label={`Xem lộ trình học ${instrument.name}`}>Xem lộ trình <ArrowRight size={18} aria-hidden="true" /></a></div></div>
         </article>;
       })}</div>
-      <p className="learning-image-note">Ảnh nhạc cụ là minh họa, không dùng làm sơ đồ cấu tạo.</p>
     </section>
-    <section className="learning-closing"><span className="section-kicker">Mỗi ngày, một bước tiến</span><h2>Từ nốt nhạc đầu tiên,<br /><em>đến giai điệu của riêng bạn.</em></h2><p>Chọn một nhạc cụ yêu thích và bắt đầu theo nhịp của bạn.</p><a href="#chon-nhac-cu">Tìm lộ trình của bạn <ArrowRight size={18} /></a></section>
-    <footer className="ex-footer"><a href="/">VRhythm</a><span>Di sản · Nhịp điệu · Công nghệ</span><a href="/explore">Khám phá nhạc cụ ↗</a></footer>
+    <footer className="ex-footer"><a href="/">VRhythm</a><a href="/explore">Khám phá nhạc cụ <ArrowRight size={18} aria-hidden="true" /></a></footer>
   </main>;
 }
 
