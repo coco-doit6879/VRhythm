@@ -26,7 +26,7 @@ Kế hoạch âm thanh cũ trong `tasks/plan.md` và `tasks/todo.md` được gi
 
 ## 3. Gói bài tập + nội dung sáo — feature/payments-flute-catalog
 
-- [x] Lọc learner catalog/entry về sáo trúc; route khác có thông báo chưa mở, giữ dữ liệu admin. Seed idempotent nội dung nhập môn, tạo âm, nốt/giai điệu, Theory/Video/Quiz/Practical và gói có mapping bài rõ ràng. Verify: seed lại không nhân đôi; JSON nốt/đáp án khớp dữ liệu chấm server.
+- [x] Lọc catalog Học tập về sáo trúc; route học nhạc cụ khác báo chưa mở, giữ đủ nhạc cụ ở Trang chủ/Khám phá và dữ liệu admin. Seed idempotent nội dung nhập môn, tạo âm, nốt/giai điệu, Theory/Video/Quiz/Practical và gói có mapping bài rõ ràng. Verify: seed lại không nhân đôi; JSON nốt/đáp án khớp dữ liệu chấm server.
 - [x] Trang `/packages`, đơn hàng và checkout mẫu: Plus 59.000đ/30 ngày, giá từ server, trạng thái Pending/DemoSucceeded/Failed/Cancelled/Expired và chỉ cho chủ đơn xem; không thu tiền hoặc cấp quyền. Verify: client sửa giá bị bỏ qua; người dùng khác không đọc được đơn.
 - [ ] Tích hợp cổng sau khi chốt: server xác minh webhook, chống xử lý trùng, grant entitlement trong transaction và khóa mock unlock ngoài dev. Verify: redirect success không tự mở bài; webhook giả/sai tiền bị từ chối; webhook gửi lại không cấp quyền hai lần.
 

@@ -88,9 +88,9 @@ export default function App() {
   return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'home' && <LandingPage />}
     {(view === 'learn' || view === 'lesson') && (!isInstrumentRoute || selectedInstrument?.id === 'sao') && <FluteChat key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/learn/sao'); openAuth('login'); }} />}
-    {isInstrumentRoute && (!selectedInstrument || selectedInstrument.id !== 'sao') && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>{selectedInstrument ? 'Nhạc cụ này chưa mở' : 'Không tìm thấy nhạc cụ'}</h1><a href="/explore">Quay lại Khám phá</a></main>}
+    {isInstrumentRoute && (!selectedInstrument || (view === 'learn' && selectedInstrument.id !== 'sao')) && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>{selectedInstrument ? 'Nhạc cụ này chưa mở' : 'Không tìm thấy nhạc cụ'}</h1><a href="/explore">Quay lại Khám phá</a></main>}
     {view === 'explore' && !isInstrumentRoute && <ExplorePage />}
-    {view === 'explore' && selectedInstrument?.id === 'sao' && <InstrumentPage instrument={selectedInstrument} />}
+    {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
     {view === 'learn' && selectedInstrument?.id === 'sao' && <InstrumentLearning instrument={selectedInstrument} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} onLesson={openLesson} />}
     {view === 'learn' && !isInstrumentRoute && <Learn user={authUser} courses={courses} loading={coursesLoading} error={coursesError} onAuth={() => openAuth('login')} onOpenLesson={openLesson} onRefresh={loadCourses} />}
     {view === 'packages' && <PackagesPage user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/packages'); openAuth('login'); }} />}

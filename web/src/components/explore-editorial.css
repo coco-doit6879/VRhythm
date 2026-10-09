@@ -43,4 +43,3 @@
   .ex-footer { flex-wrap:wrap; }
 }
 @media(prefers-reduced-motion:reduce) { .ex-art img { transition:none; } .ex-card-link:hover .ex-art img { transform:none; } }
-.ex-grid { grid-template-columns:minmax(0,560px); }

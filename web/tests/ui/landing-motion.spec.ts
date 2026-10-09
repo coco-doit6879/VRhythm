@@ -17,6 +17,7 @@ test('Landing scroll reveals sections and preserves visible content on return', 
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.lp-index-list > li').last()).toHaveCSS('opacity', '1');
+  await expect(page.locator('.lp-index-list > li')).toHaveCount(6);
 });
 
 test('Landing reduced motion keeps every section readable', async ({ page }, testInfo) => {
@@ -27,5 +28,6 @@ test('Landing reduced motion keeps every section readable', async ({ page }, tes
   await page.getByRole('link', { name: 'Lật mở những thanh âm' }).click();
   await expect(page).toHaveURL(/#nhac-cu$/);
   await expect(page.locator('#lp-index-title')).toBeInViewport();
+  await expect(page.locator('.lp-index-list > li')).toHaveCount(6);
   await page.screenshot({ path: testInfo.outputPath('index-reduced-motion.png') });
 });

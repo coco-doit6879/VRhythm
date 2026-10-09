@@ -1,14 +1,19 @@
 import { test, expect } from '@playwright/test';
 
-test('Other instrument routes remain available as a not-yet-open state', async ({ page }, testInfo) => {
+test('Other instruments retain public stories while unseeded learning stays closed', async ({ page }, testInfo) => {
+  const names: Record<string, string> = { nguyet: 'Đàn nguyệt', tyba: 'Đàn tỳ bà', nhi: 'Đàn nhị', bau: 'Đàn bầu', tranh: 'Đàn tranh' };
   for (const id of ['nguyet', 'tyba', 'nhi', 'bau', 'tranh']) {
-    for (const route of ['explore', 'learn']) {
-      await page.goto(`/${route}/${id}`);
+      await page.goto(`/explore/${id}`);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(names[id]);
+      await expect(page.locator('.story-facts')).toHaveCount(1);
+      await expect(page.locator('.story-reading')).toBeVisible();
+      await expect.poll(() => page.locator('.story-art img').evaluate(img => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+      await page.goto(`/learn/${id}`);
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Nhạc cụ này chưa mở');
       await expect(page.locator('.course-overview,.story-facts')).toHaveCount(0);
       await expect(page.getByRole('link', { name: 'Quay lại Khám phá' })).toHaveAttribute('href', '/explore');
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
-    }
   }
   await page.screenshot({ path: testInfo.outputPath('instrument-not-open.png'), fullPage: true });
 });

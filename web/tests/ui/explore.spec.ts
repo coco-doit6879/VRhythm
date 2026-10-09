@@ -3,10 +3,10 @@ import { test, expect } from '@playwright/test';
 test('Explore layout, images, wrapping and touch targets', async ({ page }, testInfo) => {
   await page.goto('/explore');
   await page.evaluate(() => document.fonts.ready);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Khám phá sáo trúc.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Khám phá nhạc cụ Việt Nam.');
   expect(await page.locator('.ex-grid').evaluate(el => el.getBoundingClientRect().top)).toBeLessThan(500);
   expect(await page.getByRole('heading', { level: 1 }).evaluate(el => getComputedStyle(el).fontFamily)).toContain('Playfair Display');
-  await expect(page.locator('.ex-card')).toHaveCount(1);
+  await expect(page.locator('.ex-card')).toHaveCount(6);
   await expect(page.locator('.nav button[aria-current=page]')).toHaveText('Khám phá');
   const cards = page.locator('.ex-card');
   for (const card of await cards.all()) {
@@ -30,22 +30,26 @@ test('Explore layout, images, wrapping and touch targets', async ({ page }, test
   }));
   expect(geometry.overflow).toBeLessThanOrEqual(1);
   expect(geometry.smallTargets).toBe(0);
-  expect(geometry.columns).toBe(1);
+  expect(geometry.columns).toBe(page.viewportSize()!.width < 621 ? 1 : 2);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: testInfo.outputPath('explore-full.png'), fullPage: true });
   await testInfo.attach('Explore full page', { path: testInfo.outputPath('explore-full.png'), contentType: 'image/png' });
 });
 
-test('Explore shows flute only and gates other story routes', async ({ page }) => {
+test('Explore shows all instruments while learning remains flute only', async ({ page }) => {
   await page.goto('/explore');
   await expect(page.getByRole('group', { name: 'Lọc theo họ nhạc cụ' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /Tất cả|Họ dây|Họ hơi/ })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Đọc câu chuyện Sáo trúc' })).toHaveAttribute('href', '/explore/sao');
-  await expect(page.locator('.ex-card')).toHaveCount(1);
-  await expect(page.getByRole('link', { name: 'Đọc câu chuyện Đàn nguyệt' })).toHaveCount(0);
+  await expect(page.locator('.ex-card')).toHaveCount(6);
+  await expect(page.getByRole('link', { name: 'Đọc câu chuyện Đàn nguyệt' })).toHaveAttribute('href', '/explore/nguyet');
   await page.goto('/explore/nguyet');
   await expect(page).toHaveURL(/\/explore\/nguyet$/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Nhạc cụ này chưa mở');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Đàn nguyệt');
+  await page.route('**/api/courses', route => route.fulfill({ json: [] }));
+  await page.goto('/learn');
+  await expect(page.locator('.learning-card')).toHaveCount(1);
+  await expect(page.locator('.learning-card h3')).toHaveText('Sáo trúc');
 });
 
 test('Explore navigation and learning CTA remain available', async ({ page }) => {

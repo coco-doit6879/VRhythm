@@ -1,6 +1,6 @@
 # Sáo trúc và thanh toán mẫu
 
-Nhánh: `feature/payments-flute-catalog` trong cả hai repo; kế thừa identity từ `feature/auth-google`. Giữ thiết kế hiện tại, chỉ hiển thị sáo trúc ở các trang người học. Nhạc cụ khác còn dữ liệu và trang quản lý; liên kết cũ hiển thị trạng thái chưa mở.
+Nhánh: `feature/payments-flute-catalog` trong cả hai repo; kế thừa identity từ `feature/auth-google`. Giữ thiết kế hiện tại, chỉ hiển thị khóa sáo trúc ở phần Học tập. Trang chủ/Khám phá và các trang giới thiệu giữ đủ nhạc cụ; chỉ liên kết học nhạc cụ chưa có nội dung mới báo chưa mở.
 
 ## Phạm vi đã làm
 
