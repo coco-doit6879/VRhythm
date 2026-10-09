@@ -51,9 +51,11 @@ export type LoginPayload = {
 };
 
 export type RegisterPayload = LoginPayload & {
-  confirmPassword: string;
   fullName: string;
+  confirmPassword?: string;
 };
+export type LearningPackage = { code: string; name: string; amountVnd: number; accessDays: number; checkoutMode: 'Free' | 'Demo' | 'Unavailable'; courses: Array<{ id: number; title: string; accessType: string }> };
+export type CheckoutOrder = { id: string; packageCode: string; amountVnd: number; accessDays: number; status: 'Pending' | 'DemoSucceeded' | 'Failed' | 'Cancelled' | 'Expired'; isDemo: boolean; createdAt: string; expiresAt: string };
 
 const storageKey = 'vrhythm_web_auth';
 
@@ -66,6 +68,7 @@ function normalizeAuth(value: AuthResponse | (Partial<AuthResponse> & { profile?
   const email = value.email ?? profile?.email;
   const role = value.role ?? profile?.role;
   if (!token || userId == null || !fullName || !email || !role) return null;
+  if (value.expiresAt && (!Number.isFinite(Date.parse(value.expiresAt)) || Date.parse(value.expiresAt) <= Date.now())) return null;
   return { ...value, userId, fullName, email, role, avatarUrl: value.avatarUrl ?? profile?.avatarUrl } as AuthResponse;
 }
 
@@ -74,7 +77,9 @@ export const authStorage = {
     const raw = localStorage.getItem(storageKey);
     if (!raw) return null;
     try {
-      return normalizeAuth(JSON.parse(raw));
+      const auth = normalizeAuth(JSON.parse(raw));
+      if (!auth) localStorage.removeItem(storageKey);
+      return auth;
     } catch {
       localStorage.removeItem(storageKey);
       return null;
@@ -89,6 +94,15 @@ export const authStorage = {
   },
 };
 
+export type ChatReply = { answer: string; status: 'Answered' | 'NoSources'; sources: Array<{ id: string; title: string; url: string }>; cached: boolean; promptTokens: number; completionTokens: number };
+export function chatErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 401) return 'Vui lòng đăng nhập lại để hỏi.';
+    if (error.status === 429 && error.message === 'Request failed') return 'Bạn gửi quá nhiều câu hỏi. Vui lòng đợi một lát rồi thử lại.';
+    if (error.message !== 'Request failed') return error.message;
+  }
+  return 'Không kết nối được Chat. Vui lòng thử lại.';
+}
 export class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
@@ -172,12 +186,22 @@ async function readCourse<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const api = {
+  getChatStatus(signal?: AbortSignal) { return request<{ mode: 'Demo' | 'Unavailable' }>('/api/chat/status', { signal }); },
+  askFluteChat(question: string, signal?: AbortSignal) { return request<ChatReply>('/api/chat/messages', { method: 'POST', body: JSON.stringify({ question }), signal }); },
+  getPackages(signal?: AbortSignal) { return request<LearningPackage[]>('/api/billing/packages', { signal }); },
+  createCheckout(packageCode: string, requestId: string) { return request<CheckoutOrder>('/api/billing/orders', { method: 'POST', body: JSON.stringify({ packageCode, requestId }) }); },
+  getCheckout(id: string) { return request<CheckoutOrder>(`/api/billing/orders/${encodeURIComponent(id)}`); },
+  completeDemoCheckout(id: string, outcome: 'success' | 'failed' | 'cancelled') { return request<CheckoutOrder>(`/api/billing/orders/${encodeURIComponent(id)}/demo`, { method: 'POST', body: JSON.stringify({ outcome }) }); },
+  getAuthProviders() { return request<{ googleClientId: string | null }>('/api/auth/providers'); },
+  googleLogin(credential: string) {
+    return request<AuthResponse>('/api/auth/google', { method: 'POST', body: JSON.stringify({ credential }) });
+  },
   async getLesson(id: number, signal?: AbortSignal) {
     const data = await readCourse<LessonDetail>(`/api/lessons/${id}`, signal);
     return { ...data, theory: data.theory ?? (data.type === 'Theory' ? { content: data.content } : undefined), video: data.video ?? (data.type === 'Video' ? { content: data.content, durationSeconds: data.durationSeconds } : undefined) };
   },
   getQuiz(id: number, signal?: AbortSignal) { return readCourse<QuizDetail>(`/api/quizzes/${id}`, signal); },
-  async getPractical(id: number, signal?: AbortSignal) { const data = await readCourse<PracticalDetail & { notes?: PracticalDetail["expectedNotes"] }>(`/api/practical/${id}`, signal); return { ...data, expectedNotes: data.expectedNotes ?? data.notes ?? [] }; },
+  getPractical(id: number, signal?: AbortSignal) { return readCourse<PracticalDetail>(`/api/practical/${id}`, signal); },
   getVideoUrl(courseId: number, lessonId: number, signal?: AbortSignal) { return readCourse<string>(`/api/lessons/${lessonId}/video-url?courseId=${courseId}`, signal); },
   getCourse(id: number, signal?: AbortSignal) {
     return readCourse<CourseDetail>(`/api/courses/${id}`, signal);
@@ -199,7 +223,7 @@ export const api = {
     return authenticate('/api/auth/login', { email: payload.email.trim(), password: payload.password });
   },
   register(payload: RegisterPayload) {
-    return authenticate('/api/auth/register', { ...payload, fullName: payload.fullName.trim(), email: payload.email.trim() });
+    return authenticate('/api/auth/register', { ...payload, fullName: payload.fullName.trim(), email: payload.email.trim(), confirmPassword: payload.confirmPassword ?? payload.password });
   },
   completeTheory(lessonId: number) {
     return request<object>(`/api/theory/${lessonId}/complete`, { method: 'POST' });

@@ -1,0 +1,36 @@
+.app-shell.support-shell .music-library { width:min(1200px,calc(100% - 96px)); }
+.library-intro { margin:8px 0 40px; }
+.library-intro h1 { margin:0 0 16px; }
+.library-intro h1 em { color:var(--lp-orange); }
+.library-intro p { color:var(--lp-muted); font-size:14px; }
+.library-layout { display:grid; grid-template-columns:260px minmax(0,1fr); gap:40px; align-items:start; }
+.library-catalog { min-width:0; }
+.library-search { display:flex; gap:12px; align-items:center; border-bottom:1px solid var(--lp-line); padding:0 0 12px; color:var(--lp-muted); }
+.library-search input { width:100%; min-width:0; min-height:44px; background:transparent; border:0; color:var(--lp-ink); padding:8px 0; font:inherit; font-size:14px; }
+.library-search input::placeholder { color:var(--lp-muted); }
+.library-catalog ul { list-style:none; padding:0; margin:16px 0; }
+.library-catalog a { display:block; padding:20px 12px; border-bottom:1px solid var(--lp-line); text-decoration:none; color:var(--lp-ink); }
+.library-catalog a[aria-current] { border-left:2px solid var(--lp-orange); background:#29382d; }
+.library-catalog strong { display:block; font-weight:500; font-size:15px; margin-bottom:8px; }
+.library-catalog span,.library-catalog p { font-size:12px; color:var(--lp-muted); line-height:1.7; }
+.library-score { min-width:0; background:#fff; color:#263630; padding:28px; }
+.app-shell.support-shell .library-score h2 { color:#263630; font-size:32px; margin:0 0 8px; }
+.library-score-heading { display:flex; justify-content:space-between; align-items:start; gap:16px; }
+.library-score-heading p { color:#526052; font-size:12px; margin:0; line-height:1.7; }
+.library-score-heading>span { white-space:nowrap; font-size:13px; padding-top:10px; }
+.library-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:20px 0; margin-top:8px; border-bottom:1px solid #d8ded9; }
+.library-controls button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; font:500 13px var(--lp-sans); }
+.library-play { background:#263630; color:#fff; border:1px solid #263630; }
+.library-controls .library-reset { padding:10px; width:44px; background:transparent; border:1px solid #d8ded9; color:#263630; }
+.library-controls label { display:flex; align-items:center; gap:8px; font-size:12px; }
+.library-controls select { min-height:44px; background:#fff; color:#263630; border:1px solid #d8ded9; padding:8px; font:inherit; }
+.library-time { margin-left:auto; font-size:12px; font-variant-numeric:tabular-nums; }
+.library-sheet-paper { display:block; max-height:600px; overflow:auto; gap:8px; padding:16px 0; scrollbar-gutter:stable; }
+.music-library .sheet-cursor { stroke:#9b541b; }
+.library-score-note { font-size:11px; color:#526052; border-top:1px solid #d8ded9; padding-top:16px; margin:0; line-height:1.7; }
+.library-error { font-size:13px; color:#a32f24; }
+@media(max-width:1050px) { .library-layout { grid-template-columns:200px minmax(0,1fr); gap:24px; } }
+@media(max-width:620px) { .app-shell.support-shell .music-library { width:calc(100% - 40px); } .library-intro { margin:0 0 28px; } .library-layout { grid-template-columns:minmax(0,1fr); gap:24px; } .library-catalog a { padding:14px 12px; } .library-score { padding:20px 16px; } .app-shell.support-shell .library-score h2 { font-size:28px; } .library-score-heading { flex-wrap:wrap; gap:8px; } .library-sheet-paper { max-height:480px; } .library-controls { gap:8px; } .library-time { width:100%; margin:0; } }
+
+.library-notation { width:100%; min-width:0; }
+.library-notation svg { display:block; width:100%; height:auto; background:#fff; }

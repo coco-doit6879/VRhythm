@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import './instrument-pages.css';
 import { BambooFluteArticle } from './components/BambooFluteArticle';
 import { LandingPage } from './components/landing/LandingPage';
@@ -6,6 +6,8 @@ import { AlertCircle, ArrowLeft, ArrowRight, Award, BookOpen, CheckCircle2, Comp
 import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
+import { PackagesPage } from './components/PackagesPage';
+import { FluteChat } from './components/FluteChat';
 import { ExplorePage } from './components/ExplorePage';
 import { InstrumentStory } from './components/InstrumentStory';
 import { useScrollReveal } from './components/useScrollReveal';
@@ -13,7 +15,9 @@ import { LessonPlayer } from './components/LessonPlayer';
 import { instruments, type Instrument } from './data/mock';
 import { api, authStorage, courseErrorMessage, ApiError, type AuthResponse, type CourseSummary, type LearnerCourseSummary } from './services/api';
 
-type View = 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson';
+const MusicLibraryPage = lazy(() => import('./components/MusicLibraryPage'));
+
+type View = 'library' | 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson' | 'packages';
 type LessonRoute = { courseId: number; chapterId: number; lessonId: number };
 const defaultLessonRoute: LessonRoute = { courseId: 1, chapterId: 1, lessonId: 1 };
 
@@ -25,6 +29,8 @@ const routeForView = (view: View, authMode: 'login' | 'register' = 'login') => {
 const viewFromPath = (path: string): { view: View; authMode: 'login' | 'register' } => {
   if (path === '/explore' || path.startsWith('/explore/')) return { view: 'explore', authMode: 'login' };
   if (path === '/learn' || path.startsWith('/learn/')) return { view: 'learn', authMode: 'login' };
+  if (path === '/library' || path.startsWith('/library/')) return { view: 'library', authMode: 'login' };
+  if (path === '/packages') return { view: 'packages', authMode: 'login' };
   if (path === '/profile') return { view: 'profile', authMode: 'login' };
   if (path === '/lesson' || path.startsWith('/lesson/')) return { view: 'lesson', authMode: 'login' };
   if (path === '/register') return { view: 'auth', authMode: 'register' };
@@ -77,16 +83,20 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
   const openAuth = (mode: 'login' | 'register' = 'login') => navigate('auth', mode);
-  const signIn = async (data: { fullName?: string; email: string; password: string; confirmPassword?: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password, confirmPassword: data.confirmPassword ?? '' }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && instruments.some(item => returnTo === `/learn/${item.id}`)) window.location.assign(returnTo); else navigate('learn'); };
+  const signIn = async (data: { fullName?: string; email: string; password: string; confirmPassword?: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password, confirmPassword: data.confirmPassword }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && (returnTo === '/packages' || returnTo === '/learn/sao')) window.location.assign(returnTo); else navigate('learn'); };
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
   const supportSurface = !['home', 'explore'].includes(view) && !(view === 'learn' && !isInstrumentRoute);
+
   return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'home' && <LandingPage />}
-    {isInstrumentRoute && !selectedInstrument && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>Không tìm thấy nhạc cụ</h1><a href="/explore">Quay lại Khám phá</a></main>}
+    {(view === 'learn' || view === 'lesson') && (!isInstrumentRoute || selectedInstrument?.id === 'sao') && <FluteChat key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/learn/sao'); openAuth('login'); }} />}
+    {isInstrumentRoute && (!selectedInstrument || (view === 'learn' && selectedInstrument.id !== 'sao')) && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>{selectedInstrument ? 'Nhạc cụ này chưa mở' : 'Không tìm thấy nhạc cụ'}</h1><a href="/explore">Quay lại Khám phá</a></main>}
     {view === 'explore' && !isInstrumentRoute && <ExplorePage />}
     {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
-    {view === 'learn' && selectedInstrument && <InstrumentLearning instrument={selectedInstrument} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} onLesson={openLesson} />}
+    {view === 'learn' && selectedInstrument?.id === 'sao' && <InstrumentLearning instrument={selectedInstrument} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} onLesson={openLesson} />}
     {view === 'learn' && !isInstrumentRoute && <Learn user={authUser} courses={courses} loading={coursesLoading} error={coursesError} onAuth={() => openAuth('login')} onOpenLesson={openLesson} onRefresh={loadCourses} />}
+    {view === 'library' && <Suspense fallback={<main className="page">Đang tải thư viện…</main>}><MusicLibraryPage songId={pathname.split('/')[2]} /></Suspense>}
+    {view === 'packages' && <PackagesPage user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/packages'); openAuth('login'); }} />}
     {view === 'profile' && <Profile user={authUser} onAuth={() => openAuth('login')} onSignOut={signOut} onNavigate={navigate} onOpenLesson={openLesson} />}
     {view === 'lesson' && <LessonPlayer route={lessonRoute} onBack={() => navigate('learn')} onOpenLesson={openLesson} />}
     {view === 'auth' && <main className="page"><AuthPanel mode={authMode} onModeChange={mode => navigate('auth', mode)} onSubmit={signIn} /></main>}
@@ -183,7 +193,7 @@ function Learn({ user, courses, loading, error, onOpenLesson, onRefresh }: { use
       <div className="learning-catalog-heading"><div><h2>Bạn muốn học nhạc cụ nào?</h2></div></div>
       {loading && <p className="learning-notice" role="status">Đang cập nhật danh sách khóa học…</p>}
       {error && <div className="learning-notice" role="alert"><span>{error} Bạn vẫn có thể chọn nhạc cụ bên dưới</span><button className="text-button" onClick={() => void onRefresh()}>Thử lại</button></div>}
-      <div className="learning-grid">{instruments.map(instrument => {
+      <div className="learning-grid">{instruments.filter(instrument => instrument.id === 'sao').map(instrument => {
         const count = courses.filter(course => normalize(course.instrument) === normalize(instrument.name)).length;
         return <article className="learning-card" key={instrument.id}>
           <div className="learning-card-art"><img src={`/images/generated/carousel-${instrument.id}.webp`} alt={`${instrument.name} — minh họa`} loading="lazy" /></div>

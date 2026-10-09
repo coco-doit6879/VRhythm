@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "title": "Bắc kim thang",
+    "composer": "Dân ca Nam Bộ",
+    "tempo": 100,
+    "timeSignature": { "beats": 2, "beatType": 4 },
+    "arrangement": "Bản luyện đơn âm cho sáo trúc, nhịp được giản lược; chuyển giai điệu lên một quãng tám.",
+    "reference": "https://hopamviet.vn/sheet/song/bac-kim-thang/W8IUWUZZ.html"
+  },
+  "notes": [
+    {"id":"b1","rest":true,"duration":"q"}, {"id":"b2","pitch":"B5","duration":"q"},
+    {"id":"b3","pitch":"A5","duration":"8"}, {"id":"b4","pitch":"G5","duration":"8"}, {"id":"b5","pitch":"E5","duration":"q"},
+    {"id":"b6","pitch":"G5","duration":"8"}, {"id":"b7","pitch":"A5","duration":"16"}, {"id":"b8","pitch":"G5","duration":"16"}, {"id":"b9","pitch":"E5","duration":"q"},
+    {"id":"b10","pitch":"E5","duration":"8"}, {"id":"b11","pitch":"G5","duration":"8"}, {"id":"b12","pitch":"D5","duration":"8"}, {"id":"b13","pitch":"D5","duration":"8"},
+    {"id":"b14","pitch":"D5","duration":"8"}, {"id":"b15","pitch":"G5","duration":"8"}, {"id":"b16","pitch":"E5","duration":"q"},
+    {"id":"b17","pitch":"B5","duration":"q"}, {"id":"b18","pitch":"B5","duration":"q"},
+    {"id":"b19","pitch":"D5","duration":"8"}, {"id":"b20","pitch":"E5","duration":"8"}, {"id":"b21","pitch":"D5","duration":"8"}, {"id":"b22","pitch":"E5","duration":"8"},
+    {"id":"b23","pitch":"B5","duration":"q"}, {"id":"b24","pitch":"B5","duration":"8"}, {"id":"b25","pitch":"B5","duration":"8"},
+    {"id":"b26","pitch":"B5","duration":"8."}, {"id":"b27","pitch":"B5","duration":"16"}, {"id":"b28","pitch":"E5","duration":"8"}, {"id":"b29","pitch":"E5","duration":"16"}, {"id":"b30","pitch":"G5","duration":"16"},
+    {"id":"b31","pitch":"A5","duration":"q"}, {"id":"b32","pitch":"A5","duration":"8"}, {"id":"b33","pitch":"A5","duration":"8"},
+    {"id":"b34","pitch":"A5","duration":"8."}, {"id":"b35","pitch":"B5","duration":"16"}, {"id":"b36","pitch":"A5","duration":"8"}, {"id":"b37","pitch":"D5","duration":"16"}, {"id":"b38","pitch":"F#5","duration":"16"},
+    {"id":"b39","pitch":"C5","duration":"q"}, {"id":"b40","pitch":"F#5","duration":"8"}, {"id":"b41","pitch":"D5","duration":"8"},
+    {"id":"b42","pitch":"D5","duration":"8"}, {"id":"b43","pitch":"F#5","duration":"8"}, {"id":"b44","pitch":"C5","duration":"8"}, {"id":"b45","pitch":"A5","duration":"8"},
+    {"id":"b46","pitch":"F#5","duration":"8"}, {"id":"b47","pitch":"C5","duration":"8"}, {"id":"b48","pitch":"F#5","duration":"q"},
+    {"id":"b49","rest":true,"duration":"h"}
+  ]
+}

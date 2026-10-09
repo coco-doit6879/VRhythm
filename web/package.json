@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test:audio": "node --experimental-strip-types --test tests/instrumentSynth.test.mjs",
-    "deploy:pages": "npm run build && npx wrangler pages deploy dist --project-name vrhythm --branch main",
+    "deploy:pages": "npm run build && npx wrangler pages deploy dist --project-name vrythm --branch main",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
     "test:ui": "playwright test --project=chromium-desktop --project=chromium-tablet --project=chromium-mobile",
@@ -19,7 +19,8 @@
     "lenis": "^1.3.26",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "vexflow": "5.0.0"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.60.1",

@@ -70,3 +70,8 @@
   .auth-script-title .script-title-green { font-size: 38px; }
   .auth-script-title .script-title-orange { font-size: 38px; }
 }
+
+/* Keep the main layout inside narrow screens. */
+.auth-layout { grid-template-columns:minmax(0,1fr) minmax(0,440px); }
+.auth-layout > * { min-width:0; }
+@media(max-width:850px) { .auth-layout { grid-template-columns:minmax(0,1fr); } }
