@@ -1,0 +1,17 @@
+.practice-pitch-chart { margin: 16px 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
+.practice-pitch-chart figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: .875rem; }
+.pitch-chart-legend { display: flex; align-items: center; gap: 6px; font-size: .75rem; }
+.pitch-chart-legend i { width: 14px; border-top: 2px solid var(--gold, #c5a269); }
+.pitch-chart-legend i:nth-of-type(2) { border-top: 2px dashed #91b8a0; margin-left: 8px; }
+.pitch-chart-plot { display: flex; height: 120px; margin: 14px 0 4px; gap: 6px; }
+.pitch-chart-labels { position: relative; width: 26px; flex-shrink: 0; font-size: .75rem; }
+.pitch-chart-labels span { position: absolute; left: 0; transform: translateY(-50%); }
+.practice-pitch-chart svg { display: block; width: 100%; min-width: 0; height: 120px; overflow: hidden; }
+.pitch-chart-time { display: flex; justify-content: space-between; margin: 8px 0 12px 32px; font-size: .75rem; }
+.pitch-chart-grid { stroke: var(--line); }
+.pitch-chart-heard, .pitch-chart-target { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.pitch-chart-heard { stroke: var(--gold, #c5a269); }
+.pitch-chart-target { stroke: #91b8a0; stroke-dasharray: 5 4; }
+.pitch-chart-empty { font-size: .75rem; margin: 4px 0 12px; }
+.pitch-microphone-level { display: flex; align-items: center; gap: 10px; font-size: .75rem; }
+.pitch-microphone-level meter { flex: 1; min-width: 30px; height: 12px; accent-color: var(--gold, #c5a269); }

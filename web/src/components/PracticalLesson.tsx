@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PracticalDetail } from '../services/api';
 import { WebSheetMusic } from './WebSheetMusic';
 import { detectPitchHz, frequencyToNote, pitchToFrequency, PracticeNoteTracker, type PracticePhase } from './practicePitch';
+import { PracticePitchChart } from './PracticePitchChart';
+import { appendPitchSample, microphoneLevel, type PitchSample } from './practiceTrace';
 
 type Score = { metadata: { tempo?: number; timeSignature?: { beats: number; beatType: number } }; notes: Array<{ id: string; pitch: string; duration: string }> };
 
@@ -28,6 +30,8 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
   const [phase, setPhase] = useState<PracticePhase>('waiting');
   const [hint, setHint] = useState('');
   const [error, setError] = useState('');
+  const [samples, setSamples] = useState<PitchSample[]>([]);
+  const [level, setLevel] = useState(0);
   const resources = useRef<{ stream?: MediaStream; context?: AudioContext; frame?: number }>({});
   const generation = useRef(0);
 
@@ -55,6 +59,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
     }
     const id = ++generation.current;
     setStarting(true); setError(''); setNotes([]); setHeard('—'); setIndex(0); setPhase('waiting'); setHint('');
+    setSamples([]); setLevel(0);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
       if (generation.current !== id) { stream.getTracks().forEach(track => track.stop()); return; }
@@ -69,6 +74,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
       const buffer = new Float32Array(analyser.fftSize);
       const tracker = new PracticeNoteTracker(score.notes.map(note => note.pitch));
       let lastFrame = 0;
+      let lastChartFrame = 0;
       setRecording(true);
       const analyse = (now: number) => {
         if (generation.current !== id) return;
@@ -76,6 +82,12 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
           lastFrame = now;
           analyser.getFloatTimeDomainData(buffer);
           const frequency = detectPitchHz(buffer, context.sampleRate);
+          if (now - lastChartFrame >= 100) {
+            lastChartFrame = now;
+            const sample = { time: now, frequency, target: pitchToFrequency(score.notes[tracker.accepted.length]?.pitch || '') };
+            setSamples(previous => appendPitchSample(previous, sample));
+            setLevel(microphoneLevel(buffer));
+          }
           setHeard(frequency ? frequencyToNote(frequency) || '—' : '—');
           const observation = tracker.observe(frequency, now);
           setPhase(observation.phase);
@@ -122,8 +134,9 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
         <strong>{target || 'Hoàn tất lượt thổi'}</strong>
       </div>
       <div className="pitch-readout"><strong>{heard}</strong><span>{recording ? 'Micro đang nghe' : 'Micro đã dừng'} · {notes.length} nốt đúng</span></div>
+      <PracticePitchChart samples={samples} level={level} recording={recording} target={target ? pitchToFrequency(target) : null} />
       <p className={`practice-hint ${phase === 'wrong' ? 'wrong' : ''}`} role={phase === 'wrong' ? 'alert' : 'status'}>{error || hint || (recording ? 'Thổi nốt đang sáng trên bản nhạc.' : notes.length === score.notes.length ? 'Đã nghe đủ nốt; đang gửi kết quả.' : 'Nhấn “Bắt đầu nghe” khi bạn sẵn sàng.')}</p>
-      <div className="lesson-actions"><button className="record-button" disabled={busy || completed || starting} onClick={() => void start()}>{recording ? <Square size={18} /> : <Mic size={18} />}{starting ? 'Đang mở microphone…' : recording ? 'Dừng nghe' : 'Bắt đầu nghe'}</button><button className="text-button" disabled={recording || starting || busy || !notes.length} onClick={() => { setNotes([]); setHeard('—'); setIndex(0); setPhase('waiting'); setHint(''); }}><RotateCcw size={16} /> Xóa lượt thu</button></div>
+      <div className="lesson-actions"><button className="record-button" disabled={busy || completed || starting} onClick={() => void start()}>{recording ? <Square size={18} /> : <Mic size={18} />}{starting ? 'Đang mở microphone…' : recording ? 'Dừng nghe' : 'Bắt đầu nghe'}</button><button className="text-button" disabled={recording || starting || busy || (!notes.length && !samples.length)} onClick={() => { setNotes([]); setHeard('—'); setIndex(0); setPhase('waiting'); setHint(''); setSamples([]); setLevel(0); }}><RotateCcw size={16} /> Xóa lượt thu</button></div>
       <p className="recorded-notes">Nốt đã đúng: {notes.length ? notes.join(' · ') : 'Chưa có nốt nào'}</p>
       <p className="video-note">Phân tích cao độ một nhạc cụ tại một thời điểm; không lưu âm thanh. Nên luyện ở nơi yên tĩnh.</p>
       {!completed && notes.length === score.notes.length && <button className="primary" disabled={busy || recording || starting} onClick={() => void onSubmit(notes)}>{busy ? 'Đang chấm…' : 'Gửi lại kết quả'}</button>}
