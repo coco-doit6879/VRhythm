@@ -244,23 +244,23 @@ export const api = {
 
     const qrCode = getVietQRImageUrl({
       bin: '970422',
-      accountNumber: '0987654321',
-      accountName: 'VRHYTHM CORP',
+      accountNumber: '0908120950',
+      accountName: 'DUONG NGOC HOANG',
       amount,
       description,
     });
 
     return {
       bin: '970422',
-      accountNumber: '0987654321',
-      accountName: 'VRHYTHM CORP',
+      accountNumber: '0908120950',
+      accountName: 'DUONG NGOC HOANG',
       amount,
       description,
       orderCode,
       currency: 'VND',
-      paymentLinkId: `payos_${orderCode}`,
+      paymentLinkId: 'd4f43bdb3ca84976be491cf20c039bb0',
       status: 'PENDING',
-      checkoutUrl: `https://pay.payos.vn/web/${orderCode}`,
+      checkoutUrl: 'https://pay.payos.vn/web/d4f43bdb3ca84976be491cf20c039bb0',
       qrCode,
     };
   },

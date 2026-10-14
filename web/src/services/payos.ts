@@ -40,11 +40,19 @@ export function generatePayOSOrderCode(): number {
   return parseInt(`${timestamp}${randomSuffix}`, 10);
 }
 
+export const DEFAULT_PAYOS_CHECKOUT_URL = 'https://pay.payos.vn/web/d4f43bdb3ca84976be491cf20c039bb0';
+export const DEFAULT_PAYOS_BANK = {
+  bin: '970422',
+  bankName: 'MB Bank (Ngân hàng TMCP Quân Đội)',
+  accountNumber: '0908120950',
+  accountName: 'DUONG NGOC HOANG',
+};
+
 // VietQR QuickLink generation utility
 export function getVietQRImageUrl({
-  bin = '970422', // MB Bank default
-  accountNumber = '0987654321',
-  accountName = 'VRHYTHM CORP',
+  bin = DEFAULT_PAYOS_BANK.bin,
+  accountNumber = DEFAULT_PAYOS_BANK.accountNumber,
+  accountName = DEFAULT_PAYOS_BANK.accountName,
   amount = 59000,
   description = 'VRHYTHM PREMIUM',
 }: {
