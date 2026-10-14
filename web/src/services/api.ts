@@ -54,8 +54,8 @@ export type RegisterPayload = LoginPayload & {
   fullName: string;
   confirmPassword?: string;
 };
-export type LearningPackage = { code: string; name: string; amountVnd: number; accessDays: number; checkoutMode: 'Free' | 'Demo' | 'Unavailable'; courses: Array<{ id: number; title: string; accessType: string }> };
-export type CheckoutOrder = { id: string; packageCode: string; amountVnd: number; accessDays: number; status: 'Pending' | 'DemoSucceeded' | 'Failed' | 'Cancelled' | 'Expired'; isDemo: boolean; createdAt: string; expiresAt: string };
+export type LearningPackage = { code: string; name: string; amountVnd: number; accessDays: number; checkoutMode: 'Free' | 'Demo' | 'PayOS' | 'Unavailable'; courses: Array<{ id: number; title: string; accessType: string }> };
+export type CheckoutOrder = { id: string; packageCode: string; amountVnd: number; accessDays: number; status: 'Creating' | 'Pending' | 'Paid' | 'DemoSucceeded' | 'Failed' | 'Cancelled' | 'Expired'; isDemo: boolean; createdAt: string; expiresAt: string; checkoutUrl?: string; orderCode?: number; completedAt?: string };
 
 const storageKey = 'vrhythm_web_auth';
 
@@ -186,7 +186,9 @@ async function readCourse<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const api = {
-  getChatStatus(signal?: AbortSignal) { return request<{ mode: 'Demo' | 'Unavailable' }>('/api/chat/status', { signal }); },
+  createPayOSCheckout(packageCode: string, requestId: string) { return request<CheckoutOrder>('/api/billing/payos/create-payment-link', { method: 'POST', body: JSON.stringify({ packageCode, requestId }) }); },
+  getPayOSCheckout(id: string, signal?: AbortSignal) { return request<CheckoutOrder>(`/api/billing/payos/orders/${encodeURIComponent(id)}`, { signal }); },
+  getChatStatus(signal?: AbortSignal) { return request<{ mode: 'Demo' | 'Premium' | 'Unavailable' }>('/api/chat/status', { signal }); },
   askFluteChat(question: string, signal?: AbortSignal) { return request<ChatReply>('/api/chat/messages', { method: 'POST', body: JSON.stringify({ question }), signal }); },
   getPackages(signal?: AbortSignal) { return request<LearningPackage[]>('/api/billing/packages', { signal }); },
   createCheckout(packageCode: string, requestId: string) { return request<CheckoutOrder>('/api/billing/orders', { method: 'POST', body: JSON.stringify({ packageCode, requestId }) }); },
