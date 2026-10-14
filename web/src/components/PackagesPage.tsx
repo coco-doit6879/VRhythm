@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, CheckCircle2, Copy, Crown, ExternalLink, QrCode, ShieldCheck, Sparkles, X } from 'lucide-react';
+import { AlertCircle, ArrowRight, Check, CheckCircle2, Copy, Crown, ExternalLink, QrCode, RefreshCw, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { api, type AuthResponse, type CheckoutOrder, type LearningPackage } from '../services/api';
 import { parsePayOSCallbackParams, premiumStorage, type PayOSPaymentResponse, type PremiumSubscription } from '../services/payos';
 import './packages-page.css';
@@ -12,6 +12,8 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
   const [payosData, setPayosData] = useState<PayOSPaymentResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [notification, setNotification] = useState<{ type: 'info' | 'success' | 'warn'; message: string } | null>(null);
   const [retry, setRetry] = useState(0);
@@ -147,20 +149,41 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
     }
   };
 
-  const handleConfirmPaid = () => {
+  const handleVerifyPayment = async () => {
     if (!payosData) return;
-    const sub = premiumStorage.activate(
-      payosData.orderCode,
-      'flute-plus',
-      'Gói Premium Chuyên Sâu',
-      payosData.amount,
-      30
-    );
-    setIsPremium(true);
-    setPremiumInfo(sub);
-    setPayosData(null);
-    setShowCelebration(true);
-    setNotification({ type: 'success', message: 'Kích hoạt thành công gói Premium Chuyên Sâu qua PayOS!' });
+    setVerifying(true);
+    setVerifyError(null);
+    try {
+      const res = await api.verifyPayOSPayment(payosData.orderCode);
+      if (res.success && res.status === 'PAID') {
+        const sub = premiumStorage.activate(
+          payosData.orderCode,
+          'all-access-plus',
+          'Gói Chuyên Sâu Toàn Diện',
+          payosData.amount,
+          30
+        );
+        setIsPremium(true);
+        setPremiumInfo(sub);
+        setPayosData(null);
+        setShowCelebration(true);
+        setNotification({ type: 'success', message: 'Xác thực thanh toán PayOS thành công! Toàn bộ khóa học nâng cao đã được mở khóa.' });
+      } else {
+        setVerifyError('Chưa ghi nhận chuyển khoản: Giao dịch đang chờ xác nhận từ ngân hàng. Nếu bạn đã quét VietQR chuyển tiền, vui lòng đợi từ 30 giây đến 1 phút rồi bấm lại.');
+      }
+    } catch (err) {
+      setVerifyError(err instanceof Error ? err.message : 'Chưa thể xác nhận giao dịch lúc này. Vui lòng thử lại.');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleResetDemoState = () => {
+    premiumStorage.clear();
+    setIsPremium(false);
+    setPremiumInfo(null);
+    setShowCelebration(false);
+    setNotification({ type: 'info', message: 'Đã đặt lại trạng thái gói học về mặc định (chưa kích hoạt).' });
   };
 
   const formatCountdown = (seconds: number) => {
@@ -171,12 +194,21 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
 
   return (
     <main className="page packages-page">
-      <a className="text-button back-link" href="/learn/sao">← Quay lại lộ trình học sáo trúc</a>
+      <a className="text-button back-link" href="/learn">← Quay lại danh mục học nhạc cụ</a>
 
       <header className="packages-intro">
-        <span className="section-kicker"><Sparkles size={14} /> Nâng tầm kỹ nghệ âm nhạc</span>
-        <h1>Học sáo trúc sâu hơn.<br /><em>Cùng tài khoản Premium.</em></h1>
-        <p>Mở khóa toàn bộ bài học nâng cao, kỹ thuật rung hơi, vuốt ngón, chuyển nốt và thư viện sheet nhạc độc quyền cùng công nghệ nhận diện cao độ AI.</p>
+        <span className="section-kicker"><Sparkles size={14} /> Tinh hoa Âm nhạc Dân tộc</span>
+        <h1>Chinh phục Nhạc cụ Truyền thống.<br /><em>Cùng tài khoản VRhythm Premium.</em></h1>
+        <p>Lộ trình học tập toàn diện từ nền tảng đến điêu luyện cho Sáo trúc, Đàn tranh, Đàn bầu, Đàn nguyệt, Đàn nhị và Tỳ bà kết hợp công nghệ chấm điểm AI Pitch Detector thời gian thực.</p>
+        
+        <div className="packages-instrument-pills" aria-label="Các nhạc cụ được hỗ trợ">
+          <span className="pill">🎋 Sáo trúc</span>
+          <span className="pill">🪕 Đàn tranh</span>
+          <span className="pill">🎸 Đàn bầu</span>
+          <span className="pill">🌕 Đàn nguyệt</span>
+          <span className="pill">🎻 Đàn nhị</span>
+          <span className="pill">🪕 Tỳ bà</span>
+        </div>
       </header>
 
       {notification && (
@@ -200,8 +232,8 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
           <div className="premium-card-header">
             <div className="crown-badge"><Crown size={28} /></div>
             <div>
-              <h2>Bạn đang sở hữu Tài khoản Premium</h2>
-              <p>Toàn bộ các khóa học nâng cao (Khóa 6 & 7) và tính năng AI Scoring đã được mở khóa vĩnh viễn trong thời hạn gói.</p>
+              <h2>Bạn đang sở hữu Tài khoản VRhythm Premium</h2>
+              <p>Toàn bộ các khóa học nâng cao cho tất cả bộ môn nhạc cụ truyền thống và tính năng AI Scoring đã được mở khóa.</p>
               {premiumInfo?.expiresAt && (
                 <small className="expires-tag">Hạn dùng đến: {new Date(premiumInfo.expiresAt).toLocaleDateString('vi-VN')}</small>
               )}
@@ -210,30 +242,34 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
           <div className="unlocked-features-grid">
             <div className="unlocked-feature-item">
               <CheckCircle2 size={18} className="feature-icon" />
-              <span><strong>Khóa 6:</strong> Sáo trúc — Hơi đều và chuyển nốt (Luyện cơ hoành & rung hơi)</span>
+              <span><strong>🎋 Sáo trúc:</strong> Luyện cơ hoành, cột hơi vững, kỹ thuật rung hơi & luyến láy</span>
             </div>
             <div className="unlocked-feature-item">
               <CheckCircle2 size={18} className="feature-icon" />
-              <span><strong>Khóa 7:</strong> Sáo trúc — Luyện câu nhạc (Kỹ thuật luyến láy, vuốt nốt điêu luyện)</span>
+              <span><strong>🪕 Đàn tranh & Đàn nguyệt:</strong> Kỹ thuật gảy móng, phím cao, rung nhấn mềm mại</span>
             </div>
             <div className="unlocked-feature-item">
               <CheckCircle2 size={18} className="feature-icon" />
-              <span><strong>AI Scoring:</strong> Nhận diện cao độ qua micro không giới hạn</span>
+              <span><strong>🎸 Đàn bầu:</strong> Làm chủ điểm bồi âm, uốn cần đàn và luyến nốt truyền thống</span>
             </div>
             <div className="unlocked-feature-item">
               <CheckCircle2 size={18} className="feature-icon" />
-              <span><strong>Sheet Music:</strong> Tải toàn bộ bản ký âm chuẩn Bravura</span>
+              <span><strong>🤖 AI Scoring & Sheet Music:</strong> Chấm điểm thời gian thực & tải toàn bộ ký âm Bravura</span>
             </div>
           </div>
           <div className="premium-actions">
-            <a className="primary" href="/learn/sao">Vào học khóa học nâng cao ngay <ArrowRight size={18} /></a>
+            <a className="primary" href="/learn">Khám phá các khóa học ngay <ArrowRight size={18} /></a>
+            <button className="text-button reset-demo-btn" onClick={handleResetDemoState}>
+              <RefreshCw size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+              Đặt lại trạng thái gói (Dành cho kiểm thử)
+            </button>
           </div>
         </section>
       )}
 
       {/* Packages Grid */}
       {!loading && !packages.length && !error && (
-        <p>Các gói học đang được cập nhật. <a href="/learn/sao">Tiếp tục học miễn phí</a></p>
+        <p>Các gói học đang được cập nhật. <a href="/learn">Tiếp tục học miễn phí</a></p>
       )}
 
       {!loading && (
@@ -244,37 +280,40 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
               <span className="package-tier-badge">Cơ bản</span>
               <h2 id="package-free">Học Miễn Phí</h2>
               <p className="package-price">0đ<span>/trọn đời</span></p>
-              <p className="card-desc">Làm quen với sáo trúc, cách phát âm những nốt đầu tiên và bài Bèo Dạt Mây Trôi.</p>
+              <p className="card-desc">Khám phá các nốt nhạc đầu tiên, cấu tạo nhạc cụ và kiến thức văn hóa di sản âm nhạc truyền thống.</p>
             </div>
             <ul className="package-features">
-              <li><Check size={16} /> 2 Khóa cơ bản nền tảng (Khóa 1 & 5)</li>
-              <li><Check size={16} /> Nhận diện nốt và luyện cao độ cơ bản</li>
-              <li><Check size={16} /> Đọc ký âm sheet nhạc chuẩn 75%</li>
-              <li className="dimmed">✕ Khóa học kỹ thuật nâng cao (Khóa 6 & 7)</li>
-              <li className="dimmed">✕ Không giới hạn thời lượng AI Scoring</li>
+              <li><Check size={16} /> Khóa học nhập môn nền tảng của các bộ môn nhạc cụ</li>
+              <li><Check size={16} /> Luyện phát âm nốt cơ bản, nhận diện cao độ và cảm âm</li>
+              <li><Check size={16} /> Tương tác thử nghiệm phím đàn, lỗ bấm mô phỏng trên web</li>
+              <li><Check size={16} /> Xem và học theo sheet nhạc ký âm chuẩn Bravura</li>
+              <li className="dimmed">✕ Các khóa đào tạo kỹ thuật nâng cao & diễn tấu chuyên sâu</li>
+              <li className="dimmed">✕ Nhận diện cao độ qua micro không giới hạn với AI Pitch Detector</li>
+              <li className="dimmed">✕ Trợ lý gia sư AI VRhythm giải đáp kỹ thuật 24/7</li>
             </ul>
             <div className="card-action">
-              <a className="secondary-action" href="/learn/sao">Bắt đầu học miễn phí <ArrowRight size={16} /></a>
+              <a className="secondary-action" href="/learn">Khám phá miễn phí <ArrowRight size={16} /></a>
             </div>
           </section>
 
           {/* Premium Tier */}
           <section className="package-card premium-card" aria-labelledby="package-premium">
             <div className="card-ribbon">
-              <Sparkles size={13} /> KHUYÊN DÙNG ĐỂ HỌC SÂU HƠN
+              <Sparkles size={13} /> GÓI TOÀN DIỆN TẤT CẢ NHẠC CỤ
             </div>
             <div className="card-top">
-              <span className="package-tier-badge gold">Tài khoản Premium</span>
+              <span className="package-tier-badge gold">Tài khoản Premium All-Access</span>
               <h2 id="package-premium">Gói Chuyên Sâu (Plus)</h2>
               <p className="package-price gold-price">59.000đ<span>/tháng (30 ngày)</span></p>
-              <p className="card-desc">Dành cho người học muốn nắm vững cột hơi, vuốt ngón, luyến láy để diễn tấu trọn vẹn tác phẩm.</p>
+              <p className="card-desc">Mở khóa trọn vẹn toàn bộ hệ thống nhạc cụ dân tộc, làm chủ kỹ thuật diễn tấu tinh tế và các tác phẩm biểu diễn kinh điển.</p>
             </div>
             <ul className="package-features highlight">
-              <li><Check size={16} className="gold-check" /> <strong>Mở khóa trọn bộ Khóa 6:</strong> Sáo trúc — Hơi đều và chuyển nốt</li>
-              <li><Check size={16} className="gold-check" /> <strong>Mở khóa trọn bộ Khóa 7:</strong> Sáo trúc — Luyện câu nhạc & luyến láy</li>
-              <li><Check size={16} className="gold-check" /> Chấm điểm & phân tích cao độ thời gian thực với AI Pitch Detector</li>
-              <li><Check size={16} className="gold-check" /> Trợ lý gia sư Flute AI hỏi đáp kỹ thuật không giới hạn</li>
-              <li><Check size={16} className="gold-check" /> Thanh toán tự động bảo mật qua Cổng PayOS (VietQR)</li>
+              <li><Check size={16} className="gold-check" /> <strong>Mở khóa toàn bộ khóa nâng cao:</strong> Sáo trúc, Đàn tranh, Đàn bầu, Đàn nguyệt...</li>
+              <li><Check size={16} className="gold-check" /> <strong>Kỹ thuật tinh hoa:</strong> Cột hơi cơ hoành, vuốt ngón, luyến láy, uốn cần, nhấn rung</li>
+              <li><Check size={16} className="gold-check" /> Chấm điểm & phân tích cao độ chuẩn xác thời gian thực với AI Pitch Detector</li>
+              <li><Check size={16} className="gold-check" /> Trợ lý gia sư AI VRhythm hướng dẫn kỹ thuật cá nhân hóa 24/7</li>
+              <li><Check size={16} className="gold-check" /> Tải toàn bộ kho sheet nhạc ký âm chuẩn Bravura độc quyền</li>
+              <li><Check size={16} className="gold-check" /> Thanh toán tự động, đối soát minh bạch qua Cổng PayOS (VietQR)</li>
             </ul>
             <div className="card-action">
               {isPremium ? (
@@ -399,8 +438,22 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
                 </div>
 
                 <div className="payos-modal-footer">
-                  <button className="primary confirm-btn" onClick={handleConfirmPaid}>
-                    <CheckCircle2 size={18} /> Tôi đã chuyển khoản thành công
+                  {verifyError && (
+                    <div className="payos-status-warning" role="alert">
+                      <AlertCircle size={16} className="warning-icon" />
+                      <span>{verifyError}</span>
+                    </div>
+                  )}
+                  <button
+                    className="primary confirm-btn"
+                    disabled={verifying}
+                    onClick={handleVerifyPayment}
+                  >
+                    {verifying ? (
+                      <><RefreshCw size={16} className="spin-icon" /> Đang kiểm tra giao dịch…</>
+                    ) : (
+                      <><CheckCircle2 size={18} /> Kiểm tra trạng thái thanh toán</>
+                    )}
                   </button>
                   {payosData.checkoutUrl && (
                     <a

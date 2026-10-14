@@ -264,12 +264,12 @@ export const api = {
       qrCode,
     };
   },
-  async verifyPayOSPayment(orderCode: number | string): Promise<{ success: boolean; status: string }> {
+  async verifyPayOSPayment(orderCode: number | string): Promise<{ success: boolean; status: string; message?: string }> {
     try {
-      const res = await request<{ success: boolean; status: string }>(`/api/billing/payos/order/${orderCode}`);
+      const res = await request<{ success: boolean; status: string; message?: string }>(`/api/billing/payos/order/${orderCode}`);
       return res;
     } catch {
-      return { success: true, status: 'PAID' };
+      return { success: false, status: 'PENDING', message: 'Chưa ghi nhận thanh toán thành công cho đơn hàng này.' };
     }
   },
   getProfile() {
