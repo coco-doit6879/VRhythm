@@ -98,6 +98,23 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
     return () => { active = false; controller.abort(); };
   }, [retry, user?.userId]);
 
+  // Lock body scroll and listen for ESC key when PayOS modal is open
+  useEffect(() => {
+    if (!payosData) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPayosData(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [payosData]);
+
   const copyToClipboard = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedField(fieldName);
@@ -286,9 +303,23 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
 
       {/* PayOS VietQR Payment Modal */}
       {payosData && (
-        <div className="payos-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="payos-modal-title">
+        <div
+          className="payos-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="payos-modal-title"
+          onClick={(e) => { if (e.target === e.currentTarget) setPayosData(null); }}
+        >
           <div className="payos-modal-card">
-            <button className="payos-modal-close" onClick={() => setPayosData(null)} aria-label="Đóng cửa sổ"><X size={20} /></button>
+            <button
+              className="payos-modal-close"
+              onClick={() => setPayosData(null)}
+              aria-label="Đóng cửa sổ"
+              title="Đóng (Esc)"
+            >
+              <X size={20} />
+            </button>
+
             <div className="payos-modal-header">
               <span className="payos-badge">Cổng thanh toán PayOS</span>
               <h2 id="payos-modal-title">Quét mã VietQR để nâng cấp Premium</h2>
@@ -296,89 +327,93 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
             </div>
 
             <div className="payos-modal-body">
-              {/* QR Code Container */}
+              {/* Left Column: QR Code Box */}
               <div className="payos-qr-box">
                 <img
                   src={payosData.qrCode}
                   alt={`Mã VietQR thanh toán PayOS ${money(payosData.amount)}`}
                   className="payos-qr-img"
+                  width={210}
+                  height={210}
                 />
                 <p className="payos-qr-hint">Mở ứng dụng ngân hàng hoặc MoMo quét mã QR trên</p>
               </div>
 
-              {/* Bank Transfer Details with One-click Copy */}
-              <div className="payos-details-list">
-                <div className="payos-detail-row">
-                  <span className="label">Ngân hàng</span>
-                  <span className="value">MB Bank (Quân Đội)</span>
+              {/* Right Column: Bank Transfer Details & Action Buttons */}
+              <div className="payos-info-column">
+                <div className="payos-details-list">
+                  <div className="payos-detail-row">
+                    <span className="label">Ngân hàng</span>
+                    <span className="value">MB Bank (Quân Đội)</span>
+                  </div>
+
+                  <div className="payos-detail-row">
+                    <span className="label">Số tài khoản</span>
+                    <span className="value-with-copy">
+                      <strong>{payosData.accountNumber}</strong>
+                      <button
+                        className="copy-btn"
+                        onClick={() => copyToClipboard(payosData.accountNumber, 'acc')}
+                        title="Sao chép số tài khoản"
+                      >
+                        {copiedField === 'acc' ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
+                        {copiedField === 'acc' ? 'Đã chép' : 'Chép'}
+                      </button>
+                    </span>
+                  </div>
+
+                  <div className="payos-detail-row">
+                    <span className="label">Chủ tài khoản</span>
+                    <span className="value">{payosData.accountName}</span>
+                  </div>
+
+                  <div className="payos-detail-row">
+                    <span className="label">Số tiền</span>
+                    <span className="value-with-copy">
+                      <strong className="amount-highlight">{money(payosData.amount)}</strong>
+                      <button
+                        className="copy-btn"
+                        onClick={() => copyToClipboard(payosData.amount.toString(), 'amount')}
+                        title="Sao chép số tiền"
+                      >
+                        {copiedField === 'amount' ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
+                        {copiedField === 'amount' ? 'Đã chép' : 'Chép'}
+                      </button>
+                    </span>
+                  </div>
+
+                  <div className="payos-detail-row">
+                    <span className="label">Nội dung CK</span>
+                    <span className="value-with-copy">
+                      <strong className="code-highlight">{payosData.description}</strong>
+                      <button
+                        className="copy-btn"
+                        onClick={() => copyToClipboard(payosData.description, 'desc')}
+                        title="Sao chép nội dung chuyển khoản"
+                      >
+                        {copiedField === 'desc' ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
+                        {copiedField === 'desc' ? 'Đã chép' : 'Chép'}
+                      </button>
+                    </span>
+                  </div>
                 </div>
 
-                <div className="payos-detail-row">
-                  <span className="label">Số tài khoản</span>
-                  <span className="value-with-copy">
-                    <strong>{payosData.accountNumber}</strong>
-                    <button
-                      className="copy-btn"
-                      onClick={() => copyToClipboard(payosData.accountNumber, 'acc')}
-                      title="Sao chép số tài khoản"
+                <div className="payos-modal-footer">
+                  <button className="primary confirm-btn" onClick={handleConfirmPaid}>
+                    <CheckCircle2 size={18} /> Tôi đã chuyển khoản thành công
+                  </button>
+                  {payosData.checkoutUrl && (
+                    <a
+                      href={payosData.checkoutUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-button payos-checkout-link"
                     >
-                      {copiedField === 'acc' ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
-                      {copiedField === 'acc' ? 'Đã chép' : 'Chép'}
-                    </button>
-                  </span>
-                </div>
-
-                <div className="payos-detail-row">
-                  <span className="label">Chủ tài khoản</span>
-                  <span className="value">{payosData.accountName}</span>
-                </div>
-
-                <div className="payos-detail-row">
-                  <span className="label">Số tiền</span>
-                  <span className="value-with-copy">
-                    <strong className="amount-highlight">{money(payosData.amount)}</strong>
-                    <button
-                      className="copy-btn"
-                      onClick={() => copyToClipboard(payosData.amount.toString(), 'amount')}
-                      title="Sao chép số tiền"
-                    >
-                      {copiedField === 'amount' ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
-                      {copiedField === 'amount' ? 'Đã chép' : 'Chép'}
-                    </button>
-                  </span>
-                </div>
-
-                <div className="payos-detail-row">
-                  <span className="label">Nội dung chuyển khoản</span>
-                  <span className="value-with-copy">
-                    <strong className="code-highlight">{payosData.description}</strong>
-                    <button
-                      className="copy-btn"
-                      onClick={() => copyToClipboard(payosData.description, 'desc')}
-                      title="Sao chép nội dung"
-                    >
-                      {copiedField === 'desc' ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
-                      {copiedField === 'desc' ? 'Đã chép' : 'Chép'}
-                    </button>
-                  </span>
+                      Mở trang thanh toán PayOS <ExternalLink size={14} />
+                    </a>
+                  )}
                 </div>
               </div>
-            </div>
-
-            <div className="payos-modal-footer">
-              <button className="primary confirm-btn" onClick={handleConfirmPaid}>
-                <CheckCircle2 size={18} /> Tôi đã chuyển khoản thành công
-              </button>
-              {payosData.checkoutUrl && (
-                <a
-                  href={payosData.checkoutUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-button payos-checkout-link"
-                >
-                  Mở trang thanh toán PayOS <ExternalLink size={14} />
-                </a>
-              )}
             </div>
           </div>
         </div>
