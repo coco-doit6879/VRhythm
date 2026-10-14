@@ -96,7 +96,7 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
             <button className="primary" onClick={() => next && onLesson({ courseId: course.id, chapterId: next.chapterId, lessonId: next.id })}>{course.isCompleted ? 'Xem lại bài học' : 'Vào học'}</button>
           </> : <>
             <p>Đọc lộ trình phía trên và đăng ký khi bạn sẵn sàng</p>
-            <button className="primary" disabled={busy !== null} onClick={() => void enroll(course)}>{busy === course.id ? 'Đang đăng ký…' : course.accessType !== 'Free' ? 'Xem gói Plus' : !user ? 'Đăng nhập để đăng ký học' : 'Đăng ký học miễn phí'}</button>
+            <button className="primary" disabled={busy !== null} onClick={() => void enroll(course)}>{busy === course.id ? 'Đang đăng ký…' : course.accessType !== 'Free' ? 'Nâng cấp Premium qua PayOS' : !user ? 'Đăng nhập để đăng ký học' : 'Đăng ký học miễn phí'}</button>
           </>}
         </footer>
       </section>;
