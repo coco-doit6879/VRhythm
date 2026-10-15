@@ -145,6 +145,26 @@
   font-size: 15px;
 }
 
+.checkout-summary .premium-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.checkout-summary .text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 4px;
+}
+
+.packages-page .package-price.gold-price {
+  color: var(--lp-accent, #c7a36b);
+}
+
 .expires-tag {
   display: inline-block;
   padding: 4px 10px;

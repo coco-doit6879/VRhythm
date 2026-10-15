@@ -1,7 +1,5 @@
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://vrhythm-api-latest.onrender.com').replace(/\/+$/, '');
 
-import { premiumStorage, generatePayOSOrderCode, getVietQRImageUrl, type PayOSPaymentResponse } from './payos';
-
 export type CourseSummary = {
 
   id: number;
@@ -208,69 +206,14 @@ export const api = {
   getQuiz(id: number, signal?: AbortSignal) { return readCourse<QuizDetail>(`/api/quizzes/${id}`, signal); },
   getPractical(id: number, signal?: AbortSignal) { return readCourse<PracticalDetail>(`/api/practical/${id}`, signal); },
   getVideoUrl(courseId: number, lessonId: number, signal?: AbortSignal) { return readCourse<string>(`/api/lessons/${lessonId}/video-url?courseId=${courseId}`, signal); },
-  async getCourse(id: number, signal?: AbortSignal) {
-    const course = await readCourse<CourseDetail>(`/api/courses/${id}`, signal);
-    if (premiumStorage.isActive() && (course.accessType === 'Paid' || id === 6 || id === 7)) {
-      return { ...course, isUnlocked: true, isEnrolled: true };
-    }
-    return course;
+  getCourse(id: number, signal?: AbortSignal) {
+    return readCourse<CourseDetail>(`/api/courses/${id}`, signal);
   },
   getCourses(signal?: AbortSignal) {
     return readCourse<CourseSummary[]>('/api/courses', signal);
   },
-  async getLearnerCourses() {
-    const list = await readCourse<LearnerCourseSummary[]>('/api/courses/learning');
-    if (premiumStorage.isActive()) {
-      return list.map(item => (item.accessType === 'Paid' || item.id === 6 || item.id === 7) ? { ...item, isUnlocked: true, isEnrolled: true } : item);
-    }
-    return list;
-  },
-  async createPayOSPayment(packageCode: string): Promise<PayOSPaymentResponse> {
-    const orderCode = generatePayOSOrderCode();
-    const returnUrl = `${window.location.origin}/packages?status=PAID&orderCode=${orderCode}`;
-    const cancelUrl = `${window.location.origin}/packages?status=CANCELLED&orderCode=${orderCode}`;
-    const amount = 59000;
-    const description = `VRHYTHM ${orderCode}`;
-
-    try {
-      const res = await request<PayOSPaymentResponse>('/api/billing/payos/create-payment-link', {
-        method: 'POST',
-        body: JSON.stringify({ packageCode, orderCode, returnUrl, cancelUrl, amount, description }),
-      });
-      if (res && res.checkoutUrl) return res;
-    } catch {
-      // Backend not yet configured with PayOS; fallback to client VietQR PayOS
-    }
-
-    const qrCode = getVietQRImageUrl({
-      bin: '970422',
-      accountNumber: '0908120950',
-      accountName: 'DUONG NGOC HOANG',
-      amount,
-      description,
-    });
-
-    return {
-      bin: '970422',
-      accountNumber: '0908120950',
-      accountName: 'DUONG NGOC HOANG',
-      amount,
-      description,
-      orderCode,
-      currency: 'VND',
-      paymentLinkId: 'd4f43bdb3ca84976be491cf20c039bb0',
-      status: 'PENDING',
-      checkoutUrl: 'https://pay.payos.vn/web/d4f43bdb3ca84976be491cf20c039bb0',
-      qrCode,
-    };
-  },
-  async verifyPayOSPayment(orderCode: number | string): Promise<{ success: boolean; status: string; message?: string }> {
-    try {
-      const res = await request<{ success: boolean; status: string; message?: string }>(`/api/billing/payos/order/${orderCode}`);
-      return res;
-    } catch {
-      return { success: false, status: 'PENDING', message: 'Chưa ghi nhận thanh toán thành công cho đơn hàng này.' };
-    }
+  getLearnerCourses() {
+    return readCourse<LearnerCourseSummary[]>('/api/courses/learning');
   },
   getProfile() {
     return request<UserProfile>('/api/user/profile');
