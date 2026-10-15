@@ -90,7 +90,7 @@ export default function App() {
   const openAuth = (mode: 'login' | 'register' = 'login') => navigate('auth', mode);
   const signIn = async (data: { fullName?: string; email: string; password: string; confirmPassword?: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password, confirmPassword: data.confirmPassword }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && (returnTo === '/packages' || returnTo === '/learn/sao' || (returnTo === '/admin' && response.role === 'Admin'))) window.location.assign(returnTo); else navigate(response.role === 'Admin' ? 'admin' : 'learn'); };
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
-  const supportSurface = !['home', 'explore'].includes(view) && !(view === 'learn' && !isInstrumentRoute);
+  const supportSurface = !['home', 'explore', 'packages'].includes(view) && !(view === 'learn' && !isInstrumentRoute);
 
   return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} isAdmin={authUser?.role === 'Admin'} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'admin' && <Suspense fallback={<main className="page" role="status">Đang tải dashboard…</main>}><AdminDashboard key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/admin'); openAuth('login'); }} /></Suspense>}
