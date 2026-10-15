@@ -137,7 +137,7 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
       setOrder(result);
       window.history.replaceState({}, '', `/packages?order=${encodeURIComponent(result.id)}`);
       const url = checkoutUrl(result.checkoutUrl);
-      if (url) {
+      if (url && result.status === 'Pending') {
         window.location.assign(url);
       }
     } catch (err) {
@@ -402,6 +402,7 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
                   </div>
                 ) : (
                   <button
+                    data-activity="checkout_start"
                     className="packages-card-btn primary"
                     disabled={busy || !paidPackage || paidPackage.checkoutMode !== 'PayOS'}
                     onClick={() => void handlePayOSCheckout()}
@@ -489,6 +490,7 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
         </p>
         <div className="packages-closing-actions">
           <button
+            data-activity="checkout_start"
             className="primary"
             disabled={busy || !paidPackage || paidPackage.checkoutMode !== 'PayOS'}
             onClick={() => void handlePayOSCheckout()}
