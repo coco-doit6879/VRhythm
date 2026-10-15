@@ -6,6 +6,7 @@ import { AlertCircle, ArrowLeft, ArrowRight, Award, BookOpen, CheckCircle2, Comp
 import { InstrumentLearning } from './components/InstrumentLearning';
 import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
+import { useProductActivity } from './services/useProductActivity';
 import { PackagesPage } from './components/PackagesPage';
 import { FluteChat } from './components/FluteChat';
 import { ExplorePage } from './components/ExplorePage';
@@ -15,9 +16,10 @@ import { LessonPlayer } from './components/LessonPlayer';
 import { instruments, type Instrument } from './data/mock';
 import { api, authStorage, courseErrorMessage, ApiError, type AuthResponse, type CourseSummary, type LearnerCourseSummary } from './services/api';
 
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const MusicLibraryPage = lazy(() => import('./components/MusicLibraryPage'));
 
-type View = 'library' | 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson' | 'packages';
+type View = 'admin' | 'library' | 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson' | 'packages';
 type LessonRoute = { courseId: number; chapterId: number; lessonId: number };
 const defaultLessonRoute: LessonRoute = { courseId: 1, chapterId: 1, lessonId: 1 };
 
@@ -30,6 +32,7 @@ const viewFromPath = (path: string): { view: View; authMode: 'login' | 'register
   if (path === '/explore' || path.startsWith('/explore/')) return { view: 'explore', authMode: 'login' };
   if (path === '/learn' || path.startsWith('/learn/')) return { view: 'learn', authMode: 'login' };
   if (path === '/library' || path.startsWith('/library/')) return { view: 'library', authMode: 'login' };
+  if (path === '/admin') return { view: 'admin', authMode: 'login' };
   if (path === '/packages') return { view: 'packages', authMode: 'login' };
   if (path === '/profile') return { view: 'profile', authMode: 'login' };
   if (path === '/lesson' || path.startsWith('/lesson/')) return { view: 'lesson', authMode: 'login' };
@@ -43,6 +46,7 @@ export default function App() {
   const [view, setView] = useState<View>(initialRoute.view);
   const [authMode, setAuthMode] = useState<'login' | 'register'>(initialRoute.authMode);
   const [pathname, setPathname] = useState(window.location.pathname);
+  useProductActivity(pathname);
   const selectedInstrument = instruments.find(item => item.id === pathname.split('/')[2]);
   const isInstrumentRoute = /^\/(explore|learn)\//.test(pathname);
   const [authUser, setAuthUser] = useState<AuthResponse | null>(() => authStorage.read());
@@ -61,6 +65,7 @@ export default function App() {
   const openLesson = (nextLessonRoute: LessonRoute = defaultLessonRoute) => {
     const nextPath = `/lesson/${nextLessonRoute.courseId}/chapter/${nextLessonRoute.chapterId}/lesson/${nextLessonRoute.lessonId}`;
     if (window.location.pathname !== nextPath) window.history.pushState({}, '', nextPath);
+    setPathname(nextPath);
     setLessonRoute(nextLessonRoute);
     setView('lesson');
   };
@@ -83,11 +88,12 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
   const openAuth = (mode: 'login' | 'register' = 'login') => navigate('auth', mode);
-  const signIn = async (data: { fullName?: string; email: string; password: string; confirmPassword?: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password, confirmPassword: data.confirmPassword }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && (returnTo === '/packages' || returnTo === '/learn/sao')) window.location.assign(returnTo); else navigate('learn'); };
+  const signIn = async (data: { fullName?: string; email: string; password: string; confirmPassword?: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password, confirmPassword: data.confirmPassword }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && (returnTo === '/packages' || returnTo === '/learn/sao' || (returnTo === '/admin' && response.role === 'Admin'))) window.location.assign(returnTo); else navigate(response.role === 'Admin' ? 'admin' : 'learn'); };
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
   const supportSurface = !['home', 'explore'].includes(view) && !(view === 'learn' && !isInstrumentRoute);
 
-  return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
+  return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} isAdmin={authUser?.role === 'Admin'} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
+    {view === 'admin' && <Suspense fallback={<main className="page" role="status">Đang tải dashboard…</main>}><AdminDashboard key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/admin'); openAuth('login'); }} /></Suspense>}
     {view === 'home' && <LandingPage />}
     {(view === 'learn' || view === 'lesson') && (!isInstrumentRoute || selectedInstrument?.id === 'sao') && <FluteChat key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/learn/sao'); openAuth('login'); }} />}
     {isInstrumentRoute && (!selectedInstrument || (view === 'learn' && selectedInstrument.id !== 'sao')) && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>{selectedInstrument ? 'Nhạc cụ này chưa mở' : 'Không tìm thấy nhạc cụ'}</h1><a href="/explore">Quay lại Khám phá</a></main>}

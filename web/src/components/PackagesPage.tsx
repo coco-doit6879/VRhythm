@@ -192,7 +192,7 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
               <li><Check size={16} className="gold-check" /> Thanh toán và xác nhận tự động qua PayOS</li>
             </ul>
             <div className="card-action">
-              <button className="primary gold-button" disabled={busy || !paidPackage || paidPackage.checkoutMode !== 'PayOS'} onClick={() => void handlePayOSCheckout()}>
+              <button data-activity="checkout_start" className="primary gold-button" disabled={busy || !paidPackage || paidPackage.checkoutMode !== 'PayOS'} onClick={() => void handlePayOSCheckout()}>
                 <QrCode size={18} />
                 {busy ? 'Đang kết nối PayOS…' : !paidPackage || paidPackage.checkoutMode !== 'PayOS' ? 'Thanh toán chưa mở' : user ? 'Nâng cấp Premium qua PayOS' : 'Đăng nhập để nâng cấp Premium'}
               </button>

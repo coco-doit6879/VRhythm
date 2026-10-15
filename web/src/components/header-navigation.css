@@ -2,3 +2,9 @@
   .app-shell.landing-shell .nav { gap:12px; }
   .app-shell.landing-shell .nav button { font-size:11px; white-space:nowrap; }
 }
+@media(min-width:761px) and (max-width:1000px) {
+  .app-shell.landing-shell .topbar.has-admin { padding-inline:24px; gap:12px; }
+  .app-shell.landing-shell .topbar.has-admin .header-tools { margin-right:0; }
+  .app-shell.landing-shell .topbar.has-admin .nav { gap:8px; }
+  .app-shell.landing-shell .topbar.has-admin .brand small { font-size:7px; }
+}

@@ -93,10 +93,10 @@ export function InstrumentLearning({ instrument, user, onAuth, onLesson }: { ins
             <button className="primary" disabled>Nội dung đang cập nhật</button>
           </> : course.isEnrolled && course.isUnlocked ? <>
             <p role="status">{course.isCompleted ? 'Bạn đã hoàn thành khóa học này' : 'Bạn đã đăng ký khóa học này'}</p>
-            <button className="primary" onClick={() => next && onLesson({ courseId: course.id, chapterId: next.chapterId, lessonId: next.id })}>{course.isCompleted ? 'Xem lại bài học' : 'Vào học'}</button>
+            <button data-activity="course_open" className="primary" onClick={() => next && onLesson({ courseId: course.id, chapterId: next.chapterId, lessonId: next.id })}>{course.isCompleted ? 'Xem lại bài học' : 'Vào học'}</button>
           </> : <>
             <p>Đọc lộ trình phía trên và đăng ký khi bạn sẵn sàng</p>
-            <button className="primary" disabled={busy !== null} onClick={() => void enroll(course)}>{busy === course.id ? 'Đang đăng ký…' : course.accessType !== 'Free' ? 'Nâng cấp Premium qua PayOS' : !user ? 'Đăng nhập để đăng ký học' : 'Đăng ký học miễn phí'}</button>
+            <button data-activity="enroll" className="primary" disabled={busy !== null} onClick={() => void enroll(course)}>{busy === course.id ? 'Đang đăng ký…' : course.accessType !== 'Free' ? 'Nâng cấp Premium qua PayOS' : !user ? 'Đăng nhập để đăng ký học' : 'Đăng ký học miễn phí'}</button>
           </>}
         </footer>
       </section>;

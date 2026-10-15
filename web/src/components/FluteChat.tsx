@@ -50,7 +50,7 @@ export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth:
     }
   };
   return <div className="flute-chat">
-    {!open ? <button className="flute-chat-launch" ref={launcher} aria-expanded="false" aria-controls="flute-chat-panel" onClick={() => setOpen(true)}><MessageCircle size={20} aria-hidden="true" /> Hỏi về sáo</button>
+    {!open ? <button data-activity="chat_open" className="flute-chat-launch" ref={launcher} aria-expanded="false" aria-controls="flute-chat-panel" onClick={() => setOpen(true)}><MessageCircle size={20} aria-hidden="true" /> Hỏi về sáo</button>
       : <aside id="flute-chat-panel" className="flute-chat-panel" aria-labelledby="flute-chat-title" onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); close(); } }}>
         <header><h2 id="flute-chat-title">Hỏi về sáo trúc</h2><button aria-label="Đóng chat" onClick={close}><X size={20} aria-hidden="true" /></button></header>
         <div className="flute-chat-log" ref={log} role="log" aria-live="polite" aria-relevant="additions text">

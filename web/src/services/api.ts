@@ -1,4 +1,5 @@
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://vrhythm-api-latest.onrender.com').replace(/\/+$/, '');
+import { activitySession } from './activitySession';
+export const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://vrhythm-api-latest.onrender.com').replace(/\/+$/, '');
 
 export type CourseSummary = {
 
@@ -131,6 +132,7 @@ function responseMessage(data: any): string {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const auth = path.startsWith('/api/auth/') ? null : authStorage.read();
+  const sessionId = path.startsWith('/api/auth/') && init?.method === 'POST' ? activitySession() : null;
   const controller = new AbortController();
   let timedOut = false;
   const cancel = () => controller.abort();
@@ -143,6 +145,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       headers: {
         ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
         ...(auth?.token ? { Authorization: 'Bearer ' + auth.token } : {}),
+        ...(sessionId ? { 'X-Activity-Session': sessionId } : {}),
         ...(init?.headers ?? {}),
       },
     });
@@ -160,6 +163,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     init?.signal?.removeEventListener('abort', cancel);
   }
 }
+
+export const apiRequest = request;
 
 async function authenticate(path: string, payload: LoginPayload | RegisterPayload): Promise<AuthResponse> {
   const response = await request<AuthResponse>(path, { method: 'POST', body: JSON.stringify(payload) });
