@@ -38,7 +38,7 @@
 .library-notation svg { display:block; width:100%; height:auto; background:#fff; }
 
 @media(max-width:900px) {
-  .app-shell.support-shell .music-library { width:calc(100% - 24px); padding-top:16px; }
+  .app-shell.support-shell .music-library { width:calc(100% - 24px); padding-block:16px; }
   .library-intro { margin:0 0 16px; }
   .app-shell.support-shell .library-intro h1 { font-size:32px; line-height:1.2; margin-bottom:8px; }
   .library-intro p { margin:0; font-size:14px; line-height:1.6; }
@@ -54,7 +54,10 @@
   .app-shell.support-shell .library-score h2 { font-size:26px; }
   .library-score-heading { flex-wrap:nowrap; gap:12px; }
   .library-score-heading>span { font-size:12px; padding-top:8px; }
-  .library-session { position:sticky; top:88px; z-index:5; background:#fff; padding-block:4px 8px; }
+  /* Reserve the 88px header and 32px trailing padding, including at page end. */
+  .library-reader { position:sticky; top:88px; z-index:5; display:flex; flex-direction:column; height:calc(100svh - 120px); min-height:0; background:#fff; }
+  .library-reader .library-score-note { flex:0 0 auto; }
+  .library-session { position:static; flex:0 0 auto; background:#fff; padding-block:4px 8px; }
   .library-controls { display:grid; grid-template-columns:minmax(0,1fr) 44px 84px; gap:8px; padding:8px 0; margin-top:4px; }
   .library-controls button { font-size:14px; padding-inline:10px; }
   .library-controls label { display:block; }
@@ -72,7 +75,7 @@
   .library-session .flute-fingering-footer { gap:4px 12px; }
   .library-session .flute-fingering-footer p { font-size:14px; }
   .library-session .ff-legend { gap:12px; }
-  .library-sheet-paper { max-height:calc(100svh - 340px); min-height:220px; padding-top:8px; overscroll-behavior-y:contain; }
+  .library-reader .library-sheet-paper { flex:1 1 auto; min-height:0; max-height:none; padding-top:8px; overflow:auto; overscroll-behavior-y:contain; }
   .library-fingering-notice { margin:12px 0; }
 }
 @media(min-width:621px) and (max-width:900px) {
@@ -80,6 +83,6 @@
   .library-time { grid-column:auto; }
 }
 @media(max-width:900px) and (max-height:600px) {
-  .library-session { position:static; }
-  .library-sheet-paper { max-height:70svh; }
+  .library-reader { position:static; display:block; height:auto; }
+  .library-reader .library-sheet-paper { max-height:70svh; }
 }

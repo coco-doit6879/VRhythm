@@ -107,7 +107,7 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
     <div className="library-score-heading"><div><h2 id="library-song-title">{song.title}</h2><p>{song.region} · Sáo trúc · {score.metadata.timeSignature.beats}/{score.metadata.timeSignature.beatType}</p></div><span>♩ = {Math.round(score.metadata.tempo)}</span></div>
     {error && <p className="library-error" role="alert">{error}</p>}
     {!!unsupported.length && <p className="library-fingering-notice">Chưa xác nhận thế bấm cho {unsupported.join(', ')}. Bạn vẫn có thể đọc sheet và nghe mẫu.</p>}
-    <div className="library-session"><div className="library-controls">
+    <div className="library-reader"><div className="library-session"><div className="library-controls">
       <button className="library-play" disabled={starting} onClick={() => playing ? stop() : void play()}>{playing ? <Square size={17} /> : <Play size={17} />}{starting ? 'Đang chuẩn bị…' : playing ? 'Dừng' : 'Nghe mẫu'}</button>
       <button className="library-reset" aria-label="Về đầu bản nhạc" onClick={() => { stop(); if (sheetPanel.current) sheetPanel.current.scrollTop = 0; }}><RotateCcw size={18} /></button>
       <label><span>Tốc độ</span><select aria-label="Tốc độ phát" value={speed} onChange={event => { stop(); setSpeed(Number(event.target.value)); }}><option value={.75}>0,75×</option><option value={1}>1×</option><option value={1.25}>1,25×</option></select></label>
@@ -124,5 +124,6 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
       <LibraryNotation score={score} activeIndex={activeIndex} />
     </div>
     <p className="library-score-note">Bản luyện đơn âm · Nốt sáng theo tiếng sáo khi nghe mẫu.</p>
+    </div>
   </section>;
 }
