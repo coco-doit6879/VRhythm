@@ -2,6 +2,7 @@ import { Mic, RotateCcw, Square } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PracticalDetail } from '../services/api';
 import { WebSheetMusic } from './WebSheetMusic';
+import { FluteFingering } from './FluteFingering';
 import { detectPitchHz, frequencyToNote, pitchToFrequency, PracticeNoteTracker, type PracticePhase } from './practicePitch';
 
 type Score = { metadata: { tempo?: number; timeSignature?: { beats: number; beatType: number } }; notes: Array<{ id: string; pitch: string; duration: string }> };
@@ -114,6 +115,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
     <div className="practice-top"><span>Bản nhạc bài học</span>{score.metadata.tempo && <span>{score.metadata.tempo} BPM</span>}</div>
     <div className="lesson-sheet">{groups.map((group, groupIndex) => <WebSheetMusic key={groupIndex} score={{ ...score, notes: group }} currentIndex={Math.floor(index / 4) === groupIndex ? index % 4 : -1} wrongIndex={phase === 'wrong' && Math.floor(index / 4) === groupIndex ? index % 4 : -1} />)}</div>
     <p className="expected-notes">{score.notes.map(note => note.pitch).join(' → ')}</p>
+    <FluteFingering pitch={target} label={target ? 'Nốt cần thổi' : 'Đã hoàn thành'} />
     <div className="pitch-recorder">
       <h2>Thực hành với microphone</h2>
       <p>Thổi theo thứ tự trên bản nhạc. Khi nốt ổn định, hệ thống tự chuyển sang nốt tiếp theo. Nốt hơi cao hoặc thấp sẽ được nhắc chỉnh; chỉ nốt sai rõ hoặc sai lâu mới báo thổi lại.</p>
