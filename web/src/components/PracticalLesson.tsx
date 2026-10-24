@@ -11,10 +11,11 @@ function readScore(practical: PracticalDetail): Score {
   let parsed: Partial<Score> | null = null;
   try { parsed = JSON.parse(practical.sheetMusicJson || 'null'); } catch { /* Legacy lessons may only provide expected notes. */ }
   const sheetNotes = Array.isArray(parsed?.notes) ? parsed.notes : [];
-  const expected = [...(practical.expectedNotes || [])].sort((a, b) => a.sortOrder - b.sortOrder);
+  const expected = Array.isArray(practical.expectedNotes)
+    ? [...practical.expectedNotes].sort((a, b) => (a?.sortOrder ?? 0) - (b?.sortOrder ?? 0)) : [];
   // The server grades expectedNotes when present; keep that sequence authoritative.
   const notes = expected.length
-    ? expected.map((note, index) => ({ id: String(index), pitch: note.note, duration: sheetNotes[index]?.duration || 'q' }))
+    ? expected.map((note, index) => ({ id: String(index), pitch: note?.note, duration: sheetNotes[index]?.duration || 'q' }))
     : sheetNotes.filter(note => typeof note?.pitch === 'string').map((note, index) => ({ id: String(index), pitch: note.pitch, duration: note.duration || 'q' }));
   return { metadata: parsed?.metadata || {}, notes };
 }
@@ -105,7 +106,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
     } finally { if (generation.current === id || !resources.current.stream) setStarting(false); }
   };
 
-  if (!score.notes.length || score.notes.some(note => !pitchToFrequency(note.pitch)))
+  if (!score.notes.length || score.notes.some(note => typeof note.pitch !== 'string' || !pitchToFrequency(note.pitch) || typeof note.duration !== 'string' || !/^(w|h|q|8|e|16|s)\.{0,2}$/.test(note.duration)))
     return <p role="alert">Bài thực hành chưa có nốt nhạc hợp lệ. Vui lòng chọn bài khác hoặc liên hệ giảng viên.</p>;
   if (score.notes.length > 512) return <p role="alert">Bản nhạc này quá dài để luyện bằng microphone trên web.</p>;
 
@@ -115,7 +116,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
     <div className="practice-top"><span>Bản nhạc bài học</span>{score.metadata.tempo && <span>{score.metadata.tempo} BPM</span>}</div>
     <div className="lesson-sheet">{groups.map((group, groupIndex) => <WebSheetMusic key={groupIndex} score={{ ...score, notes: group }} currentIndex={Math.floor(index / 4) === groupIndex ? index % 4 : -1} wrongIndex={phase === 'wrong' && Math.floor(index / 4) === groupIndex ? index % 4 : -1} />)}</div>
     <p className="expected-notes">{score.notes.map(note => note.pitch).join(' → ')}</p>
-    <FluteFingering pitch={target} label={target ? 'Nốt cần thổi' : 'Đã hoàn thành'} />
+    <FluteFingering pitch={target} complete={index >= score.notes.length} label={target ? 'Nốt cần thổi' : 'Kết thúc lượt thổi'} />
     <div className="pitch-recorder">
       <h2>Thực hành với microphone</h2>
       <p>Thổi theo thứ tự trên bản nhạc. Khi nốt ổn định, hệ thống tự chuyển sang nốt tiếp theo. Nốt hơi cao hoặc thấp sẽ được nhắc chỉnh; chỉ nốt sai rõ hoặc sai lâu mới báo thổi lại.</p>

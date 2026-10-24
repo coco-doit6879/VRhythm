@@ -5,6 +5,7 @@ import { buildScoreTimeline } from '../audio/fluteScore';
 import { musicLibrary } from '../data/musicLibrary';
 import { LibraryNotation } from './LibraryNotation';
 import { FluteFingering } from './FluteFingering';
+import { fluteFingering } from './fluteFingeringMap';
 import './music-library.css';
 
 const normalize = (text: string) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase();
@@ -31,6 +32,7 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
   const [speed, setSpeed] = useState(1);
   const [playing, setPlaying] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [finished, setFinished] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [error, setError] = useState('');
@@ -40,13 +42,16 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
   const sheetPanel = useRef<HTMLDivElement>(null);
   const score = useMemo(() => ({ ...song.score, metadata: { ...song.score.metadata, tempo: song.score.metadata.tempo * speed } }), [song, speed]);
   const timeline = useMemo(() => buildScoreTimeline(score), [score]);
+  const unsupported = useMemo(() => [...new Set(score.notes.filter(note => !note.rest && !fluteFingering(note.pitch)).map(note => note.pitch!))], [score]);
 
   const stop = () => {
     generation.current++;
     if (frame.current !== null) cancelAnimationFrame(frame.current);
     frame.current = null;
-    engine.current?.stop();
-    setPlaying(false); setStarting(false); setActiveIndex(-1); setElapsed(0);
+    const player = engine.current;
+    engine.current = null;
+    void player?.dispose().catch(() => {});
+    setPlaying(false); setStarting(false); setFinished(false); setActiveIndex(-1); setElapsed(0);
   };
   useEffect(() => {
     const hidden = () => { if (document.hidden) stop(); };
@@ -54,7 +59,7 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
     return () => {
       generation.current++;
       if (frame.current !== null) cancelAnimationFrame(frame.current);
-      void engine.current?.dispose();
+      void engine.current?.dispose().catch(() => {});
       document.removeEventListener('visibilitychange', hidden);
     };
   }, []);
@@ -66,15 +71,17 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
     try {
       const { PhysicalFluteEngine } = await import('../audio/PhysicalFluteEngine');
       if (run !== generation.current) return;
-      engine.current ??= new PhysicalFluteEngine();
-      const { startTime } = await engine.current.playSequence(timeline.sequence, timeline.sequenceOptions);
-      if (run !== generation.current) { engine.current.stop(); return; }
+      // Each run owns its audio context; a late cancelled start cannot stop the next run.
+      const player = new PhysicalFluteEngine();
+      engine.current = player;
+      const { startTime } = await player.playSequence(timeline.sequence, timeline.sequenceOptions);
+      if (run !== generation.current) { void player.dispose().catch(() => {}); return; }
       setStarting(false); setPlaying(true);
       const tick = () => {
         if (run !== generation.current || !engine.current) return;
-        const position = Math.max(0, engine.current.currentTime - startTime);
+        const position = Math.max(0, player.currentTime - startTime);
         if (position >= timeline.totalDuration) {
-          engine.current.stop(); setPlaying(false); setActiveIndex(-1); setElapsed(timeline.totalDuration); frame.current = null; return;
+          player.stop(); setPlaying(false); setFinished(true); setActiveIndex(-1); setElapsed(timeline.totalDuration); frame.current = null; return;
         }
         setElapsed(position);
         setActiveIndex(timeline.events.findIndex(event => position >= event.start && position < event.start + event.duration));
@@ -95,10 +102,12 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
       <span className="library-time">{timeLabel(elapsed)} / {timeLabel(timeline.totalDuration)}</span>
     </div>
     {error && <p className="library-error" role="alert">{error}</p>}
+    {!!unsupported.length && <p className="library-fingering-notice">Chưa xác nhận thế bấm cho {unsupported.join(', ')}. Bạn vẫn có thể đọc sheet và nghe mẫu.</p>}
     <FluteFingering
-      pitch={playing ? timeline.events[activeIndex]?.pitch : score.notes[0]?.pitch}
-      rest={playing ? timeline.events[activeIndex]?.rest : score.notes[0]?.rest}
-      label={playing ? 'Nốt đang phát' : 'Thế bấm đầu bài'}
+      pitch={starting ? null : playing ? timeline.events[activeIndex]?.pitch : score.notes[0]?.pitch}
+      rest={!starting && (playing ? timeline.events[activeIndex]?.rest : score.notes[0]?.rest)}
+      complete={finished}
+      label={starting ? 'Đang chuẩn bị âm thanh' : finished ? 'Kết thúc bản nhạc' : playing ? 'Nốt đang phát' : 'Thế bấm đầu bài'}
     />
     <div className="library-sheet-paper" ref={sheetPanel} aria-label={`Sheet ${song.title}`} tabIndex={0}>
       <LibraryNotation score={score} activeIndex={activeIndex} />

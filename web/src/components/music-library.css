@@ -29,6 +29,7 @@
 .music-library .sheet-cursor { stroke:#9b541b; }
 .library-score-note { font-size:11px; color:#526052; border-top:1px solid #d8ded9; padding-top:16px; margin:0; line-height:1.7; }
 .library-error { font-size:13px; color:#a32f24; }
+.library-fingering-notice { font-size:14px; color:#526052; line-height:1.7; overflow-wrap:anywhere; margin:16px 0; }
 @media(max-width:1050px) { .library-layout { grid-template-columns:200px minmax(0,1fr); gap:24px; } }
 @media(max-width:620px) { .app-shell.support-shell .music-library { width:calc(100% - 40px); } .library-intro { margin:0 0 28px; } .library-layout { grid-template-columns:minmax(0,1fr); gap:24px; } .library-catalog a { padding:14px 12px; } .library-score { padding:20px 16px; } .app-shell.support-shell .library-score h2 { font-size:28px; } .library-score-heading { flex-wrap:wrap; gap:8px; } .library-sheet-paper { max-height:480px; } .library-controls { gap:8px; } .library-time { width:100%; margin:0; } }
 
