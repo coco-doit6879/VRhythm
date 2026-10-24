@@ -14,7 +14,7 @@ export function Header({ active, loggedIn, isAdmin = false, onNavigate, onSignOu
     return () => window.removeEventListener('scroll', update);
   }, [active]);
   const go = (view: string) => { onNavigate(view); setOpen(false); };
-  return <header className={`topbar${isAdmin ? ' has-admin' : ''}${scrolled ? ' is-scrolled' : ''}`}>
+  return <header className={`topbar has-ai${isAdmin ? ' has-admin' : ''}${scrolled ? ' is-scrolled' : ''}`}>
     <button className="brand" onClick={() => go('home')} aria-label="VRhythm trang chủ">
       <span className="brand-mark"><img src="/images/generated/vrhythm-logo-mark.webp" alt="" width="44" height="44" /></span><span><strong>VRhythm</strong><small>Di sản · Nhịp điệu · Công nghệ</small></span>
     </button>
@@ -25,6 +25,7 @@ export function Header({ active, loggedIn, isAdmin = false, onNavigate, onSignOu
       <button aria-current={active === 'learn' ? 'page' : undefined} className={active === 'learn' ? 'active' : ''} onClick={() => go('learn')}>Học tập</button>
       <button aria-current={active === 'library' ? 'page' : undefined} className={active === 'library' ? 'active' : ''} onClick={() => go('library')}>Thư viện</button>
       <button aria-current={active === 'packages' ? 'page' : undefined} className={active === 'packages' ? 'active' : ''} onClick={() => go('packages')}>Gói học</button>
+      <button aria-current={active === 'ai-music' ? 'page' : undefined} className={active === 'ai-music' ? 'active' : ''} onClick={() => go('ai-music')}>VRhythm AI</button>
       {isAdmin && <button aria-current={active === 'admin' ? 'page' : undefined} className={active === 'admin' ? 'active' : ''} onClick={() => go('admin')}>Quản trị</button>}
       {loggedIn ? <><button className={active === 'profile' ? 'active' : ''} onClick={() => go('profile')}><CircleUserRound size={15} /> Hồ sơ</button><button className="nav-account" onClick={() => { setOpen(false); onSignOut(); }}><LogOut size={15} /> Thoát</button></> : <button className={active === 'auth' ? 'active' : ''} onClick={() => go('auth')}><LogIn size={15} /> Đăng nhập</button>}
     </nav>

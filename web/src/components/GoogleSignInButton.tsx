@@ -48,7 +48,7 @@ export function GoogleSignInButton() {
         authStorage.write(auth);
         const returnTo = sessionStorage.getItem('vrhythm_return_to');
         sessionStorage.removeItem('vrhythm_return_to');
-        window.location.assign(returnTo && (returnTo === '/packages' || returnTo === '/learn/sao' || (returnTo === '/admin' && auth.role === 'Admin')) ? returnTo : auth.role === 'Admin' ? '/admin' : '/learn');
+        window.location.assign(returnTo && (['/packages', '/learn/sao', '/ai-music'].includes(returnTo) || (returnTo === '/admin' && auth.role === 'Admin')) ? returnTo : auth.role === 'Admin' ? '/admin' : '/learn');
       } catch (err) {
         if (active) { setError(err instanceof Error ? err.message : 'Không thể đăng nhập Google.'); setStatus(''); }
       } finally { submitting = false; }

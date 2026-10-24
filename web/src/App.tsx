@@ -18,8 +18,9 @@ import { api, authStorage, courseErrorMessage, ApiError, type AuthResponse, type
 
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const MusicLibraryPage = lazy(() => import('./components/MusicLibraryPage'));
+const AiMusicPage = lazy(() => import('./components/AiMusicPage').then(module => ({ default: module.AiMusicPage })));
 
-type View = 'admin' | 'library' | 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson' | 'packages';
+type View = 'admin' | 'library' | 'home' | 'explore' | 'learn' | 'profile' | 'auth' | 'lesson' | 'packages' | 'ai-music';
 type LessonRoute = { courseId: number; chapterId: number; lessonId: number };
 const defaultLessonRoute: LessonRoute = { courseId: 1, chapterId: 1, lessonId: 1 };
 
@@ -34,6 +35,7 @@ const viewFromPath = (path: string): { view: View; authMode: 'login' | 'register
   if (path === '/library' || path.startsWith('/library/')) return { view: 'library', authMode: 'login' };
   if (path === '/admin') return { view: 'admin', authMode: 'login' };
   if (path === '/packages') return { view: 'packages', authMode: 'login' };
+  if (path === '/ai-music') return { view: 'ai-music', authMode: 'login' };
   if (path === '/profile') return { view: 'profile', authMode: 'login' };
   if (path === '/lesson' || path.startsWith('/lesson/')) return { view: 'lesson', authMode: 'login' };
   if (path === '/register') return { view: 'auth', authMode: 'register' };
@@ -88,7 +90,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
   const openAuth = (mode: 'login' | 'register' = 'login') => navigate('auth', mode);
-  const signIn = async (data: { fullName?: string; email: string; password: string; confirmPassword?: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password, confirmPassword: data.confirmPassword }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && (returnTo === '/packages' || returnTo === '/learn/sao' || (returnTo === '/admin' && response.role === 'Admin'))) window.location.assign(returnTo); else navigate(response.role === 'Admin' ? 'admin' : 'learn'); };
+  const signIn = async (data: { fullName?: string; email: string; password: string; confirmPassword?: string }) => { const response = authMode === 'login' ? await api.login(data) : await api.register({ fullName: data.fullName ?? 'Người học VRhythm', email: data.email, password: data.password, confirmPassword: data.confirmPassword }); authStorage.write(response); setAuthUser(response); const returnTo = sessionStorage.getItem('vrhythm_return_to'); sessionStorage.removeItem('vrhythm_return_to'); if (returnTo && (['/packages', '/learn/sao', '/ai-music'].includes(returnTo) || (returnTo === '/admin' && response.role === 'Admin'))) window.location.assign(returnTo); else navigate(response.role === 'Admin' ? 'admin' : 'learn'); };
   const signOut = () => { authStorage.clear(); setAuthUser(null); navigate('home'); };
   const supportSurface = !['home', 'explore', 'packages'].includes(view) && !(view === 'learn' && !isInstrumentRoute);
 
@@ -103,6 +105,7 @@ export default function App() {
     {view === 'learn' && !isInstrumentRoute && <Learn user={authUser} courses={courses} loading={coursesLoading} error={coursesError} onAuth={() => openAuth('login')} onOpenLesson={openLesson} onRefresh={loadCourses} />}
     {view === 'library' && <Suspense fallback={<main className="page">Đang tải thư viện…</main>}><MusicLibraryPage songId={pathname.split('/')[2]} /></Suspense>}
     {view === 'packages' && <PackagesPage user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/packages'); openAuth('login'); }} />}
+    {view === 'ai-music' && <Suspense fallback={<main className="page" role="status">Đang tải VRhythm AI…</main>}><AiMusicPage key={authUser?.token ?? 'anonymous'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/ai-music'); openAuth('login'); }} /></Suspense>}
     {view === 'profile' && <Profile user={authUser} onAuth={() => openAuth('login')} onSignOut={signOut} onNavigate={navigate} onOpenLesson={openLesson} />}
     {view === 'lesson' && <LessonPlayer route={lessonRoute} onBack={() => navigate('learn')} onOpenLesson={openLesson} />}
     {view === 'auth' && <main className="page"><AuthPanel mode={authMode} onModeChange={mode => navigate('auth', mode)} onSubmit={signIn} /></main>}
