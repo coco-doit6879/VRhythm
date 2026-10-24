@@ -39,3 +39,11 @@
   .flute-fingering-footer { flex-wrap:wrap; gap:8px; }
   .flute-fingering-footer p { text-align:left; }
 }
+@media(max-width:620px) {
+  .practical-lesson { display:flex; flex-direction:column; }
+  .practical-lesson>.practice-top { order:0; }
+  .practical-lesson>.flute-fingering { order:1; margin-top:12px; }
+  .practical-lesson>.lesson-sheet { order:2; }
+  .practical-lesson>.expected-notes { order:3; }
+  .practical-lesson>.pitch-recorder { order:4; }
+}

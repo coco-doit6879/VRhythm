@@ -34,8 +34,8 @@ export const FluteFingering = memo(function FluteFingering({ pitch, rest = false
         const x = 218 + index * 60;
         const holeState = !fingering ? 'unknown' : fingering.holes[index] === 'half' ? 'half' : fingering.holes[index] ? 'closed' : 'open';
         return <g key={index} data-hole={index + 1} data-state={holeState}>
-          <circle className={`ff-hole ff-${holeState}`} cx={x} cy="74" r="15" />
-          {holeState === 'half' && <path className="ff-half-fill" d={`M${x} 59a15 15 0 0 0 0 30Z`} />}
+          <circle className={`ff-hole ff-${holeState}`} cx={x} cy="74" r="20" />
+          {holeState === 'half' && <path className="ff-half-fill" d={`M${x} 54a20 20 0 0 0 0 40Z`} />}
           {holeState === 'closed' && <path className="ff-mark" d={`M${x - 5} 74l4 4 7-8`} />}
         </g>;
       })}

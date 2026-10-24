@@ -1,4 +1,4 @@
-import { Play, RotateCcw, Search, Square } from 'lucide-react';
+import { ChevronDown, Play, RotateCcw, Search, Square } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PhysicalFluteEngine } from '../audio/PhysicalFluteEngine';
 import { buildScoreTimeline } from '../audio/fluteScore';
@@ -14,14 +14,24 @@ const timeLabel = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Mat
 export default function MusicLibraryPage({ songId }: { songId?: string }) {
   const song = songId ? musicLibrary.find(item => item.id === songId) : musicLibrary[0];
   const [query, setQuery] = useState('');
+  const [catalogOpen, setCatalogOpen] = useState(() => window.matchMedia('(min-width:901px)').matches);
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width:901px)');
+    const resize = () => setCatalogOpen(desktop.matches);
+    desktop.addEventListener('change', resize);
+    return () => desktop.removeEventListener('change', resize);
+  }, []);
   const filtered = musicLibrary.filter(item => normalize(`${item.title} ${item.region}`).includes(normalize(query.trim())));
   return <main className="page music-library">
     <header className="library-intro"><h1>Thư viện <em>âm nhạc.</em></h1><p>Chọn một giai điệu, mở bản nhạc và nghe tiếng sáo.</p></header>
     <div className="library-layout">
       <aside className="library-catalog" aria-label="Danh sách bản nhạc">
+        <details className="library-catalog-details" open={catalogOpen} onToggle={event => setCatalogOpen(event.currentTarget.open)}>
+        <summary><span>Chọn bản nhạc</span><ChevronDown size={18} aria-hidden="true" /></summary>
         <label className="library-search"><Search size={18} aria-hidden="true" /><input type="search" aria-label="Tìm bản nhạc" placeholder="Tìm bản nhạc…" value={query} onChange={event => setQuery(event.target.value)} /></label>
         <ul>{filtered.map(item => <li key={item.id}><a href={`/library/${item.id}`} aria-current={song?.id === item.id ? 'page' : undefined}><strong>{item.title}</strong><span>{item.region} · {item.level}</span></a></li>)}</ul>
         {!filtered.length && <p role="status">Không tìm thấy bản nhạc. Thử tên bài khác.</p>}
+        </details>
       </aside>
       {song ? <LibrarySheet key={song.id} song={song} /> : <section className="library-missing"><h2>Không tìm thấy bản nhạc</h2><a href="/library">Quay lại thư viện</a></section>}
     </div>
@@ -95,20 +105,21 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
 
   return <section className="library-score" aria-labelledby="library-song-title">
     <div className="library-score-heading"><div><h2 id="library-song-title">{song.title}</h2><p>{song.region} · Sáo trúc · {score.metadata.timeSignature.beats}/{score.metadata.timeSignature.beatType}</p></div><span>♩ = {Math.round(score.metadata.tempo)}</span></div>
-    <div className="library-controls">
-      <button className="library-play" disabled={starting} onClick={() => playing ? stop() : void play()}>{playing ? <Square size={17} /> : <Play size={17} />}{starting ? 'Đang chuẩn bị…' : playing ? 'Dừng' : 'Nghe mẫu'}</button>
-      <button className="library-reset" aria-label="Về đầu bản nhạc" onClick={() => { stop(); if (sheetPanel.current) sheetPanel.current.scrollTop = 0; }}><RotateCcw size={18} /></button>
-      <label>Tốc độ <select aria-label="Tốc độ phát" value={speed} onChange={event => { stop(); setSpeed(Number(event.target.value)); }}><option value={.75}>0,75×</option><option value={1}>1×</option><option value={1.25}>1,25×</option></select></label>
-      <span className="library-time">{timeLabel(elapsed)} / {timeLabel(timeline.totalDuration)}</span>
-    </div>
     {error && <p className="library-error" role="alert">{error}</p>}
     {!!unsupported.length && <p className="library-fingering-notice">Chưa xác nhận thế bấm cho {unsupported.join(', ')}. Bạn vẫn có thể đọc sheet và nghe mẫu.</p>}
+    <div className="library-session"><div className="library-controls">
+      <button className="library-play" disabled={starting} onClick={() => playing ? stop() : void play()}>{playing ? <Square size={17} /> : <Play size={17} />}{starting ? 'Đang chuẩn bị…' : playing ? 'Dừng' : 'Nghe mẫu'}</button>
+      <button className="library-reset" aria-label="Về đầu bản nhạc" onClick={() => { stop(); if (sheetPanel.current) sheetPanel.current.scrollTop = 0; }}><RotateCcw size={18} /></button>
+      <label><span>Tốc độ</span><select aria-label="Tốc độ phát" value={speed} onChange={event => { stop(); setSpeed(Number(event.target.value)); }}><option value={.75}>0,75×</option><option value={1}>1×</option><option value={1.25}>1,25×</option></select></label>
+      <span className="library-time">{timeLabel(elapsed)} / {timeLabel(timeline.totalDuration)}</span>
+    </div>
     <FluteFingering
       pitch={starting ? null : playing ? timeline.events[activeIndex]?.pitch : score.notes[0]?.pitch}
       rest={!starting && (playing ? timeline.events[activeIndex]?.rest : score.notes[0]?.rest)}
       complete={finished}
       label={starting ? 'Đang chuẩn bị âm thanh' : finished ? 'Kết thúc bản nhạc' : playing ? 'Nốt đang phát' : 'Thế bấm đầu bài'}
     />
+    </div>
     <div className="library-sheet-paper" ref={sheetPanel} aria-label={`Sheet ${song.title}`} tabIndex={0}>
       <LibraryNotation score={score} activeIndex={activeIndex} />
     </div>
