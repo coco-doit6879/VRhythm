@@ -73,12 +73,12 @@ function LessonSession({ route, onBack, onOpenLesson }: { route: LessonRoute; on
       .map(lesson => ({ courseId: route.courseId, chapterId: chapter.id, lessonId: lesson.id, title: lesson.title })));
   const nextLesson = lessonOrder?.[(lessonOrder.findIndex(lesson => lesson.lessonId === route.lessonId)) + 1];
 
-  return <main className="page lesson-page course-player">
+  return <main className={`page lesson-page course-player ${data?.practical ? 'practical-page' : ''}`}>
     <button className="text-button" onClick={onBack}><ChevronLeft size={18} /> Quay lại khóa học</button>
     {!data && !loadError && <p role="status">Đang tải bài học…</p>}
     {loadError && <div role="alert" className="lesson-load-error"><p>{loadError}</p><button className="primary" onClick={() => setRetry(n => n + 1)}>Thử lại</button></div>}
     {data && <>
-      <header className="lesson-header"><div><div className="section-kicker">{data.course.title} · {labels[data.lesson.type]}</div><h1>{data.lesson.title}</h1></div></header>
+      <header className="lesson-header"><div>{!data.practical && <div className="section-kicker">{data.course.title} · {labels[data.lesson.type]}</div>}<h1>{data.lesson.title}</h1></div></header>
       <div className="lesson-grid"><section className="practice-card" aria-label="Nội dung bài học" aria-busy={busy}>
         {data.lesson.type === 'Theory' && <article className="lesson-content"><h2>Nội dung bài học</h2><div className="lesson-prose">{data.lesson.theory?.content || 'Nội dung đang được cập nhật.'}</div>{data.lesson.theory?.content && !completed && <button data-activity="lesson_complete" className="primary completion-button" disabled={busy} onClick={() => void submit(async () => { await api.completeTheory(route.lessonId); })}>{busy ? 'Đang lưu…' : 'Đánh dấu đã học'}</button>}</article>}
         {data.lesson.type === 'Video' && <VideoLesson url={data.videoUrl} content={data.lesson.video?.content} completed={completed} busy={busy} onComplete={(watched, total) => submit(async () => { await api.updateLessonProgress(route.courseId, route.lessonId, watched, total); })} onConfirmExternal={() => submit(async () => { await api.completeExternalVideo(route.courseId, route.lessonId); })} />}

@@ -61,53 +61,58 @@ export function detectPitchHz(buffer: Float32Array, sampleRate: number): number 
   return sampleRate / (lag + correction);
 }
 
-export type PracticePhase = 'waiting' | 'tuning' | 'separate' | 'wrong' | 'advanced' | 'complete';
+export type PracticePhase = 'waiting' | 'tuning' | 'separate' | 'wrong' | 'reset' | 'advanced' | 'complete';
 export type PracticeObservation = { index: number; phase: PracticePhase; cents: number | null; direction: 'higher' | 'lower' | null };
 
+// One breath is one attempt. A short dropout is tolerated; release commits it.
 export class PracticeNoteTracker {
   readonly accepted: string[] = [];
   private indexValue = 0;
   private matchingSince: number | null = null;
   private wrongSince: number | null = null;
   private silentSince: number | null = null;
-  private needsBreath = false;
+  private hasSound = false;
+  private ready = false;
   private errored = false;
 
   constructor(private readonly expected: string[]) {}
 
   observe(frequency: number | null, now: number): PracticeObservation {
-    if (this.indexValue >= this.expected.length) return { index: this.indexValue, phase: 'complete', cents: null, direction: null };
+    const result = (phase: PracticePhase, cents: number | null = null): PracticeObservation => ({
+      index: this.indexValue, phase, cents, direction: cents == null || Math.abs(cents) <= 35 ? null : cents > 0 ? 'lower' : 'higher',
+    });
+    if (this.indexValue >= this.expected.length) return result('complete');
     if (frequency == null || !Number.isFinite(frequency) || frequency <= 0) {
+      this.silentSince ??= now;
       this.matchingSince = null;
-      this.wrongSince = null;
-      if (this.silentSince == null) this.silentSince = now;
-      if (this.needsBreath && now - this.silentSince >= 120) this.needsBreath = false;
-      return { index: this.indexValue, phase: this.errored ? 'wrong' : 'waiting', cents: null, direction: null };
+      if (!this.hasSound || now - this.silentSince < 180) return result(this.errored ? 'wrong' : 'waiting');
+      const passed = this.ready && !this.errored;
+      this.hasSound = false; this.ready = false; this.errored = false;
+      this.matchingSince = null; this.wrongSince = null;
+      if (!passed) {
+        this.accepted.length = 0; this.indexValue = 0;
+        return result('reset');
+      }
+      this.accepted.push(this.expected[this.indexValue++]);
+      return result(this.indexValue === this.expected.length ? 'complete' : 'advanced');
     }
     this.silentSince = null;
+    this.hasSound = true;
     const target = pitchToFrequency(this.expected[this.indexValue]);
-    if (!target) return { index: this.indexValue, phase: 'wrong', cents: null, direction: null };
+    if (!target) { this.errored = true; return result('wrong'); }
     const cents = 1200 * Math.log2(frequency / target);
-    const direction = cents > 0 ? 'lower' : 'higher';
-    if (this.needsBreath) return { index: this.indexValue, phase: 'separate', cents, direction: null };
-    if (Math.abs(cents) <= 45) {
+    if (this.errored) return result('wrong', cents);
+    if (Math.abs(cents) <= 35) {
       this.wrongSince = null;
-      this.errored = false;
-      if (this.matchingSince == null) this.matchingSince = now;
-      if (now - this.matchingSince >= 250) {
-        const acceptedPitch = this.expected[this.indexValue];
-        this.accepted.push(acceptedPitch);
-        this.indexValue++;
-        this.matchingSince = null;
-        this.needsBreath = this.indexValue < this.expected.length && this.expected[this.indexValue] === acceptedPitch;
-        return { index: this.indexValue, phase: this.indexValue === this.expected.length ? 'complete' : 'advanced', cents, direction: null };
-      }
-      return { index: this.indexValue, phase: 'tuning', cents, direction: null };
+      this.matchingSince ??= now;
+      if (now - this.matchingSince >= 200) this.ready = true;
+      return result(this.ready ? 'separate' : 'tuning', cents);
     }
     this.matchingSince = null;
-    if (this.wrongSince == null) this.wrongSince = now;
-    const grace = Math.abs(cents) >= 200 ? 650 : 1100;
-    if (now - this.wrongSince >= grace) this.errored = true;
-    return { index: this.indexValue, phase: this.errored ? 'wrong' : 'tuning', cents, direction };
+    this.ready = false;
+    this.wrongSince ??= now;
+    // Reject a different note after 120ms, retaining a little onset tolerance.
+    if (now - this.wrongSince >= (Math.abs(cents) >= 60 ? 120 : 350)) this.errored = true;
+    return result(this.errored ? 'wrong' : 'tuning', cents);
   }
 }
