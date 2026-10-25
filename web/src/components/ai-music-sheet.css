@@ -1,0 +1,34 @@
+.ai-music-sheets { scroll-margin-top: 104px; }
+.ai-music-sheets:empty { display: none; }
+.ai-music-sheets > section { margin-bottom: 32px; }
+.ai-music-sheet-heading, .ai-sheet-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.ai-music-sheet-heading { justify-content: space-between; }
+.ai-sheet-toolbar { margin-block: 16px; }
+.ai-sheet-toolbar button[aria-pressed=true] { color: #fff; background: #355b43; border-color: #355b43; }
+.ai-sheet-toolbar > span { color: var(--lp-muted); font-size: 14px; line-height: 1.6; }
+.ai-sheet-paper { max-height: 480px; min-height: 160px; overflow: auto; overscroll-behavior: contain; padding: 12px; background: #fff; color: #263630; scrollbar-color: #60796b #fff; }
+.ai-sheet-paper .library-notation { min-width: 0; }
+.ai-sheet-editor { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; min-width: 0; padding: 20px 0; margin: 20px 0; border: 0; border-block: 1px solid var(--lp-line); }
+.ai-sheet-editor legend { padding-right: 12px; font-weight: 600; }
+.ai-sheet-editor label { min-width: 0; margin: 0; }
+.ai-music-page .ai-sheet-editor :is(input, select) { display: block; width: 100%; max-width: 100%; min-width: 0; margin-top: 8px; min-height: 48px; font: inherit; padding: 10px; border: 1px solid #7f9283; border-radius: 6px; background: #fffef9; color: #273d32; }
+.ai-sheet-editor select:focus-visible { outline: 3px solid #a64a28; outline-offset: 3px; }
+.ai-sheet-editor-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 12px; }
+.ai-sheet-help { color: var(--lp-muted); }
+.ai-sheet-result { padding-block: 16px; }
+.app-shell.support-shell .course-player.practical-page.ai-sheet-practice { width: 100%; padding: 0; }
+.app-shell .ai-sheet-practice.course-player.practical-page .lesson-sheet { padding: 12px; background: #fff; scrollbar-color: #60796b #fff; }
+@media (max-width: 700px) {
+  .ai-sheet-editor { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ai-sheet-paper { max-height: 360px; padding: 8px; }
+  .ai-sheet-toolbar > span { flex-basis: 100%; }
+}
+
+.app-shell .ai-sheet-practice .practice-top { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; color: var(--lp-muted); }
+.app-shell .ai-sheet-practice .pitch-readout { display: flex; align-items: baseline; gap: 12px; }
+.app-shell .ai-sheet-practice .pitch-readout strong { min-width: 44px; font-size: 28px; line-height: 1.2; color: var(--lp-orange); }
+.app-shell .ai-sheet-practice .pitch-readout span { font-size: 13px; color: var(--lp-muted); }
+.app-shell .ai-sheet-practice .text-button { background: transparent; color: var(--lp-ink); }
+.app-shell .ai-sheet-practice .text-button:hover:not(:disabled) { background: #29382d; }
+
+.ai-music-sheet-heading h2, .ai-music-job h3 { min-width: 0; overflow-wrap: anywhere; }

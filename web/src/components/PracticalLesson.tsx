@@ -1,5 +1,6 @@
 import { Check, Mic, RotateCcw, Square } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import type { SheetScore } from '../audio/fluteScore';
 import type { PracticalDetail } from '../services/api';
 import { PracticeListening } from './PracticeListening';
 import './practice-workspace.css';
@@ -20,7 +21,17 @@ function readScore(practical: PracticalDetail): Score {
   return { metadata: parsed?.metadata || {}, notes };
 }
 
-export function PracticalLesson({ practical, busy, completed, onSubmit }: { practical: PracticalDetail; busy: boolean; completed: boolean; onSubmit: (notes: string[]) => Promise<void> }) {
+type PracticalLessonProps = {
+  practical: PracticalDetail;
+  busy: boolean;
+  completed: boolean;
+  onSubmit: (notes: string[]) => Promise<void>;
+  renderNotation?: (index: number) => ReactNode;
+  listeningScore?: SheetScore;
+  localPractice?: boolean;
+};
+
+export function PracticalLesson({ practical, busy, completed, onSubmit, renderNotation, listeningScore, localPractice = false }: PracticalLessonProps) {
   const score = useMemo(() => readScore(practical), [practical]);
   const [recording, setRecording] = useState(false);
   const [starting, setStarting] = useState(false);
@@ -130,7 +141,8 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
           else if (observation.direction) setHint(observation.direction === 'higher' ? 'Hơi thấp, tăng cao độ một chút.' : 'Hơi cao, hạ cao độ một chút.');
           else if (observation.phase === 'tuning') setHint('');
           if (observation.phase === 'advanced' || observation.phase === 'complete') {
-            setHint(observation.phase === 'complete' ? 'Đã nghe đủ nốt; đang gửi kết quả.' : 'Thổi nốt tiếp theo khi bạn sẵn sàng.');
+            const completeHint = localPractice ? 'Hoàn tất lượt luyện. Bạn có thể nghe lại hoặc tập lại.' : 'Đã nghe đủ nốt; đang gửi kết quả.';
+            setHint(observation.phase === 'complete' ? completeHint : 'Thổi nốt tiếp theo khi bạn sẵn sàng.');
             setSuccess(tracker.accepted.at(-1) || '');
             setNotes([...tracker.accepted]);
             setIndex(observation.index);
@@ -162,9 +174,9 @@ export function PracticalLesson({ practical, busy, completed, onSubmit }: { prac
   return <article className={`lesson-content practical-lesson ${recordingUrl ? 'has-take' : ''}`}>
     <section className="practice-score-pane" aria-label="Bản nhạc và nghe mẫu">
       <div className="practice-top"><span>Bản nhạc bài học</span>{score.metadata.tempo && <span>{score.metadata.tempo} BPM</span>}</div>
-      <PracticeListening notes={score.notes} tempo={score.metadata.tempo || 80} target={target} disabled={recording || starting || takePlaying} />
+      <PracticeListening notes={score.notes} tempo={score.metadata.tempo || 80} target={target} disabled={recording || starting || takePlaying} sourceScore={listeningScore} />
       {recordingUrl && <div className="practice-take"><label htmlFor="practice-take-audio">{failed ? 'Nghe lại lượt thổi sai' : 'Nghe lại lượt thu'}</label><audio id="practice-take-audio" ref={takeAudio} aria-label={failed ? 'Nghe lại lượt thổi sai' : 'Nghe lại lượt thu'} controls src={recordingUrl} onPlay={() => setTakePlaying(true)} onPause={() => setTakePlaying(false)} onEnded={() => setTakePlaying(false)} /></div>}
-      <div className="lesson-sheet" ref={sheet} tabIndex={0} aria-label="Bản nhạc thực hành">{groups.map((group, groupIndex) => <div data-group={groupIndex} key={groupIndex}><WebSheetMusic score={{ ...score, notes: group }} currentIndex={Math.floor(index / 4) === groupIndex ? index % 4 : -1} wrongIndex={phase === 'wrong' && Math.floor(index / 4) === groupIndex ? index % 4 : -1} /></div>)}</div>
+      <div className="lesson-sheet" ref={sheet} tabIndex={0} aria-label="Bản nhạc thực hành">{renderNotation ? renderNotation(index) : groups.map((group, groupIndex) => <div data-group={groupIndex} key={groupIndex}><WebSheetMusic score={{ ...score, notes: group }} currentIndex={Math.floor(index / 4) === groupIndex ? index % 4 : -1} wrongIndex={phase === 'wrong' && Math.floor(index / 4) === groupIndex ? index % 4 : -1} /></div>)}</div>
       <details className="practice-note-sequence"><summary>Thứ tự nốt</summary><p className="expected-notes">{score.notes.map(note => note.pitch).join(' → ')}</p></details>
     </section>
     <section className="pitch-recorder" aria-label="Thu và luyện cao độ">

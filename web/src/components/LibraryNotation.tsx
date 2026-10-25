@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { scoreMeasures, type LibraryScore } from '../data/musicLibrary';
-import { Accidental, Articulation, Barline, Beam, Curve, Dot, Formatter, Modifier, Renderer, Stave, StaveNote, Voice } from 'vexflow/bravura';
+import { Accidental, Articulation, Barline, Beam, Curve, Dot, Formatter, Modifier, Renderer, Stave, StaveNote, StaveTie, Voice } from 'vexflow/bravura';
 
 const ink = '#263630';
 const activeInk = '#9b541b';
@@ -90,6 +90,20 @@ export function LibraryNotation({ score, activeIndex }: { score: LibraryScore; a
             beams.forEach(beam => beam.setContext(context).draw());
             x += staveWidth;
           });
+        });
+        let tieStart = -1;
+        score.notes.forEach((entry, index) => {
+          if (entry.rest) { tieStart = -1; return; }
+          if ((entry.tie === 'continue' || entry.tie === 'stop') && tieStart >= 0) {
+            const drawTie = (firstNote?: StaveNote, lastNote?: StaveNote) => {
+              const tie = new StaveTie({ firstNote, lastNote, firstIndexes: [0], lastIndexes: [0] });
+              tie.setContext(context).draw();
+              tie.getSVGElement()?.setAttribute('data-note-tie', `${tieStart}-${index}`);
+            };
+            if (rows[tieStart] === rows[index]) drawTie(renderedNotes[tieStart], renderedNotes[index]);
+            else { drawTie(renderedNotes[tieStart]); drawTie(undefined, renderedNotes[index]); }
+          }
+          tieStart = entry.tie === 'start' || entry.tie === 'continue' ? index : -1;
         });
         let slurStart = -1;
         score.notes.forEach((entry, index) => {

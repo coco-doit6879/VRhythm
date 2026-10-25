@@ -1,11 +1,11 @@
 import { Play, Square, Volume2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { PhysicalFluteEngine } from '../audio/PhysicalFluteEngine';
-import { buildScoreTimeline } from '../audio/fluteScore';
+import { buildScoreTimeline, type SheetScore } from '../audio/fluteScore';
 
-export function PracticeListening({ notes, tempo, target, disabled }: {
+export function PracticeListening({ notes, tempo, target, disabled, sourceScore }: {
   notes: Array<{ id: string; pitch: string; duration: string }>;
-  tempo: number; target?: string; disabled: boolean;
+  tempo: number; target?: string; disabled: boolean; sourceScore?: SheetScore;
 }) {
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState('');
@@ -31,7 +31,7 @@ export function PracticeListening({ notes, tempo, target, disabled }: {
     try {
       const { PhysicalFluteEngine } = await import('../audio/PhysicalFluteEngine');
       if (run !== generation.current) return;
-      const timeline = buildScoreTimeline({ metadata: { title: 'Bài thực hành', tempo }, notes: single && target ? [{ id: 'target', pitch: target, duration: 'h' }] : notes });
+      const timeline = buildScoreTimeline(single && target ? { metadata: { title: 'Nốt mẫu', tempo }, notes: [{ id: 'target', pitch: target, duration: 'h' }] } : sourceScore ?? { metadata: { title: 'Bài thực hành', tempo }, notes });
       const engine = new PhysicalFluteEngine();
       resources.current.engine = engine;
       const playback = await engine.playSequence(timeline.sequence, timeline.sequenceOptions);
