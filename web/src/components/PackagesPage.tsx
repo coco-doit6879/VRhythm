@@ -130,17 +130,28 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
     setBusy(true);
     setError('');
     setVerifyError('');
+    // Reserve the tab during the click, before the API await loses user activation.
+    const paymentTab = window.open('', '_blank');
+    if (paymentTab) {
+      paymentTab.opener = null;
+      paymentTab.document.title = 'Thanh toán VRhythm';
+      paymentTab.document.body.textContent = 'Đang mở cổng thanh toán PayOS…';
+    }
     try {
       const packageCode = paidPackage?.code ?? 'flute-plus';
       const result = await api.createPayOSCheckout(packageCode, storedRequestId(user.userId));
-      if (!mounted.current) return;
+      if (!mounted.current) { paymentTab?.close(); return; }
       setOrder(result);
       window.history.replaceState({}, '', `/packages?order=${encodeURIComponent(result.id)}`);
       const url = checkoutUrl(result.checkoutUrl);
       if (url && result.status === 'Pending') {
-        window.location.assign(url);
+        if (paymentTab && !paymentTab.closed) paymentTab.location.replace(url);
+        else setNotification({ type: 'info', message: 'Nhấn “Mở trang PayOS” trong đơn hàng để thanh toán ở tab mới.' });
+      } else {
+        paymentTab?.close();
       }
     } catch (err) {
+      paymentTab?.close();
       if (mounted.current) setError(err instanceof Error ? err.message : 'Không thể kết nối PayOS.');
     } finally {
       working.current = false;
