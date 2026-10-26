@@ -196,13 +196,13 @@ export function AiMusicPage({ user, onAuth }: { user: AuthResponse | null; onAut
           {entitled && quota?.remaining === 0 && <p className="ai-music-notice">Đã dùng hoặc đang giữ đủ 3 lượt hôm nay. Bạn vẫn có thể hoàn tất bản nháp đang giữ lượt.</p>}
           <form onSubmit={event => { event.preventDefault(); void scan(); }} className="ai-music-form">
             <label htmlFor="ai-title">Tên bản nhạc</label><input id="ai-title" maxLength={200} value={title} disabled={busy} onChange={e => { setTitle(e.target.value); setRequestId(crypto.randomUUID()); }} placeholder="Ví dụ: Bèo dạt mây trôi" required />
-            <label htmlFor="ai-image">Ảnh sheet</label><input id="ai-image" type="file" accept="image/png,image/jpeg" disabled={busy || !entitled} aria-describedby="ai-image-help" onChange={e => {
+            <label htmlFor="ai-image">Ảnh sheet</label><input id="ai-image" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy || !entitled} aria-describedby="ai-image-help" onChange={e => {
               const selected = e.target.files?.[0]; setFile(null); setRequestId(crypto.randomUUID()); setError('');
               if (!selected) return;
-              if (!['image/png', 'image/jpeg'].includes(selected.type) || selected.size < 24 || selected.size > 5 * 1024 * 1024) { setError('Chọn ảnh PNG hoặc JPEG, tối đa 5 MB.'); e.target.value = ''; return; }
+              if (selected.size < 24 || selected.size > 5 * 1024 * 1024) { setError('Chọn ảnh PNG, JPEG hoặc WebP từ 24 byte đến 5 MB.'); e.target.value = ''; return; }
               setFile(selected);
             }} />
-            <small id="ai-image-help">PNG hoặc JPEG, tối đa 5 MB. Một giai điệu đơn âm, tối đa 120 giây, C4–B6.</small>
+            <small id="ai-image-help">PNG, JPEG hoặc WebP, tối đa 5 MB. WebP được chuyển sang PNG trước khi gửi. Một giai điệu đơn âm, tối đa 120 giây, C4–B6.</small>
             <button className="ai-music-primary" type="submit" disabled={!canScan}><ScanLine size={18} aria-hidden="true" />{busy && !reviewOpen ? 'Đang gửi…' : 'Quét ảnh thành sheet'}</button>
           </form>
           <p className="ai-music-help">Quét ảnh chưa tạo audio. Bản nháp giữ một lượt trong tối đa 20 phút; lỗi hoặc hết hạn sẽ trả lượt.</p>

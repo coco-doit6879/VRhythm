@@ -1,3 +1,4 @@
+import { prepareAiMusicImage } from './aiMusicImage';
 import { authStorage } from './api';
 import { buildScoreTimeline, type SheetScore } from '../audio/fluteScore';
 
@@ -28,7 +29,8 @@ async function call<T>(path: string, init: RequestInit = {}, audio = false, publ
     const response = await fetch(`${base}${path}`, { ...init, headers, cache: 'no-store', signal: controller.signal });
     if (!response.ok) {
       const data = await response.json().catch(() => null);
-      const message = response.status === 401 ? 'Vui lòng đăng nhập lại.' : response.status === 403 ? 'Cần Premium còn hiệu lực để tạo, nghe hoặc dùng nhạc riêng.' : response.status === 429 ? 'Đã hết lượt hoặc gửi quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.' : response.status >= 500 ? 'Dịch vụ tạo nhạc chưa sẵn sàng. Vui lòng thử lại sau.' : 'Yêu cầu chưa thực hiện được. Hãy tải lại trạng thái và thử lại.';
+      const validation = response.status === 422 && data?.error?.code === 'INVALID_INPUT' && typeof data.error.message === 'string' && data.error.message.length <= 400 ? data.error.message : null;
+      const message = validation ?? (response.status === 401 ? 'Vui lòng đăng nhập lại.' : response.status === 403 ? 'Cần Premium còn hiệu lực để tạo, nghe hoặc dùng nhạc riêng.' : response.status === 429 ? 'Đã hết lượt hoặc gửi quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.' : response.status >= 500 ? 'Dịch vụ tạo nhạc chưa sẵn sàng. Vui lòng thử lại sau.' : 'Yêu cầu chưa thực hiện được. Hãy tải lại trạng thái và thử lại.');
       throw new MusicError(response.status, typeof data?.error?.code === 'string' ? data.error.code : 'REQUEST_FAILED', message);
     }
     if (audio) {
@@ -47,8 +49,13 @@ export const aiMusic = {
   jobs: (signal: AbortSignal) => call<MusicJob[]>(`${privatePath}/jobs`, { signal }),
   job: (id: string, signal: AbortSignal) => call<MusicJob>(`${privatePath}/jobs/${encodeURIComponent(id)}`, { signal }),
   tracks: (page: number, signal: AbortSignal) => call<MusicTrackPage>(`${privatePath}/tracks?page=${page}`, { signal }),
-  scan: (file: File, title: string, requestId: string, signal: AbortSignal) => {
-    const body = new FormData(); body.append('Image', file); body.append('Title', title.trim()); body.append('RequestId', requestId);
+  scan: async (file: File, title: string, requestId: string, signal: AbortSignal) => {
+    signal.throwIfAborted();
+    let image: File;
+    try { image = await prepareAiMusicImage(file); }
+    catch (cause) { throw new MusicError(422, 'INVALID_IMAGE', cause instanceof Error ? cause.message : 'Không đọc được ảnh. Hãy chọn lại ảnh.'); }
+    signal.throwIfAborted();
+    const body = new FormData(); body.append('Image', image); body.append('Title', title.trim()); body.append('RequestId', requestId);
     return call<MusicJob>(`${privatePath}/jobs`, { method: 'POST', body, signal });
   },
   render: (id: string, sheet: unknown, signal: AbortSignal) => call<MusicJob>(`${privatePath}/jobs/${encodeURIComponent(id)}/render`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sheet }), signal }),
