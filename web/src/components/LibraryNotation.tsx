@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { scoreMeasures, type LibraryScore } from '../data/musicLibrary';
-import { Accidental, Articulation, Barline, Beam, Curve, Dot, Formatter, Modifier, Renderer, Stave, StaveNote, StaveTie, Voice } from 'vexflow/bravura';
+import { Accidental, Articulation, Barline, Beam, Curve, Dot, Formatter, Modifier, Renderer, Stave, StaveNote, StaveTie, Tuplet, Voice } from 'vexflow/bravura';
 
 const ink = '#263630';
 const activeInk = '#9b541b';
 type Measure = ReturnType<typeof scoreMeasures>[number];
 const measureWidth = (measure: Measure) => Math.max(88, measure.notes.length * 20 + 20 + measure.notes.filter(note => /^(16|s)/.test(note.duration)).length * 12);
 const curveOptions = { xShift: -3, yShift: 7, thickness: 1, cps: [{ x: 0, y: 6 }, { x: 0, y: 6 }] };
-type Position = { x: number; y: number; element?: SVGElement };
+type Position = { x: number; y: number; elements: SVGElement[] };
 
 /** Engraving is separate from PCM playback. SVG note indices retain the source score order. */
 export function LibraryNotation({ score, activeIndex }: { score: LibraryScore; activeIndex: number }) {
@@ -34,6 +34,7 @@ export function LibraryNotation({ score, activeIndex }: { score: LibraryScore; a
       element.replaceChildren();
       try {
         const measures = scoreMeasures(score);
+        const entries = measures.flatMap(measure => measure.notes);
         const systems: typeof measures[] = [];
         let used = 65;
         for (const measure of measures) {
@@ -80,6 +81,17 @@ export function LibraryNotation({ score, activeIndex }: { score: LibraryScore; a
               renderedNotes.push(note); rows.push(row);
               return note;
             });
+            const tuplets: Tuplet[] = [];
+            for (let index = 0; index < notes.length;) {
+              const ratio = measure.notes[index].tuplet;
+              if (!ratio) { index++; continue; }
+              let end = index + 1;
+              while (end < notes.length && end - index < ratio.actual && measure.notes[end].tuplet?.actual === ratio.actual && measure.notes[end].tuplet?.normal === ratio.normal) end++;
+              // Attach before addTickables so VexFlow counts the performed duration.
+              tuplets.push(new Tuplet(notes.slice(index, end), { numNotes: ratio.actual, notesOccupied: ratio.normal,
+                bracketed: true, ratioed: end - index !== ratio.actual || Math.abs(ratio.actual - ratio.normal) > 1 }));
+              index = end;
+            }
             const voice = new Voice({ numBeats: score.metadata.timeSignature.beats, beatValue: score.metadata.timeSignature.beatType });
             // Pickup bars may be shorter, but never invent rests or alter source note timing.
             voice.setMode(Voice.Mode.FULL).addTickables(notes);
@@ -88,17 +100,18 @@ export function LibraryNotation({ score, activeIndex }: { score: LibraryScore; a
             new Formatter().joinVoices([voice]).formatToStave([voice], stave);
             voice.draw(context, stave);
             beams.forEach(beam => beam.setContext(context).draw());
+            tuplets.forEach(tuplet => tuplet.setContext(context).draw());
             x += staveWidth;
           });
         });
         let tieStart = -1;
-        score.notes.forEach((entry, index) => {
+        entries.forEach((entry, index) => {
           if (entry.rest) { tieStart = -1; return; }
           if ((entry.tie === 'continue' || entry.tie === 'stop') && tieStart >= 0) {
             const drawTie = (firstNote?: StaveNote, lastNote?: StaveNote) => {
               const tie = new StaveTie({ firstNote, lastNote, firstIndexes: [0], lastIndexes: [0] });
               tie.setContext(context).draw();
-              tie.getSVGElement()?.setAttribute('data-note-tie', `${tieStart}-${index}`);
+              tie.getSVGElement()?.setAttribute('data-note-tie', `${entries[tieStart].sourceIndex}-${entry.sourceIndex}`);
             };
             if (rows[tieStart] === rows[index]) drawTie(renderedNotes[tieStart], renderedNotes[index]);
             else { drawTie(renderedNotes[tieStart]); drawTie(undefined, renderedNotes[index]); }
@@ -106,7 +119,7 @@ export function LibraryNotation({ score, activeIndex }: { score: LibraryScore; a
           tieStart = entry.tie === 'start' || entry.tie === 'continue' ? index : -1;
         });
         let slurStart = -1;
-        score.notes.forEach((entry, index) => {
+        entries.forEach((entry, index) => {
           if (entry.rest) return;
           if (entry.slur === 'start') slurStart = index;
           if (entry.slur === 'stop' && slurStart >= 0) {
@@ -123,14 +136,18 @@ export function LibraryNotation({ score, activeIndex }: { score: LibraryScore; a
             slurStart = -1;
           }
         });
-        positions.current = renderedNotes.map((note, index) => {
+        positions.current = [];
+        renderedNotes.forEach((note, index) => {
+          const sourceIndex = entries[index].sourceIndex;
           const node = note.getSVGElement();
           node?.classList.add('sheet-note');
-          node?.setAttribute('data-note-index', String(index));
-          node?.setAttribute('data-pitch', score.notes[index].pitch ?? 'rest');
+          node?.setAttribute('data-note-index', String(sourceIndex));
+          node?.setAttribute('data-notation-index', String(index));
+          node?.setAttribute('data-pitch', entries[index].pitch ?? 'rest');
           node?.setAttribute('data-head-y', String(note.getYs()[0]));
           node?.setAttribute('data-staff-bottom', String(note.getStave()!.getYForLine(4)));
-          return { x: note.getAbsoluteX(), y: rows[index] * rowHeight + 70, element: node };
+          const position = positions.current[sourceIndex] ??= { x: note.getAbsoluteX(), y: rows[index] * rowHeight + 70, elements: [] };
+          if (node) position.elements.push(node);
         });
         const svg = element.querySelector('svg')!;
         svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', `Bản nhạc ${score.metadata.title}`);
@@ -149,14 +166,18 @@ export function LibraryNotation({ score, activeIndex }: { score: LibraryScore; a
   }, [score, width]);
 
   useEffect(() => {
-    const old = positions.current[previous.current]?.element;
-    old?.classList.remove('active');
-    if (old) old.querySelectorAll('[fill],[stroke]').forEach(node => { if (node.hasAttribute('fill') && node.getAttribute('fill') !== 'none') node.setAttribute('fill', ink); if (node.hasAttribute('stroke') && node.getAttribute('stroke') !== 'none') node.setAttribute('stroke', ink); });
+    const paint = (elements: SVGElement[], active: boolean) => elements.forEach(element => {
+      element.classList.toggle('active', active);
+      element.querySelectorAll('[fill],[stroke]').forEach(node => {
+        if (node.hasAttribute('fill') && node.getAttribute('fill') !== 'none') node.setAttribute('fill', active ? activeInk : ink);
+        if (node.hasAttribute('stroke') && node.getAttribute('stroke') !== 'none') node.setAttribute('stroke', active ? activeInk : ink);
+      });
+    });
+    paint(positions.current[previous.current]?.elements ?? [], false);
     const position = positions.current[activeIndex];
     if (cursor.current) cursor.current.style.display = position ? '' : 'none';
     if (position && cursor.current) {
-      position.element?.classList.add('active');
-      position.element?.querySelectorAll('[fill],[stroke]').forEach(node => { if (node.hasAttribute('fill') && node.getAttribute('fill') !== 'none') node.setAttribute('fill', activeInk); if (node.hasAttribute('stroke') && node.getAttribute('stroke') !== 'none') node.setAttribute('stroke', activeInk); });
+      paint(position.elements, true);
       cursor.current.setAttribute('x1', String(position.x)); cursor.current.setAttribute('x2', String(position.x));
       cursor.current.setAttribute('y1', String(position.y - 12)); cursor.current.setAttribute('y2', String(position.y + 62));
       const panel = root.current?.parentElement;
