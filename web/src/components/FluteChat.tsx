@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { MessageCircle, Send, X } from 'lucide-react';
+import type { Membership } from '../services/useMembership';
 import { api, chatErrorMessage, type AuthResponse, type ChatReply } from '../services/api';
 import './flute-chat.css';
 
 type Turn = { question: string; reply: ChatReply };
-export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth: () => void }) {
+export function FluteChat({ user, onAuth, membership }: { membership: Membership; user: AuthResponse | null; onAuth: () => void }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<'Loading' | 'Demo' | 'Premium' | 'Unavailable' | 'Error'>('Loading');
   const [question, setQuestion] = useState('');
@@ -29,12 +30,13 @@ export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth:
       .catch(() => { if (active) setMode('Error'); });
     return () => { active = false; controller.abort(); };
   }, [open, retry]);
-  useEffect(() => { if (open && (mode === 'Demo' || mode === 'Premium')) input.current?.focus(); }, [open, mode]);
+  useEffect(() => { if (open && (mode === 'Demo' || mode === 'Premium')) input.current?.focus(); }, [open, mode, membership.hasPremium]);
   useEffect(() => { if (log.current) log.current.scrollTop = log.current.scrollHeight; }, [turns, busy, open]);
+  useEffect(() => { if (mode === 'Premium' && !membership.hasPremium) { pending.current?.abort(); setTurns([]); } }, [mode, membership.hasPremium]);
   const close = () => { setOpen(false); requestAnimationFrame(() => launcher.current?.focus()); };
   const submit = async () => {
     const value = question.trim();
-    if (working.current || value.length < 3 || !user || (mode !== 'Demo' && mode !== 'Premium')) return;
+    if (working.current || value.length < 3 || !user || (mode === 'Premium' && !membership.hasPremium) || (mode !== 'Demo' && mode !== 'Premium')) return;
     working.current = true; setBusy(true); setPendingQuestion(value); setError('');
     const controller = new AbortController(); pending.current = controller;
     const timer = setTimeout(() => { if (alive.current) setError('Chat phản hồi quá lâu. Vui lòng thử lại.'); controller.abort(); }, 35000);
@@ -66,8 +68,8 @@ export function FluteChat({ user, onAuth }: { user: AuthResponse | null; onAuth:
         <div className="flute-chat-compose">
           {mode === 'Loading' && <p role="status">Đang tải chat…</p>}
           {mode === 'Error' && <p role="alert">Không tải được Chat. <button onClick={() => setRetry(value => value + 1)}>Thử lại</button></p>}
-          {mode === 'Unavailable' && <p>Chat Plus chưa mở. <a href="/packages">Xem gói học</a></p>}
-          {(mode === 'Demo' || mode === 'Premium') && (!user ? <button className="flute-chat-send" onClick={onAuth}>Đăng nhập để hỏi</button> : <>
+          {mode === 'Unavailable' && <p>Dịch vụ Chat AI đang tạm chưa sẵn sàng.{membership.hasPremium && ' Quyền Plus của bạn vẫn được giữ.'} Vui lòng thử lại sau.</p>}
+          {(mode === 'Demo' || mode === 'Premium') && (!user ? <button className="flute-chat-send" onClick={onAuth}>Đăng nhập để hỏi</button> : mode === 'Premium' && membership.loading ? <p role="status">Đang kiểm tra quyền Plus…</p> : mode === 'Premium' && membership.error ? <p role="alert">{membership.error} <button onClick={membership.refresh}>Thử lại</button></p> : mode === 'Premium' && !membership.hasPremium ? <p>Cần Plus còn hạn để hỏi AI. <a href="/packages">Xem gói Plus</a></p> : <>
             <p className="flute-chat-note">{mode === 'Demo' ? 'AI dùng thử' : 'AI Premium'} · Chỉ tham khảo tài liệu bạn được xem.</p>
             <form onSubmit={event => { event.preventDefault(); void submit(); }}>
               <label htmlFor="flute-chat-question">Câu hỏi của bạn</label>

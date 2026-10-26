@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { api, type AuthResponse, type CheckoutOrder, type LearningPackage } from '../services/api';
+import { refreshMembership, type Membership } from '../services/useMembership';
 import { useScrollReveal } from './useScrollReveal';
 import './packages-page.css';
 
@@ -45,7 +46,7 @@ function storedRequestId(userId: number) {
   return id;
 }
 
-export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAuth: () => void }) {
+export function PackagesPage({ user, onAuth, membership }: { membership: Membership; user: AuthResponse | null; onAuth: () => void }) {
   const [packages, setPackages] = useState<LearningPackage[]>([]);
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +61,7 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
   const working = useRef(false);
   const mounted = useRef(true);
   const paidPackage = packages.find(p => p.code === 'flute-plus');
+  useEffect(() => { if (order?.status === 'Paid') refreshMembership(); }, [order?.status]);
 
   useEffect(() => {
     mounted.current = true;
@@ -125,6 +127,7 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
       onAuth();
       return;
     }
+    if (membership.loading || membership.error || membership.hasPremium) return;
     if (working.current || (paidPackage && paidPackage.checkoutMode !== 'PayOS')) return;
     working.current = true;
     setBusy(true);
@@ -318,6 +321,9 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
         </section>
       )}
 
+      {user && <section className="package-note" aria-label="Trạng thái gói">
+        {membership.loading ? <p role="status">Đang kiểm tra gói tài khoản…</p> : membership.error ? <p role="alert">{membership.error} <button onClick={membership.refresh}>Thử lại trạng thái gói</button></p> : membership.hasPremium && membership.premiumUntil ? <p>Gói Plus của bạn còn hạn đến {new Date(membership.premiumUntil).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}. <a href="/learn/sao">Vào học Plus</a></p> : null}
+      </section>}
       {/* Packages Section Heading */}
       <section className="packages-catalog-section" id="cac-goi-hoc" aria-labelledby="packages-archive-title">
         <div className="packages-archive-heading">
@@ -406,16 +412,16 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
                 </li>
               </ul>
               <div className="card-action">
-                {order?.status === 'Paid' ? (
+                {membership.hasPremium ? (
                   <div className="activated-status">
                     <CheckCircle2 size={18} className="gold-check" />
-                    <span>Đã kích hoạt trên tài khoản</span>
+                    <span>Plus đang hoạt động</span>
                   </div>
                 ) : (
                   <button
                     data-activity="checkout_start"
                     className="packages-card-btn primary"
-                    disabled={busy || !paidPackage || paidPackage.checkoutMode !== 'PayOS'}
+                    disabled={busy || membership.loading || Boolean(membership.error) || !paidPackage || paidPackage.checkoutMode !== 'PayOS'}
                     onClick={() => void handlePayOSCheckout()}
                   >
                     <QrCode size={18} />
@@ -500,14 +506,14 @@ export function PackagesPage({ user, onAuth }: { user: AuthResponse | null; onAu
           Trải nghiệm học nhạc cụ dân tộc tương tác bài bản, kết hợp công nghệ chấm điểm AI Pitch Detector thông minh cùng VRhythm.
         </p>
         <div className="packages-closing-actions">
-          <button
+          {membership.hasPremium ? <a className="primary" href="/learn/sao">Vào học Plus <ArrowUpRight size={18} /></a> : <button
             data-activity="checkout_start"
             className="primary"
-            disabled={busy || !paidPackage || paidPackage.checkoutMode !== 'PayOS'}
+            disabled={busy || membership.loading || Boolean(membership.error) || !paidPackage || paidPackage.checkoutMode !== 'PayOS'}
             onClick={() => void handlePayOSCheckout()}
           >
             Nâng cấp tài khoản Premium <ArrowUpRight size={18} />
-          </button>
+          </button>}
           <a className="secondary-link" href="/learn">
             Khám phá miễn phí trước <ArrowRight size={16} />
           </a>

@@ -735,3 +735,17 @@
     padding-left: 35px;
   }
 }
+.support-shell .profile-membership {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-block: 24px;
+  padding: 20px;
+  background: #24362a;
+  border: 1px solid var(--lp-line);
+  color: var(--lp-ink);
+}
+.support-shell .profile-membership p { margin: 8px 0 0; line-height: 1.6; }
+.support-shell .profile-membership button { min-height: 44px; padding: 10px 14px; background: var(--lp-orange); color: var(--lp-paper); }

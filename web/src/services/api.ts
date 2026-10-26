@@ -39,9 +39,11 @@ export type AuthResponse = {
   expiresAt?: string;
   authProvider?: string;
   avatarUrl?: string;
+  premiumUntil?: string | null;
+  hasPremium?: boolean;
 };
 
-export type UserProfile = Pick<AuthResponse, 'userId' | 'fullName' | 'email' | 'role' | 'avatarUrl'>;
+export type UserProfile = Pick<AuthResponse, 'userId' | 'fullName' | 'email' | 'role' | 'avatarUrl' | 'premiumUntil' | 'hasPremium'>;
 
 export type LessonDetail = { id: number; title: string; type: string; content?: string; durationSeconds?: number; theory?: { content?: string }; video?: { content?: string; durationSeconds?: number } };
 export type QuizDetail = { title: string; passPercentage: number; questions: Array<{ id: number; prompt: string; options: Array<{ id: number; text: string }> }> };
@@ -220,8 +222,9 @@ export const api = {
   getLearnerCourses() {
     return readCourse<LearnerCourseSummary[]>('/api/courses/learning');
   },
-  getProfile() {
-    return request<UserProfile>('/api/user/profile');
+  getAiMusicMembership(signal?: AbortSignal) { return request<{ hasPremium: boolean; premiumUntil: string | null }>('/api/me/ai-music/quota', { signal }); },
+  getProfile(signal?: AbortSignal) {
+    return request<UserProfile>('/api/user/profile', { signal });
   },
   enroll(courseId: number, accessType: string) {
     const action = accessType.toLocaleLowerCase() === 'free' ? 'enroll' : 'unlock';

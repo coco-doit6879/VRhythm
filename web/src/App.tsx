@@ -8,6 +8,7 @@ import { AuthPanel } from './components/AuthPanel';
 import { Header } from './components/Header';
 import { useProductActivity } from './services/useProductActivity';
 import { PackagesPage } from './components/PackagesPage';
+import { useMembership, type Membership } from './services/useMembership';
 import { FluteChat } from './components/FluteChat';
 import { ExplorePage } from './components/ExplorePage';
 import { InstrumentStory } from './components/InstrumentStory';
@@ -52,6 +53,7 @@ export default function App() {
   const selectedInstrument = instruments.find(item => item.id === pathname.split('/')[2]);
   const isInstrumentRoute = /^\/(explore|learn)\//.test(pathname);
   const [authUser, setAuthUser] = useState<AuthResponse | null>(() => authStorage.read());
+  const membership = useMembership(authUser, pathname);
   const [courses, setCourses] = useState<Array<CourseSummary | LearnerCourseSummary>>([]);
   const [coursesLoading, setCoursesLoading] = useState(false);
   const [coursesError, setCoursesError] = useState('');
@@ -97,16 +99,16 @@ export default function App() {
   return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} isAdmin={authUser?.role === 'Admin'} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'admin' && <Suspense fallback={<main className="page" role="status">Đang tải dashboard…</main>}><AdminDashboard key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/admin'); openAuth('login'); }} /></Suspense>}
     {view === 'home' && <LandingPage />}
-    {(view === 'learn' || view === 'lesson') && (!isInstrumentRoute || selectedInstrument?.id === 'sao') && <FluteChat key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/learn/sao'); openAuth('login'); }} />}
+    {(view === 'learn' || view === 'lesson') && (!isInstrumentRoute || selectedInstrument?.id === 'sao') && <FluteChat membership={membership} key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/learn/sao'); openAuth('login'); }} />}
     {isInstrumentRoute && (!selectedInstrument || (view === 'learn' && selectedInstrument.id !== 'sao')) && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>{selectedInstrument ? 'Nhạc cụ này chưa mở' : 'Không tìm thấy nhạc cụ'}</h1><a href="/explore">Quay lại Khám phá</a></main>}
     {view === 'explore' && !isInstrumentRoute && <ExplorePage />}
     {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
     {view === 'learn' && selectedInstrument?.id === 'sao' && <InstrumentLearning instrument={selectedInstrument} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} onLesson={openLesson} />}
     {view === 'learn' && !isInstrumentRoute && <Learn user={authUser} courses={courses} loading={coursesLoading} error={coursesError} onAuth={() => openAuth('login')} onOpenLesson={openLesson} onRefresh={loadCourses} />}
     {view === 'library' && <Suspense fallback={<main className="page">Đang tải thư viện…</main>}><MusicLibraryPage songId={pathname.split('/')[2]} /></Suspense>}
-    {view === 'packages' && <PackagesPage user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/packages'); openAuth('login'); }} />}
+    {view === 'packages' && <PackagesPage membership={membership} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/packages'); openAuth('login'); }} />}
     {view === 'ai-music' && <Suspense fallback={<main className="page" role="status">Đang tải VRhythm AI…</main>}><AiMusicPage key={authUser?.token ?? 'anonymous'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/ai-music'); openAuth('login'); }} /></Suspense>}
-    {view === 'profile' && <Profile user={authUser} onAuth={() => openAuth('login')} onSignOut={signOut} onNavigate={navigate} onOpenLesson={openLesson} />}
+    {view === 'profile' && <Profile membership={membership} user={authUser} onAuth={() => openAuth('login')} onSignOut={signOut} onNavigate={navigate} onOpenLesson={openLesson} />}
     {view === 'lesson' && <LessonPlayer route={lessonRoute} onBack={() => navigate('learn')} onOpenLesson={openLesson} />}
     {view === 'auth' && <main className="page"><AuthPanel mode={authMode} onModeChange={mode => navigate('auth', mode)} onSubmit={signIn} /></main>}
   </div>;
@@ -221,8 +223,10 @@ function Profile({
   onSignOut,
   onNavigate,
   onOpenLesson,
+  membership,
 }: {
   user: AuthResponse | null;
+  membership: Membership;
   onAuth: () => void;
   onSignOut: () => void;
   onNavigate: (view: View) => void;
@@ -335,6 +339,13 @@ function Profile({
         </div>
       )}
 
+      <section className="profile-membership" aria-label="Gói tài khoản">
+        <div><strong>{membership.loading ? 'Đang kiểm tra gói…' : membership.error ? 'Chưa xác nhận gói tài khoản' : membership.hasPremium ? 'Plus đang hoạt động' : 'Gói Miễn phí'}</strong>
+        {membership.hasPremium && membership.premiumUntil && <p>Hết hạn {new Date(membership.premiumUntil).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}.</p>}
+        {membership.error && <p>{membership.error}</p>}</div>
+        {membership.error && <button onClick={membership.refresh}>Thử lại trạng thái gói</button>}
+        {!membership.loading && !membership.error && !membership.hasPremium && <button onClick={() => onNavigate('packages')}>Xem gói Plus</button>}
+      </section>
       <section className="profile-stats-grid" aria-label="Thống kê học tập">
         <div className="profile-stat-card">
           <div className="profile-stat-icon"><BookOpen size={20} /></div>
