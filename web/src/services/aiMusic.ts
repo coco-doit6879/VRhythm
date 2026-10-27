@@ -1,3 +1,4 @@
+import { knownMusicFailure, musicFailure } from './aiMusicFailures';
 import { prepareAiMusicImage } from './aiMusicImage';
 import { authStorage } from './api';
 import { buildScoreTimeline, type SheetScore } from '../audio/fluteScore';
@@ -30,7 +31,8 @@ async function call<T>(path: string, init: RequestInit = {}, audio = false, publ
     if (!response.ok) {
       const data = await response.json().catch(() => null);
       const validation = response.status === 422 && data?.error?.code === 'INVALID_INPUT' && typeof data.error.message === 'string' && data.error.message.length <= 400 ? data.error.message : null;
-      const message = validation ?? (response.status === 401 ? 'Vui lòng đăng nhập lại.' : response.status === 403 ? 'Cần Premium còn hiệu lực để tạo, nghe hoặc dùng nhạc riêng.' : response.status === 429 ? 'Đã hết lượt hoặc gửi quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.' : response.status >= 500 ? 'Dịch vụ tạo nhạc chưa sẵn sàng. Vui lòng thử lại sau.' : 'Yêu cầu chưa thực hiện được. Hãy tải lại trạng thái và thử lại.');
+      const reason = knownMusicFailure(data?.error?.code) ? musicFailure(data.error.code) : null;
+      const message = validation ?? (reason ? `${reason.title}. ${reason.detail} ${reason.action}` : null) ?? (response.status === 401 ? 'Vui lòng đăng nhập lại.' : response.status === 403 ? 'Cần Premium còn hiệu lực để tạo, nghe hoặc dùng nhạc riêng.' : response.status === 429 ? 'Đã hết lượt hoặc gửi quá nhiều yêu cầu. Vui lòng đợi rồi thử lại.' : response.status >= 500 ? 'Dịch vụ tạo nhạc chưa sẵn sàng. Vui lòng thử lại sau.' : 'Yêu cầu chưa thực hiện được. Hãy tải lại trạng thái và thử lại.');
       throw new MusicError(response.status, typeof data?.error?.code === 'string' ? data.error.code : 'REQUEST_FAILED', message);
     }
     if (audio) {

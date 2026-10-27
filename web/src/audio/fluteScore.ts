@@ -22,6 +22,8 @@ export type SheetNote = SheetEntryBase & {
 export type SheetRest = SheetEntryBase & { rest: true; pitch?: never };
 export type SheetEntry = SheetNote | SheetRest;
 export type SheetScore = {
+  /** Suggested arrangement, shown for review before creating audio. */
+  arrangement?: { melodyExtracted: boolean; octaveAdjustedNotes: number };
   metadata: { title: string; composer?: string; tempo: number; startOffsetBeats?: number };
   notes: SheetEntry[];
 };

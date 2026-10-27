@@ -1,3 +1,4 @@
+import { musicFailure } from '../services/aiMusicFailures';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FileMusic, LockKeyhole, Play, RefreshCw, ScanLine } from 'lucide-react';
 import type { SheetScore } from '../audio/fluteScore';
@@ -161,13 +162,15 @@ export function AiMusicPage({ user, onAuth }: { user: AuthResponse | null; onAut
     } catch (cause) { handleError(cause); }
     finally { if (!lifetime.current.signal.aborted) setBusy(false); }
   }
+  const failure = job?.status === 'Failed' ? musicFailure(job.failureCode) : null;
   const canScan = entitled && quota?.generationAvailable && quota.remaining > 0 && file && title.trim() && !busy;
   return <main className="page ai-music-page">
     <header className="ai-music-intro"><h1>VRhythm AI</h1><p>Từ ảnh sheet đến tiếng sáo. Kiểm tra và sửa bản nhạc trước khi tạo audio.</p></header>
     {error && <div className="ai-music-error" role="alert"><p>{error}</p><button onClick={() => { setError(''); setLoading(true); void loadAccount(true).catch(handleError).finally(() => setLoading(false)); }}><RefreshCw size={16} aria-hidden="true" /> Tải lại trạng thái</button></div>}
     {loading && <div className="ai-music-loading" role="status">Đang tải tài khoản và thư viện…</div>}
     <div className="ai-music-sheets" ref={sheetPanel}>
-        {job && entitled && !savedSheet && <section className="ai-music-job" aria-labelledby="ai-job-title"><h3 id="ai-job-title">{job.title}</h3><p role="status">{labels[job.status]}</p>
+        {job && entitled && !savedSheet && <section className="ai-music-job" aria-labelledby="ai-job-title"><h3 id="ai-job-title">{job.title}</h3><p role="status">{failure ? failure.title : labels[job.status]}</p>
+          {failure && <div className="ai-music-failure"><p>{failure.detail}</p><p>{failure.action}</p><small>Yêu cầu này không bị tính lượt.</small></div>}
           {reviewOpen && <>
             <p>Kiểm tra bản nhạc, sửa nốt và tempo trước khi xác nhận.</p>
             {job.reservationExpiresAtUtc && <small>{expiredDraft ? 'Bản nháp đã hết thời gian giữ lượt. Hãy quét lại ảnh.' : `Xác nhận trước ${date(job.reservationExpiresAtUtc)}.`}</small>}
@@ -178,7 +181,6 @@ export function AiMusicPage({ user, onAuth }: { user: AuthResponse | null; onAut
           </>}
           {!reviewOpen && draft && draftJobId.current === job.id && ['Rendering', 'Completed'].includes(job.status) && <AiMusicSheet key={`${job.id}-${practiceVersion}`} score={draft} valid={Boolean(review.valid)} onPractice={stopListening} />}
           {job.status === 'Completed' && <a href="#ai-personal-library">Mở thư viện cá nhân</a>}
-          {job.failureCode === 'RESERVATION_EXPIRED' && <p>Bản nháp hết hạn. Quét lại để bắt đầu yêu cầu mới.</p>}
           {['Completed', 'Failed', 'Cancelled'].includes(job.status) && <button onClick={() => { setRequestId(crypto.randomUUID()); setJob(null); setDraft(null); setError(''); }}>Bắt đầu bản mới</button>}
         </section>}
       {savedSheet && entitled && <section className="ai-music-saved-sheet" aria-label="Sheet đã lưu">
@@ -202,12 +204,12 @@ export function AiMusicPage({ user, onAuth }: { user: AuthResponse | null; onAut
               if (selected.size < 24 || selected.size > 5 * 1024 * 1024) { setError('Chọn ảnh PNG, JPEG hoặc WebP từ 24 byte đến 5 MB.'); e.target.value = ''; return; }
               setFile(selected);
             }} />
-            <small id="ai-image-help">PNG, JPEG hoặc WebP, tối đa 5 MB. WebP được chuyển sang PNG trước khi gửi. Một giai điệu đơn âm, tối đa 120 giây, C4–B6.</small>
+            <small id="ai-image-help">PNG, JPEG hoặc WebP, tối đa 5 MB. Sheet piano sẽ được gợi ý thành một giai điệu cho sáo. Bản nhạc tối đa 120 giây, C4–B6.</small>
             <button className="ai-music-primary" type="submit" disabled={!canScan}><ScanLine size={18} aria-hidden="true" />{busy && !reviewOpen ? 'Đang gửi…' : 'Quét ảnh thành sheet'}</button>
           </form>
           <p className="ai-music-help">Quét ảnh chưa tạo audio. Bản nháp giữ một lượt trong tối đa 20 phút; lỗi hoặc hết hạn sẽ trả lượt.</p>
         </>}
-        {entitled && jobs.length > 0 && <details className="ai-music-recent"><summary>Yêu cầu gần đây</summary><ul>{jobs.map(j => <li key={j.id}><button disabled={busy} onClick={() => { setSavedSheet(null); setJob(j); setError(''); }}>{j.title} — {labels[j.status]}</button></li>)}</ul></details>}
+        {entitled && jobs.length > 0 && <details className="ai-music-recent"><summary>Yêu cầu gần đây</summary><ul>{jobs.map(j => <li key={j.id}><button disabled={busy} onClick={() => { setSavedSheet(null); setJob(j); setError(''); }}>{j.title} — {j.status === 'Failed' ? `${musicFailure(j.failureCode).title} · không mất lượt` : labels[j.status]}</button></li>)}</ul></details>}
       </section>
       <section className="ai-music-library" id="ai-personal-library" aria-labelledby="ai-library-title"><h2 id="ai-library-title">Thư viện của bạn</h2>
         {!user ? <p>Đăng nhập để xem những bản nhạc đã lưu trong tài khoản.</p> : <>

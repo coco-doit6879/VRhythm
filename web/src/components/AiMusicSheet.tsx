@@ -29,9 +29,17 @@ export function AiMusicSheet({ score, valid, onChange, disabled = false, onPract
     sheetMusicJson: JSON.stringify({ metadata: score.metadata, notes: playable.map(p => p.note) }),
     expectedNotes: playable.map(({ note }, sortOrder) => ({ note: note.pitch!, sortOrder })),
   }), [score, playable]);
+  const arrangement = score.arrangement;
+  const adjustedCount = arrangement?.octaveAdjustedNotes;
+  const octaveChanges = typeof adjustedCount === 'number' && Number.isInteger(adjustedCount) && adjustedCount > 0 && adjustedCount <= 2048 ? adjustedCount : 0;
+  const arranged = arrangement?.melodyExtracted === true || octaveChanges > 0;
   const update = (note: SheetEntry) => onChange?.({ ...score, notes: score.notes.map((n, i) => i === index ? note : n) });
 
   return <div className="ai-sheet-workbench">
+    {arranged && <div className="ai-sheet-arrangement" role="note" aria-label="Bản chuyển soạn cho sáo">
+      <strong>Bản giai điệu gợi ý cho sáo</strong>
+      <p>{arrangement?.melodyExtracted === true && 'Đã lược phần đệm và hợp âm để giữ một giai điệu. '}{octaveChanges > 0 && `Đã chuyển quãng 8 cho ${octaveChanges} nốt. `}{onChange ? 'Đối chiếu với ảnh gốc và kiểm tra lại nốt, nhịp, tempo trước khi tạo âm thanh.' : 'Bản chuyển soạn có thể khác bản nhạc gốc.'}</p>
+    </div>}
     <div className="ai-sheet-toolbar" aria-label="Chế độ bản nhạc">
       <button aria-pressed={!practice} onClick={() => setPractice(false)}>Bản nhạc</button>
       <button aria-pressed={practice} disabled={!valid || disabled || !playable.length || playable.length > 512} onClick={() => { onPractice(); setPractice(true); }}>Luyện thổi sáo</button>
