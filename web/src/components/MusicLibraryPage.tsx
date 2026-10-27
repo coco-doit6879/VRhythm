@@ -4,6 +4,7 @@ import type { PhysicalFluteEngine } from '../audio/PhysicalFluteEngine';
 import { buildScoreTimeline } from '../audio/fluteScore';
 import { musicLibrary } from '../data/musicLibrary';
 import { LibraryNotation } from './LibraryNotation';
+import { FluteFingering } from './FluteFingering';
 import './music-library.css';
 
 const normalize = (text: string) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase();
@@ -94,6 +95,8 @@ function LibrarySheet({ song }: { song: typeof musicLibrary[number] }) {
       <span className="library-time">{timeLabel(elapsed)} / {timeLabel(timeline.totalDuration)}</span>
     </div>
     {error && <p className="library-error" role="alert">{error}</p>}
+    <FluteFingering pitch={score.notes[activeIndex >= 0 ? activeIndex : 0]?.pitch}
+      rest={score.notes[activeIndex >= 0 ? activeIndex : 0]?.rest} label={playing ? 'Thế bấm đang nghe' : 'Thế bấm đầu bài'} />
     <div className="library-sheet-paper" ref={sheetPanel} aria-label={`Sheet ${song.title}`} tabIndex={0}>
       <LibraryNotation score={score} activeIndex={activeIndex} />
     </div>

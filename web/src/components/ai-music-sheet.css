@@ -8,6 +8,17 @@
 .ai-sheet-toolbar > span { color: var(--lp-muted); font-size: 14px; line-height: 1.6; }
 .ai-sheet-paper { max-height: 480px; min-height: 160px; overflow: auto; overscroll-behavior: contain; padding: 12px; background: #fff; color: #263630; scrollbar-color: #60796b #fff; }
 .ai-sheet-paper .library-notation { min-width: 0; }
+.ai-sheet-score-row { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:20px; align-items:start; }
+.ai-sheet-fingering { grid-column:2; grid-row:1; min-width:0; }
+.ai-sheet-score-row > .ai-sheet-paper { grid-column:1; grid-row:1; }
+.ai-sheet-fingering .flute-fingering { margin:0; padding:16px 12px; }
+.ai-sheet-note-nav { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; }
+.ai-sheet-note-nav button { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; }
+.ai-sheet-note-nav span { font-size:14px; }
+@media(max-width:900px) {
+  .ai-sheet-score-row { grid-template-columns:minmax(0,1fr); gap:16px; }
+  .ai-sheet-fingering, .ai-sheet-score-row > .ai-sheet-paper { grid-column:1; grid-row:auto; }
+}
 .ai-sheet-editor { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; min-width: 0; padding: 20px 0; margin: 20px 0; border: 0; border-block: 1px solid var(--lp-line); }
 .ai-sheet-editor legend { padding-right: 12px; font-weight: 600; }
 .ai-sheet-editor label { min-width: 0; margin: 0; }

@@ -3,6 +3,8 @@ import type { SheetEntry, SheetScore } from '../audio/fluteScore';
 import type { LibraryScore } from '../data/musicLibrary';
 import { LibraryNotation } from './LibraryNotation';
 import { PracticalLesson } from './PracticalLesson';
+import { FluteFingering } from './FluteFingering';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './lesson-player.css';
 import './ai-music-sheet.css';
 
@@ -54,7 +56,17 @@ export function AiMusicSheet({ score, valid, onChange, disabled = false, onPract
           renderNotation={active => <LibraryNotation score={notation} activeIndex={playable[active]?.sourceIndex ?? -1} />} />
       </div>
     </> : <>
-      {valid ? <div className="ai-sheet-paper" tabIndex={0} aria-label="Sheet nhạc"><LibraryNotation score={notation} activeIndex={onChange ? index : -1} /></div> : <p role="status">Sửa thông tin bên dưới để hiển thị lại bản nhạc.</p>}
+      {valid ? <div className="ai-sheet-score-row">
+        <aside className="ai-sheet-fingering" aria-label="Hướng dẫn thế bấm">
+          <nav className="ai-sheet-note-nav" aria-label="Chọn nốt trên sheet">
+            <button aria-label="Nốt trước" disabled={disabled || index <= 0} onClick={() => setSelected(index - 1)}><ChevronLeft size={18} aria-hidden="true" /></button>
+            <span>Nốt {index + 1}/{score.notes.length}</span>
+            <button aria-label="Nốt sau" disabled={disabled || index >= score.notes.length - 1} onClick={() => setSelected(index + 1)}><ChevronRight size={18} aria-hidden="true" /></button>
+          </nav>
+          <FluteFingering pitch={entry?.pitch} rest={entry?.rest} label="Thế bấm nốt đang chọn" />
+        </aside>
+        <div className="ai-sheet-paper" tabIndex={0} aria-label="Sheet nhạc"><LibraryNotation score={notation} activeIndex={index} /></div>
+      </div> : <p role="status">Sửa thông tin bên dưới để hiển thị lại bản nhạc.</p>}
       {onChange && entry && <fieldset className="ai-sheet-editor" disabled={disabled}>
         <legend>Kiểm tra và sửa nốt</legend>
         <label>Tempo<input type="number" min={1} max={300} value={score.metadata.tempo || ''} onChange={e => onChange({ ...score, metadata: { ...score.metadata, tempo: Number(e.target.value) } })} /></label>
