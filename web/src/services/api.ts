@@ -102,8 +102,12 @@ export type ChatReply = { answer: string; status: 'Answered' | 'NoSources'; sour
 export function chatErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.status === 401) return 'Vui lòng đăng nhập lại để hỏi.';
-    if (error.status === 429 && error.message === 'Request failed') return 'Bạn gửi quá nhiều câu hỏi. Vui lòng đợi một lát rồi thử lại.';
-    if (error.message !== 'Request failed') return error.message;
+    if (error.status === 403) return 'Chưa xác nhận được quyền Chat Plus. Hãy tải lại trạng thái gói ở Hồ sơ.';
+    if (error.status === 429) return error.message === 'Bạn đã dùng hết lượt Chat hôm nay. Hãy quay lại vào ngày mai.'
+      ? error.message : 'Chat đang bận. Vui lòng đợi một lát rồi thử lại.';
+    if (error.status === 400) return 'Câu hỏi cần từ 3 đến 600 ký tự.';
+    if (error.status === 504) return 'Chat phản hồi quá lâu. Vui lòng thử lại sau.';
+    if (error.status >= 500) return 'Chat đang tạm chưa sẵn sàng. Vui lòng thử lại sau.';
   }
   return 'Không kết nối được Chat. Vui lòng thử lại.';
 }

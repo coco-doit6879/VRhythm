@@ -33,6 +33,7 @@ export function FluteChat({ user, onAuth, membership }: { membership: Membership
   useEffect(() => { if (open && (mode === 'Demo' || mode === 'Premium')) input.current?.focus(); }, [open, mode, membership.hasPremium]);
   useEffect(() => { if (log.current) log.current.scrollTop = log.current.scrollHeight; }, [turns, busy, open]);
   useEffect(() => { if (mode === 'Premium' && !membership.hasPremium) { pending.current?.abort(); setTurns([]); } }, [mode, membership.hasPremium]);
+  useEffect(() => { pending.current?.abort(); setTurns([]); setQuestion(''); setError(''); }, [user?.userId]);
   const close = () => { setOpen(false); requestAnimationFrame(() => launcher.current?.focus()); };
   const submit = async () => {
     const value = question.trim();
@@ -52,15 +53,15 @@ export function FluteChat({ user, onAuth, membership }: { membership: Membership
     }
   };
   return <div className="flute-chat">
-    {!open ? <button data-activity="chat_open" className="flute-chat-launch" ref={launcher} aria-expanded="false" aria-controls="flute-chat-panel" onClick={() => setOpen(true)}><MessageCircle size={20} aria-hidden="true" /> Hỏi về sáo</button>
+    {!open ? <button data-activity="chat_open" className="flute-chat-launch" ref={launcher} aria-expanded="false" aria-controls="flute-chat-panel" onClick={() => setOpen(true)}><MessageCircle size={20} aria-hidden="true" /> Hỏi trợ lý</button>
       : <aside id="flute-chat-panel" className="flute-chat-panel" aria-labelledby="flute-chat-title" onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); close(); } }}>
-        <header><h2 id="flute-chat-title">Hỏi về sáo trúc</h2><button aria-label="Đóng chat" onClick={close}><X size={20} aria-hidden="true" /></button></header>
+        <header><h2 id="flute-chat-title">Trợ lý VRhythm</h2><button aria-label="Đóng chat" onClick={close}><X size={20} aria-hidden="true" /></button></header>
         <div className="flute-chat-log" ref={log} role="log" aria-live="polite" aria-relevant="additions text">
-          {!turns.length && <p>Hỏi về nội dung bạn đang học. Câu trả lời có nguồn để bạn đọc lại.</p>}
+          {!turns.length && <p>Hỏi về nhạc cụ truyền thống, bài đang học hoặc gói của bạn. Mỗi câu hỏi được trả lời riêng.</p>}
           {turns.map((turn, index) => <div className="flute-chat-turn" key={index}>
             <div className="flute-chat-message flute-chat-question"><strong>Bạn</strong><p>{turn.question}</p></div>
             <div className="flute-chat-message flute-chat-answer"><strong>Trợ lý AI</strong><p>{turn.reply.answer}</p>
-              {!!turn.reply.sources.length && <nav aria-label={`Nguồn tham khảo câu ${index + 1}`}>{turn.reply.sources.filter(source => /^\/(learn\/sao|explore\/sao|lesson\/\d+\/chapter\/\d+\/lesson\/\d+)$/.test(source.url)).map(source => <a key={source.id} href={source.url}>{source.title}</a>)}</nav>}
+              {!!turn.reply.sources.length && <nav aria-label={`Nguồn tham khảo câu ${index + 1}`}>{turn.reply.sources.filter(source => /^\/(learn(?:\/sao)?|explore(?:\/(?:sao|tranh|bau|nguyet|nhi|tyba))?|profile|packages|ai-music|library\/(?:bac-kim-thang|beo-dat-may-troi|ly-cay-xanh)|lesson\/\d+\/chapter\/\d+\/lesson\/\d+)$/.test(source.url)).map(source => <a key={source.id} href={source.url}>{source.title}</a>)}</nav>}
             </div>
           </div>)}
           {busy && <div className="flute-chat-turn"><div className="flute-chat-message flute-chat-question"><strong>Bạn</strong><p>{pendingQuestion}</p></div><div className="flute-chat-message flute-chat-answer"><p role="status">Đang tìm nội dung và trả lời…</p></div></div>}
@@ -73,7 +74,7 @@ export function FluteChat({ user, onAuth, membership }: { membership: Membership
             <p className="flute-chat-note">{mode === 'Demo' ? 'AI dùng thử' : 'AI Premium'} · Chỉ tham khảo tài liệu bạn được xem.</p>
             <form onSubmit={event => { event.preventDefault(); void submit(); }}>
               <label htmlFor="flute-chat-question">Câu hỏi của bạn</label>
-              <div className="flute-chat-input-row"><textarea id="flute-chat-question" ref={input} value={question} maxLength={600} rows={2} disabled={busy} onChange={event => setQuestion(event.target.value)} placeholder="Hỏi về sáo trúc…" />
+              <div className="flute-chat-input-row"><textarea id="flute-chat-question" ref={input} value={question} maxLength={600} rows={2} disabled={busy} onChange={event => setQuestion(event.target.value)} placeholder="Bạn muốn hỏi điều gì?" />
                 <button className="flute-chat-send" aria-label="Gửi câu hỏi" disabled={busy || question.trim().length < 3} type="submit"><Send size={18} aria-hidden="true" /></button></div>
             </form>
           </>)}

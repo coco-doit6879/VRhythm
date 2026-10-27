@@ -99,7 +99,7 @@ export default function App() {
   return <div className={['app-shell', 'landing-shell', supportSurface ? 'support-shell' : ''].join(' ')}><Header active={view} loggedIn={Boolean(authUser)} isAdmin={authUser?.role === 'Admin'} onNavigate={value => navigate(value as View)} onSignOut={signOut} />
     {view === 'admin' && <Suspense fallback={<main className="page" role="status">Đang tải dashboard…</main>}><AdminDashboard key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/admin'); openAuth('login'); }} /></Suspense>}
     {view === 'home' && <LandingPage />}
-    {(view === 'learn' || view === 'lesson') && (!isInstrumentRoute || selectedInstrument?.id === 'sao') && <FluteChat membership={membership} key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', '/learn/sao'); openAuth('login'); }} />}
+    {(['learn', 'lesson', 'explore', 'library', 'profile', 'packages', 'ai-music'] as View[]).includes(view) && <FluteChat membership={membership} key={authUser?.userId ?? 'guest'} user={authUser} onAuth={() => { sessionStorage.setItem('vrhythm_return_to', pathname); openAuth('login'); }} />}
     {isInstrumentRoute && (!selectedInstrument || (view === 'learn' && selectedInstrument.id !== 'sao')) && <main className="page"><div className="section-kicker"><Sparkles size={14} /> Trang không tồn tại</div><h1>{selectedInstrument ? 'Nhạc cụ này chưa mở' : 'Không tìm thấy nhạc cụ'}</h1><a href="/explore">Quay lại Khám phá</a></main>}
     {view === 'explore' && !isInstrumentRoute && <ExplorePage />}
     {view === 'explore' && selectedInstrument && <InstrumentPage instrument={selectedInstrument} />}
