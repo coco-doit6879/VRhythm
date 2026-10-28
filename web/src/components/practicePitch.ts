@@ -61,7 +61,8 @@ export function detectPitchHz(buffer: Float32Array, sampleRate: number): number 
   return sampleRate / (lag + correction);
 }
 
-export type PracticePhase = 'waiting' | 'tuning' | 'separate' | 'wrong' | 'reset' | 'advanced' | 'complete';
+export type PracticeMode = 'single-take' | 'try';
+export type PracticePhase = 'waiting' | 'tuning' | 'separate' | 'wrong' | 'retry' | 'reset' | 'advanced' | 'complete';
 export type PracticeObservation = { index: number; phase: PracticePhase; cents: number | null; direction: 'higher' | 'lower' | null };
 
 // One breath is one attempt. A short dropout is tolerated; release commits it.
@@ -75,7 +76,7 @@ export class PracticeNoteTracker {
   private ready = false;
   private errored = false;
 
-  constructor(private readonly expected: string[]) {}
+  constructor(private readonly expected: string[], private readonly mode: PracticeMode = 'single-take') {}
 
   observe(frequency: number | null, now: number): PracticeObservation {
     const result = (phase: PracticePhase, cents: number | null = null): PracticeObservation => ({
@@ -90,6 +91,7 @@ export class PracticeNoteTracker {
       this.hasSound = false; this.ready = false; this.errored = false;
       this.matchingSince = null; this.wrongSince = null;
       if (!passed) {
+        if (this.mode === 'try') return result('retry');
         this.accepted.length = 0; this.indexValue = 0;
         return result('reset');
       }
@@ -101,8 +103,9 @@ export class PracticeNoteTracker {
     const target = pitchToFrequency(this.expected[this.indexValue]);
     if (!target) { this.errored = true; return result('wrong'); }
     const cents = 1200 * Math.log2(frequency / target);
-    if (this.errored) return result('wrong', cents);
+    if (this.errored && this.mode === 'single-take') return result('wrong', cents);
     if (Math.abs(cents) <= 35) {
+      this.errored = false;
       this.wrongSince = null;
       this.matchingSince ??= now;
       if (now - this.matchingSince >= 200) this.ready = true;
