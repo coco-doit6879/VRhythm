@@ -1,0 +1,214 @@
+/* Shared musical identity across discovery, learning and account surfaces. */
+.app-shell.landing-shell {
+ --lp-serif:'Playfair Display',Georgia,serif;
+ --font-body:'Be Vietnam Pro',sans-serif;
+ --art-edge:rgba(198,161,106,.3);
+ --art-shadow:0 16px 40px rgba(0,0,0,.13);
+}
+.app-shell.landing-shell main :is(h1,h2,h3),
+.app-shell.landing-shell .learn-editorial h1.learn-editorial-title {
+ font-family:var(--lp-serif)!important; font-weight:500!important;
+ letter-spacing:-.025em; text-wrap:balance;
+}
+.app-shell.landing-shell main :is(h1,h2) :is(em,i) {
+ font-family:var(--lp-serif)!important; font-style:italic!important;
+ font-weight:500!important; color:var(--lp-orange)!important;
+ letter-spacing:-.035em; line-height:1.25;
+ text-shadow:0 4px 18px #0002;
+}
+.app-shell.landing-shell main :is(h1,h2) { text-shadow:0 4px 22px #0002; }
+.app-shell :is(.section-kicker,.eyebrow,.ex-label,.lp-label) {
+ letter-spacing:.17em; font-weight:500; line-height:1.8;
+}
+.app-shell main :is(p,li) { text-rendering:optimizeLegibility; }
+.app-shell main :is(.primary,.lp-button,.learning-closing>a) {
+ border-radius:2px 14px 2px 14px;
+ box-shadow:0 6px 18px #0002,inset 0 1px 0 #ffffff40;
+ transition:background .2s,box-shadow .2s,transform .2s;
+}
+.app-shell main :is(.primary,.lp-button):hover { box-shadow:0 10px 24px #0003; }
+.app-shell :is(.ex-art,.learning-card-art,.instrument-art) {
+ border-radius:50% 50% 4px 4px; border:1px solid var(--art-edge);
+ background-image:radial-gradient(ellipse at 50% 35%,#c6a16a15,transparent 70%)!important;
+ box-shadow:inset 0 0 50px #00000012;
+}
+.app-shell :is(.ex-card-copy,.learning-card-content) { border-top:1px solid var(--art-edge); margin-top:8px; }
+.app-shell :is(.ex-card-number,.ex-count,.learning-steps li>span) {
+ font-family:var(--lp-serif); font-style:italic; color:var(--lp-orange);
+}
+.app-shell :is(.ex-guide,.learning-steps,.learning-closing) { border-color:var(--art-edge); }
+.app-shell .topbar { box-shadow:0 4px 22px #0000000a; }
+.app-shell .nav button { position:relative; letter-spacing:.025em; }
+.app-shell :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea,select) {
+ border-radius:4px 12px 4px 4px; border-color:var(--art-edge);
+ transition:border-color .2s,box-shadow .2s;
+}
+.app-shell :is(input,textarea,select):focus-visible { outline:2px solid var(--lp-orange); outline-offset:3px; }
+.app-shell :is(button,a):focus-visible { outline:2px solid var(--lp-orange); outline-offset:4px; }
+.app-shell :is(.auth-card,.profile-card,.package-card,.pricing-card,.library-card) {
+ border-color:var(--art-edge); border-radius:6px 24px 6px 6px; box-shadow:var(--art-shadow);
+}
+.app-shell .course-player :is(.practice-card,.lesson-sidebar) {
+ border-radius:6px 20px 6px 6px; box-shadow:0 8px 25px #0000000a;
+ border-top:2px solid #b99461;
+}
+.app-shell .course-player .chapter-group h2 { font-family:var(--font-body)!important; font-weight:600!important; letter-spacing:0; }
+.app-shell .course-player .lesson-item.current { border-left:2px solid var(--lp-orange); padding-left:12px; }
+.app-shell .course-player :is(.lesson-answer,.lesson-feedback) { border-radius:3px 12px 3px 3px; }
+.app-shell :is(.ex-card,.learning-card,.library-card) { min-width:0; }
+.app-shell main :is(h1,h2,h3) { overflow-wrap:break-word; }
+.app-shell ::selection { background:#c6a16a; color:#182b24; }
+.app-shell ::-webkit-scrollbar { width:8px; height:8px; }
+.app-shell ::-webkit-scrollbar-thumb { background:#8d7959; border-radius:8px; }
+@media(prefers-reduced-motion:reduce) {
+ .app-shell main :is(.primary,.lp-button,input,textarea,select) { transition:none; }
+}
+@media(max-width:620px) {
+ .app-shell :is(.ex-art,.learning-card-art) { border-radius:38% 38% 4px 4px; }
+ .app-shell main :is(input,select,textarea) { font-size:16px; }
+}
+
+/* A complete paper-and-bronze composition for the public learning experience. */
+.app-shell.landing-shell {
+ --lp-paper:#162d27; --lp-ink:#f3e8d0; --lp-muted:#c6c5b1;
+ --lp-orange:#d9b477; --lp-line:#6d79624d;
+ background:radial-gradient(ellipse at 15% 5%,#36524455,transparent 45%),#162d27;
+}
+.app-shell .lp-index,.app-shell .ex-archive,.app-shell .learning-catalog {
+ position:relative; background:#eee5d2; color:#233e34;
+ border:1px solid #c7b995; border-radius:8px 48px 8px 8px;
+ padding:clamp(24px,4vw,60px); margin-block:45px;
+ --lp-ink:#233e34; --lp-muted:#5c6c5e; --lp-orange:#95652f; --lp-line:#b4aa924d;
+ box-shadow:0 24px 70px #0002,inset 0 0 60px #bfa67916;
+}
+.app-shell .lp-index-list>li { border-color:#a393704d; }
+.app-shell .lp-index-list a { color:#233e34; }
+.app-shell .lp-index-preview { border-radius:45% 45% 4px 4px; background:#d8c9a9; }
+.app-shell .lp-chapters-heading { padding-block:85px 55px; }
+.app-shell .lp-chapter { border-top:1px solid #d9b47733; background:linear-gradient(120deg,#1b342d,#263d32); }
+.app-shell .lp-chapter:nth-of-type(even) { background:linear-gradient(120deg,#3f392c,#2c362c); }
+.app-shell .lp-chapter-art::before { content:''; position:absolute; width:78%; height:88%; border-radius:48% 48% 5px 5px; background:radial-gradient(ellipse at 50% 35%,#d9b47728,#d9b47706); border:1px solid #d9b47733; }
+.app-shell .lp-chapter-art img { filter:drop-shadow(0 24px 15px #0005); }
+.app-shell .lp-chapter-copy>.lp-label { color:#d9b477; }
+.app-shell .lp-final { margin:40px auto; width:calc(100% - 40px); border:1px solid #d9b47744; border-radius:70px 4px 70px 4px; padding-block:90px; background:radial-gradient(ellipse at top,#b9914e22,transparent 75%); }
+.app-shell .lp-footer { padding-block:35px; border-top:1px solid #d9b47744; }
+.app-shell :is(.ex-intro-grid,.learning-intro,.story-hero,.flute-heading) { position:relative; }
+.app-shell :is(.ex-intro-aside,.learning-steps) { border-left:1px solid #d9b47766; padding-left:28px; }
+.app-shell :is(.ex-card,.learning-card) { background:#f7f0e1; padding:14px; border:1px solid #d2c3a3; border-radius:5px 32px 5px 5px; box-shadow:0 8px 22px #213b3210; }
+.app-shell :is(.ex-card-copy,.learning-card-content) { padding:22px 12px 12px; }
+.app-shell :is(.ex-art,.learning-card-art) { background-color:#344a3c!important; color:#efe5ce; }
+.app-shell .story-art { border-radius:48% 48% 5px 5px; border:1px solid #d9b47755; background:radial-gradient(ellipse,#c6a16a22,transparent 70%); }
+.app-shell :is(.story-reading article,.flute-content) { background:#eee5d2; color:#233e34; padding:clamp(22px,4vw,48px); border-radius:4px 32px 4px 4px; --lp-ink:#233e34; --lp-muted:#536253; --lp-orange:#8e612f; }
+.app-shell .story-reading article :is(p:not(.story-label),li) { color:#536253; }
+.app-shell :is(.story-value,.story-facts) { border-color:#d9b47755; }
+.app-shell :is(.library-catalog,.library-score,.ai-music-create,.ai-music-library,.profile-course-card,.profile-details,.auth-panel,.package-card) { border-radius:5px 28px 5px 5px; border:1px solid #b89b6755; box-shadow:0 12px 35px #0002; }
+.app-shell :is(.library-intro,.ai-music-intro,.packages-intro,.profile-header) { padding-block:35px; border-bottom:1px solid #d9b47755; margin-bottom:30px; }
+.app-shell .library-sheet-paper { background:#faf3e4; box-shadow:inset 0 0 45px #b79c6020; border:1px solid #d4c6a8; }
+.app-shell :is(.library-controls,.ai-music-quota) { border-block:1px solid #b89b6744; padding-block:16px; }
+.app-shell :is(.profile-journey,.learning-closing,.story-closing) { padding:35px; border:1px solid #d9b47755; border-radius:5px 35px 5px 5px; background:linear-gradient(130deg,#c6a16a14,transparent); }
+.app-shell .topbar .brand strong { letter-spacing:-.04em; }
+@media(max-width:620px) {
+ .app-shell :is(.lp-index,.ex-archive,.learning-catalog) { padding:24px 16px; border-radius:5px 28px 5px 5px; }
+ .app-shell .lp-final { padding:50px 18px; border-radius:35px 4px 35px 4px; }
+ .app-shell :is(.ex-intro-aside,.learning-steps) { padding-left:18px; }
+ .app-shell :is(.profile-journey,.learning-closing,.story-closing) { padding:24px 18px; }
+}
+#root .app-shell.landing-shell main :is(h1,h2,h3),
+#root .app-shell.landing-shell .learn-editorial h1.learn-editorial-title { font-family:'Playfair Display',Georgia,serif!important; font-weight:500!important; }
+#root .app-shell.landing-shell main :is(h1,h2) :is(em,i) { font-family:'Playfair Display',Georgia,serif!important; font-style:italic!important; font-weight:500!important; }
+/* Keep artwork metadata inside the arched frame on narrow cards. */
+.app-shell .ex-art .ex-card-family { top:auto; bottom:20px; right:18px; font-size:9px; }
+.app-shell .ex-art .ex-latin { bottom:40px; }
+.app-shell .ex-art .ex-card-number { top:48px; left:calc(50% - 10px); }
+
+/* AI studio: a manuscript desk beside a listening cabinet. */
+#root .app-shell .ai-music-page { padding-top:28px; }
+#root .app-shell .ai-music-intro { position:relative; overflow:hidden; padding:45px 0 38px; border-bottom:0; margin-bottom:12px; }
+.ai-studio-kicker { display:block; font-size:10px; letter-spacing:.2em; color:#d9b477; margin-bottom:24px; }
+#root .app-shell .ai-music-intro h1 { font-size:clamp(42px,5.3vw,72px); line-height:1.16; margin-bottom:24px; max-width:850px; }
+#root .app-shell .ai-music-intro h1 em { font-size:1em; color:#d9b477; }
+#root .app-shell .ai-music-intro>p { max-width:560px; color:#c6c5b1; font-size:14px; line-height:1.9; }
+.ai-studio-steps { display:flex; flex-wrap:wrap; gap:20px 38px; padding:24px 0 0; margin:30px 0 0; border-top:1px solid #d9b47744; list-style:none; }
+.ai-studio-steps li { display:flex; align-items:center; gap:12px; font-size:12px; color:#c6c5b1; }
+.ai-studio-steps span { font:italic 25px 'Playfair Display',serif; color:#d9b477; }
+#root .app-shell .ai-music-workspace { gap:28px; border:0; padding-top:15px; align-items:start; }
+#root .app-shell .ai-music-create { padding:clamp(24px,3vw,40px); background:#eee5d2; color:#263e32; border:1px solid #d4c39f; border-radius:5px 35px 5px 5px; --lp-muted:#5b6959; --lp-orange:#8c612f; }
+#root .app-shell .ai-music-create :is(h2,h3) { color:#263e32; text-shadow:none; }
+#root .app-shell .ai-music-page h2 { font-size:30px; line-height:1.25; }
+#root .app-shell .ai-music-library { padding:clamp(24px,3vw,36px); background:linear-gradient(145deg,#314537,#20392f); border:1px solid #d9b47744; border-radius:5px 5px 35px 5px; }
+#root .app-shell .ai-music-library h2 { color:#f3e8d0; }
+.ai-music-library>p,.ai-music-public>p { color:#c6c5b1; font-size:13px; }
+#root .app-shell .ai-music-quota { background:#dfd3b8; border:1px solid #bba67a; border-radius:4px; color:#2e4636; padding:18px; }
+#root .app-shell .ai-music-page .ai-music-primary { background:#284c3c; border-color:#284c3c; color:#fff4dc; border-radius:3px 14px 3px 3px; box-shadow:0 6px 18px #213a3220; padding:14px 20px; }
+#root .app-shell .ai-music-page .ai-music-primary:hover:not(:disabled) { background:#183a2a; }
+#root .app-shell .ai-music-form input { background:#faf6eb; border:1px solid #b5a581; border-radius:4px; }
+#root .app-shell .ai-music-form input[type=file] { border:1px dashed #9e875d; padding:24px 16px; background:#e7dcc3; }
+.ai-music-form input::file-selector-button { border:1px solid #9e875d; border-radius:4px; background:#f9f1de; padding:8px 12px; cursor:pointer; }
+#root .app-shell .ai-music-public { border-color:#d9b47744; margin-top:28px; padding-top:28px; }
+#root .app-shell .ai-music-track-list li { background:#ffffff05; padding:18px 12px; margin-top:8px; border:1px solid #d9b47725; border-radius:3px 12px 3px 3px; }
+#root .app-shell .ai-music-track-list button { background:#d9b477; color:#20392f; border-color:#d9b477; }
+#root .app-shell .ai-music-access p { line-height:1.9; font-size:14px; }
+#root .app-shell .ai-music-access a { color:#785025; margin:12px 0 0; display:flex; justify-content:flex-start; }
+#root .app-shell .ai-music-player { background:#eee5d2; border:1px solid #bca271; border-radius:4px 20px 4px 4px; }
+@media(max-width:600px) {
+ #root .app-shell .ai-music-intro { padding-top:22px; }
+ .ai-studio-steps { gap:14px; flex-direction:column; }
+ #root .app-shell .ai-music-intro h1 { font-size:42px; }
+ #root .app-shell .ai-music-workspace { gap:20px; }
+ .ai-studio-kicker { font-size:9px; letter-spacing:.13em; }
+}
+
+/* Navigation reads like a quiet table of contents. */
+#root .app-shell.landing-shell .topbar .nav button {
+ font-family:'Playfair Display',Georgia,serif;
+ font-weight:400; font-size:16px; letter-spacing:.015em;
+ color:#e3dbc7; border-bottom:0; position:relative;
+}
+#root .app-shell.landing-shell .topbar .nav button::after {
+ content:''; position:absolute; bottom:20px; left:25%; right:25%; height:1px;
+ background:linear-gradient(90deg,transparent,#d9b477,transparent);
+ transform:scaleX(0); transition:transform .2s;
+}
+#root .app-shell.landing-shell .topbar .nav button:is(.active,[aria-current=page]) { color:#e5bf80; }
+#root .app-shell.landing-shell .topbar .nav button:is(.active,[aria-current=page],:hover)::after { transform:scaleX(1); }
+#root .app-shell.landing-shell .topbar .nav button svg { width:15px; height:15px; stroke-width:1.35; }
+@media(min-width:761px) and (max-width:1100px) {
+ #root .app-shell.landing-shell .topbar .nav button { font-size:13px; letter-spacing:0; }
+}
+@media(max-width:760px) {
+ #root .app-shell.landing-shell .topbar .nav button { font-size:19px; padding-block:14px; }
+ #root .app-shell.landing-shell .topbar .nav button::after { bottom:7px; left:8px; right:auto; width:35px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ #root .app-shell.landing-shell .topbar .nav button::after { transition:none; }
+}
+
+/* Keep editorial headlines compact and readable across screen widths. */
+#root .app-shell.landing-shell .ex-page h1,
+#root .app-shell.landing-shell .learn-editorial h1.learn-editorial-title,
+#root .app-shell.landing-shell .packages-page h1,
+#root .app-shell.landing-shell .story-page h1,
+#root .app-shell.landing-shell .flute-heading h1 {
+ font-size:clamp(34px,4vw,56px); line-height:1.2; letter-spacing:-.025em;
+}
+#root .app-shell.landing-shell main :is(h1,h2) :is(em,i) { font-size:1em; line-height:1.25; }
+#root .app-shell.landing-shell .ex-intro-grid { gap:clamp(28px,5vw,72px); }
+#root .app-shell.landing-shell .ex-page h1 { max-width:680px; }
+#root .app-shell.landing-shell .ex-page h1 em { text-wrap:balance; }
+#root .app-shell.landing-shell .lp-hero h1 { font-size:clamp(40px,4.7vw,68px); }
+#root .app-shell.landing-shell .lp .lp-hero h1 em { font-size:1.08em; }
+#root .app-shell.landing-shell .ai-music-intro h1 { font-size:clamp(34px,4vw,56px); }
+@media(max-width:620px) {
+ #root .app-shell.landing-shell .ex-page h1,
+ #root .app-shell.landing-shell .learn-editorial h1.learn-editorial-title,
+ #root .app-shell.landing-shell .packages-page h1,
+ #root .app-shell.landing-shell .story-page h1,
+ #root .app-shell.landing-shell .flute-heading h1,
+ #root .app-shell.landing-shell .ai-music-intro h1 { font-size:36px; }
+}
+
+/* Fine-tune the Explore opening headline after visual review. */
+#root .app-shell.landing-shell .ex-page h1 { font-size:clamp(38px,4.4vw,62px); }
+@media(max-width:620px) {
+ #root .app-shell.landing-shell .ex-page h1 { font-size:39px; }
+}

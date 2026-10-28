@@ -28,12 +28,12 @@ test('Packages editorial layout, typography, no AI icons and touch targets', asy
   await page.goto('/packages');
   await page.evaluate(() => document.fonts.ready);
 
-  // Check heading text and Unbounded font family
+  // Check heading text and the editorial serif font family
   const h1 = page.locator('#packages-title');
   await expect(h1).toBeVisible();
   await expect(h1).toContainText('Chinh phục nhạc cụ');
   await expect(h1).toContainText('cùng VRhythm Premium');
-  expect(await h1.evaluate(el => getComputedStyle(el).fontFamily)).toContain('Unbounded');
+  expect(await h1.evaluate(el => getComputedStyle(el).fontFamily)).toContain('Playfair Display');
 
   // Verify no AI icons (lucide-sparkles or robot emoji)
   await expect(page.locator('.lucide-sparkles')).toHaveCount(0);

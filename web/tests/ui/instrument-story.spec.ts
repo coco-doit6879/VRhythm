@@ -16,7 +16,7 @@ test('Instrument details retain all routes, images, facts and learning links', a
     }));
     expect(geometry.overflow).toBeLessThanOrEqual(1);
     expect(geometry.targets).toBe(true);
-    expect(geometry.font).toContain('Be Vietnam Pro');
+    expect(geometry.font).toContain('Playfair Display');
     await page.screenshot({ path: testInfo.outputPath(`${id}.png`), fullPage: true });
   }
 });

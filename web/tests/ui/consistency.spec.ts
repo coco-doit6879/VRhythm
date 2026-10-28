@@ -6,14 +6,14 @@ const course = (instrument = 'Sáo trúc') => ({ id: 91, title: `Nhập môn ${i
 
 async function audit(page: Page, info: TestInfo, name: string) {
   await page.evaluate(() => document.fonts.ready);
-  await expect(page.locator('.app-shell')).toHaveCSS('background-color', 'rgb(24, 43, 36)');
+  await expect(page.locator('.app-shell')).toHaveCSS('background-color', 'rgb(22, 45, 39)');
   const geometry = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
     font: document.querySelector('h1') ? getComputedStyle(document.querySelector('h1')!).fontFamily : '',
     targets: [...document.querySelectorAll('main .primary, main input, main summary')].filter(el => el.getBoundingClientRect().width > 0 && !(el instanceof HTMLInputElement && ['radio','checkbox'].includes(el.type))).every(el => el.getBoundingClientRect().height >= 44),
   }));
   expect(geometry.overflow).toBeLessThanOrEqual(1);
-  if (geometry.font) expect(geometry.font).toMatch(/Be Vietnam Pro|Unbounded/);
+  if (geometry.font) expect(geometry.font).toMatch(/Playfair Display/);
   expect(geometry.targets).toBe(true);
   await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
   await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true });

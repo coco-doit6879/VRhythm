@@ -165,7 +165,7 @@ export function AiMusicPage({ user, onAuth }: { user: AuthResponse | null; onAut
   const failure = job?.status === 'Failed' ? musicFailure(job.failureCode) : null;
   const canScan = entitled && quota?.generationAvailable && quota.remaining > 0 && file && title.trim() && !busy;
   return <main className="page ai-music-page">
-    <header className="ai-music-intro"><h1>VRhythm AI</h1><p>Từ ảnh sheet đến tiếng sáo. Kiểm tra và sửa bản nhạc trước khi tạo audio.</p></header>
+    <header className="ai-music-intro"><span className="ai-studio-kicker">VRHYTHM AI · KHÔNG GIAN SÁNG TẠO</span><h1>Từ nét nhạc,<br /><em>ngân thành giai điệu.</em></h1><p>Đưa bản nhạc trên giấy vào thế giới thanh âm. Tải ảnh, kiểm tra nốt nhạc và lắng nghe tiếng sáo của riêng bạn.</p><ol className="ai-studio-steps" aria-label="Quy trình tạo nhạc"><li><span>01</span> Tải ảnh bản nhạc</li><li><span>02</span> Kiểm tra từng nốt</li><li><span>03</span> Lắng nghe giai điệu</li></ol></header>
     {error && <div className="ai-music-error" role="alert"><p>{error}</p><button onClick={() => { setError(''); setLoading(true); void loadAccount(true).catch(handleError).finally(() => setLoading(false)); }}><RefreshCw size={16} aria-hidden="true" /> Tải lại trạng thái</button></div>}
     {loading && <div className="ai-music-loading" role="status">Đang tải tài khoản và thư viện…</div>}
     <div className="ai-music-sheets" ref={sheetPanel}>

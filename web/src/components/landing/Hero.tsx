@@ -6,7 +6,7 @@ export function Hero({ playNote }: { playNote: (id: string, note: string) => voi
   return <section className="lp-hero lp-wrap" aria-labelledby="lp-title">
     <div className="lp-drum-backdrop" aria-hidden="true"><img src="/images/dong-son-drum.svg" alt="" width="1000" height="1000" decoding="async" /></div>
     <div className="lp-hero-copy">
-      <h1 id="lp-title">Việt Nam<br />trong từng<br /><em>thanh âm</em></h1>
+      <p className="lp-hero-kicker"><span /> DI SẢN VIỆT · CẢM HỨNG MỚI</p><h1 id="lp-title"><span className="lp-title-country">Việt Nam</span><span className="lp-title-bridge">trong từng</span><em>thanh âm<svg viewBox="0 0 420 40" aria-hidden="true"><path d="M5 28 Q130 0 280 22 T415 12" /><path d="M45 36 Q210 12 370 30" /></svg></em></h1>
       <p className="lp-intro">Bắt đầu học nhạc cụ truyền thống cùng VRhythm — chọn nhạc cụ bạn yêu thích, tìm hiểu lộ trình và thực hành từng bước</p>
       <div className="lp-actions"><a className="lp-button" href="/learn">Bắt đầu học <ArrowUpRight size={18} /></a><a className="lp-link" href="/explore">Tìm hiểu nhạc cụ <ArrowUpRight size={16} /></a></div>
     </div>
