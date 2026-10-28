@@ -63,7 +63,26 @@ export function detectPitchHz(buffer: Float32Array, sampleRate: number): number 
 
 export type PracticeMode = 'single-take' | 'try';
 export type PracticePhase = 'waiting' | 'tuning' | 'separate' | 'wrong' | 'retry' | 'reset' | 'advanced' | 'complete';
-export type PracticeObservation = { index: number; phase: PracticePhase; cents: number | null; direction: 'higher' | 'lower' | null };
+export type PracticeMatch = 'accurate' | 'near' | 'octave';
+export type PracticeObservation = { index: number; phase: PracticePhase; cents: number | null; direction: 'higher' | 'lower' | null; match: PracticeMatch | null };
+
+export function practiceToleranceCents(mode: PracticeMode): number {
+  return mode === 'try' ? 120 : 60;
+}
+
+export function practiceMeterCents(cents: number, mode: PracticeMode): number {
+  const normalized = matchPitch(cents, mode) === 'octave' ? cents - Math.sign(cents) * 1200 : cents;
+  return Math.max(-1200, Math.min(1200, normalized));
+}
+
+function matchPitch(cents: number, mode: PracticeMode): PracticeMatch | null {
+  const distance = Math.abs(cents);
+  if (distance <= 35) return 'accurate';
+  if (distance <= practiceToleranceCents(mode)) return 'near';
+  // Allow one octave, but never combine octave folding with a neighbouring note.
+  if (Math.abs(distance - 1200) <= 60) return 'octave';
+  return null;
+}
 
 // One breath is one attempt. A short dropout is tolerated; release commits it.
 export class PracticeNoteTracker {
@@ -75,12 +94,13 @@ export class PracticeNoteTracker {
   private hasSound = false;
   private ready = false;
   private errored = false;
+  private breathMatch: PracticeMatch | null = null;
 
   constructor(private readonly expected: string[], private readonly mode: PracticeMode = 'single-take') {}
 
   observe(frequency: number | null, now: number): PracticeObservation {
-    const result = (phase: PracticePhase, cents: number | null = null): PracticeObservation => ({
-      index: this.indexValue, phase, cents, direction: cents == null || Math.abs(cents) <= 35 ? null : cents > 0 ? 'lower' : 'higher',
+    const result = (phase: PracticePhase, cents: number | null = null, match: PracticeMatch | null = null): PracticeObservation => ({
+      index: this.indexValue, phase, cents, match, direction: match || cents == null ? null : cents > 0 ? 'lower' : 'higher',
     });
     if (this.indexValue >= this.expected.length) return result('complete');
     if (frequency == null || !Number.isFinite(frequency) || frequency <= 0) {
@@ -88,6 +108,8 @@ export class PracticeNoteTracker {
       this.matchingSince = null;
       if (!this.hasSound || now - this.silentSince < 180) return result(this.errored ? 'wrong' : 'waiting');
       const passed = this.ready && !this.errored;
+      const acceptedMatch = this.breathMatch;
+      this.breathMatch = null;
       this.hasSound = false; this.ready = false; this.errored = false;
       this.matchingSince = null; this.wrongSince = null;
       if (!passed) {
@@ -96,7 +118,7 @@ export class PracticeNoteTracker {
         return result('reset');
       }
       this.accepted.push(this.expected[this.indexValue++]);
-      return result(this.indexValue === this.expected.length ? 'complete' : 'advanced');
+      return result(this.indexValue === this.expected.length ? 'complete' : 'advanced', null, acceptedMatch);
     }
     this.silentSince = null;
     this.hasSound = true;
@@ -104,14 +126,18 @@ export class PracticeNoteTracker {
     if (!target) { this.errored = true; return result('wrong'); }
     const cents = 1200 * Math.log2(frequency / target);
     if (this.errored && this.mode === 'single-take') return result('wrong', cents);
-    if (Math.abs(cents) <= 35) {
+    const match = matchPitch(cents, this.mode);
+    if (match) {
+      const rank = { accurate: 0, near: 1, octave: 2 };
+      if (!this.breathMatch || rank[match] > rank[this.breathMatch]) this.breathMatch = match;
       this.errored = false;
       this.wrongSince = null;
       this.matchingSince ??= now;
       if (now - this.matchingSince >= 200) this.ready = true;
-      return result(this.ready ? 'separate' : 'tuning', cents);
+      return result(this.ready ? 'separate' : 'tuning', cents, this.breathMatch);
     }
     this.matchingSince = null;
+    this.breathMatch = null;
     this.ready = false;
     this.wrongSince ??= now;
     // Reject a different note after 120ms, retaining a little onset tolerance.

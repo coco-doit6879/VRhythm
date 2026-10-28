@@ -2,10 +2,11 @@ import { Check, Mic, RotateCcw, Square } from 'lucide-react';
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { SheetScore } from '../audio/fluteScore';
 import type { PracticalDetail } from '../services/api';
+import { PracticePitchMeter } from './PracticePitchMeter';
 import { PracticeListening } from './PracticeListening';
 import './practice-workspace.css';
 import { WebSheetMusic } from './WebSheetMusic';
-import { detectPitchHz, frequencyToNote, pitchToFrequency, PracticeNoteTracker, type PracticeMode, type PracticePhase } from './practicePitch';
+import { detectPitchHz, pitchToFrequency, PracticeNoteTracker, type PracticeMode, type PracticePhase } from './practicePitch';
 
 type Score = { metadata: { tempo?: number; timeSignature?: { beats: number; beatType: number } }; notes: Array<{ id: string; pitch: string; duration: string }> };
 
@@ -36,7 +37,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit, renderNo
   const [recording, setRecording] = useState(false);
   const [starting, setStarting] = useState(false);
   const [notes, setNotes] = useState<string[]>([]);
-  const [heard, setHeard] = useState('—');
+  const [pitchCents, setPitchCents] = useState<number | null>(null);
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<PracticePhase>('waiting');
   const [hint, setHint] = useState('');
@@ -69,7 +70,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit, renderNo
   const clearAttempt = () => {
     // Ignore late MediaRecorder callbacks from the discarded take or previous mode.
     generation.current++;
-    setNotes([]); setHeard('—'); setIndex(0); setPhase('waiting'); setHint(''); setError(''); setSuccess(''); setFailed(false); setTrialCompleted(false);
+    setNotes([]); setPitchCents(null); setIndex(0); setPhase('waiting'); setHint(''); setError(''); setSuccess(''); setFailed(false); setTrialCompleted(false);
     takeAudio.current?.pause(); setTakePlaying(false);
     if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
     takeUrl.current = ''; setRecordingUrl('');
@@ -139,13 +140,13 @@ export function PracticalLesson({ practical, busy, completed, onSubmit, renderNo
           lastFrame = now;
           analyser.getFloatTimeDomainData(buffer);
           const frequency = detectPitchHz(buffer, context.sampleRate);
-          setHeard(frequency ? frequencyToNote(frequency) || '—' : '—');
           const observation = tracker.observe(frequency, now);
           setPhase(observation.phase);
+          setPitchCents(observation.cents);
           if (observation.phase === 'wrong') setHint(mode === 'try'
             ? `Nốt ${observation.index + 1} chưa đúng. ${observation.direction === 'higher' ? 'Cần cao hơn.' : observation.direction === 'lower' ? 'Cần thấp hơn.' : ''} Chỉnh lại hoặc ngắt hơi để thử lại nốt này.`
             : `Nốt ${observation.index + 1} chưa đúng. ${observation.direction === 'higher' ? 'Cần cao hơn; ngắt hơi để thử lại từ đầu.' : observation.direction === 'lower' ? 'Cần thấp hơn; ngắt hơi để thử lại từ đầu.' : 'Ngắt hơi để kết thúc lượt này.'}`);
-          else if (observation.phase === 'separate') setHint('Đúng cao độ. Ngắt hơi để chốt nốt này.');
+          else if (observation.phase === 'separate') setHint('Giữ đều trong vùng sáng. Ngắt hơi để chốt nốt này.');
           else if (observation.phase === 'reset') {
             stop(); setRecording(false); setNotes([]); setIndex(0); setFailed(true); setSuccess('');
             setHint('Lượt thổi chưa đúng. Đã về nốt đầu; nghe lại rồi bắt đầu lượt mới nhé.');
@@ -153,7 +154,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit, renderNo
           }
           else if (observation.phase === 'retry') {
             setSuccess('');
-            setHint(`Thử lại nốt ${observation.index + 1}. Các nốt đã đúng vẫn được giữ.`);
+            setHint(`Thử lại nốt ${observation.index + 1}. Các nốt đã qua vẫn được giữ.`);
           }
           else if (observation.direction) setHint(observation.direction === 'higher' ? 'Hơi thấp, tăng cao độ một chút.' : 'Hơi cao, hạ cao độ một chút.');
           else if (observation.phase === 'tuning') setHint('');
@@ -188,7 +189,7 @@ export function PracticalLesson({ practical, busy, completed, onSubmit, renderNo
 
   const groups = Array.from({ length: Math.ceil(score.notes.length / 4) }, (_, i) => score.notes.slice(i * 4, i * 4 + 4));
   const target = score.notes[index]?.pitch;
-  const encouragement = phase === 'separate' ? `${target} đúng cao độ!` : success && phase !== 'wrong' ? `${success} đúng rồi!` : '';
+  const encouragement = phase === 'separate' ? `${target} ổn rồi!` : success && phase !== 'wrong' ? `${success} đúng rồi!` : '';
   return <article className={`lesson-content practical-lesson ${recordingUrl ? 'has-take' : ''}`}>
     <section className="practice-score-pane" aria-label="Bản nhạc và nghe mẫu">
       <div className="practice-top"><span>Bản nhạc bài học</span>{score.metadata.tempo && <span>{score.metadata.tempo} BPM</span>}</div>
@@ -205,20 +206,17 @@ export function PracticalLesson({ practical, busy, completed, onSubmit, renderNo
           <input type="radio" name={modeId} value={value} checked={mode === value} onChange={() => { clearAttempt(); setMode(value); }} />{label}
         </label>)}
       </fieldset>
-      <p>{mode === 'try' ? 'Thổi lại nốt hiện tại đến khi đúng, rồi ngắt hơi để sang nốt tiếp theo. Đánh thử không lưu tiến độ.' : 'Thổi nốt đang sáng, giữ đều rồi ngắt hơi để chốt. Thổi sai sẽ cần bắt đầu lại.'}</p>
+      <p>{mode === 'try' ? 'Đưa điểm đo vào vùng sáng rồi ngắt hơi để sang nốt tiếp theo. Có thể thử lại từng nốt. Không lưu tiến độ.' : 'Giữ điểm đo trong vùng sáng rồi ngắt hơi để chốt. Sai nốt sẽ cần bắt đầu lại.'}</p>
       {trialCompleted && <div className="practice-trial-result" role="status"><p>Bạn đã hoàn tất lượt đánh thử. Kết quả không lưu tiến độ.</p><button onClick={clearAttempt}>Đánh thử lại</button></div>}
-      <div className="practice-target" aria-live="polite">
-        <span>Nốt {Math.min(index + 1, score.notes.length)}/{score.notes.length}</span>
-        <strong>{target || 'Hoàn tất lượt thổi'}</strong>
-      </div>
+      <div className="practice-target"><PracticePitchMeter target={target || success} cents={pitchCents} mode={mode} label={`Nốt ${Math.min(index + 1, score.notes.length)}/${score.notes.length}`} /></div>
       <div className="practice-live-feedback">
         <div className="practice-success" role="status"><span key={`${index}-${encouragement}`} className={encouragement ? 'practice-success-pop' : ''}>{encouragement ? <><Check size={20} aria-hidden="true" />{encouragement}</> : 'Mỗi lần thổi, một nốt.'}</span></div>
-        <div className="pitch-readout"><strong>{heard}</strong><span>{recording ? 'Micro đang nghe' : 'Micro đã dừng'} · {notes.length} nốt đúng</span></div>
+        <div className="pitch-readout"><span>{recording ? 'Micro đang nghe' : 'Micro đã dừng'} · {notes.length} nốt đã qua</span></div>
       </div>
       <p className={`practice-hint ${phase === 'wrong' || failed ? 'wrong' : ''}`} role={phase === 'wrong' || failed ? 'alert' : 'status'}>{error || hint || (recording ? 'Thổi nốt đang sáng trên bản nhạc.' : notes.length === score.notes.length ? 'Đã nghe đủ nốt; đang gửi kết quả.' : 'Nhấn “Bắt đầu nghe” khi bạn sẵn sàng.')}</p>
       <div className="lesson-actions"><button data-activity="practice_start" className="record-button" disabled={busy || attemptCompleted || starting} onClick={() => void start()}>{recording ? <Square size={18} /> : <Mic size={18} />}{starting ? 'Đang mở microphone…' : recording ? 'Dừng nghe' : 'Bắt đầu nghe'}</button><button className="text-button" disabled={recording || starting || busy || (!notes.length && !recordingUrl)} onClick={clearAttempt}><RotateCcw size={16} /> Xóa lượt thu</button></div>
 
-      <p className="recorded-notes">Nốt đã đúng: {notes.length ? notes.join(' · ') : 'Chưa có nốt nào'}</p>
+      <p className="recorded-notes">Nốt đã qua: {notes.length ? notes.join(' · ') : 'Chưa có nốt nào'}</p>
       <p className="video-note">Phân tích cao độ một nhạc cụ tại một thời điểm; âm thanh chỉ giữ tạm trên thiết bị để nghe lại, không tải lên máy chủ.</p>
       {mode === 'single-take' && !completed && notes.length === score.notes.length && <button className="primary" disabled={busy || recording || starting} onClick={() => void onSubmit(notes)}>{busy ? 'Đang chấm…' : 'Gửi lại kết quả'}</button>}
     </section>

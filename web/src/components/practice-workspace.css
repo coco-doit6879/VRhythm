@@ -15,6 +15,17 @@
 .practice-mode-selector input:focus-visible { outline:2px solid var(--lp-gold, #c6a26c); outline-offset:3px; }
 .practice-mode-selector:disabled label { opacity:.65; cursor:not-allowed; }
 .practice-trial-result { margin-block:12px; }
+.practice-pitch-meter { margin-top: 12px; }
+.practice-pitch-meter-heading, .practice-pitch-labels { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; }
+.practice-pitch-meter-heading { margin-bottom: 8px; }
+.practice-pitch-track { position: relative; height: 24px; background: #172b23; border: 1px solid #64796d; border-radius: 4px; }
+.practice-pitch-zone { position: absolute; inset-block: 0; background: #668b76; }
+.practice-pitch-center { position: absolute; left: 50%; inset-block: 0; width: 1px; background: #e9e2c8; }
+.practice-pitch-marker { position: absolute; top: 50%; width: 10px; height: 32px; border: 2px solid #172b23; border-radius: 3px; background: #c6a26c; transform: translate(-50%, -50%); transition: left 100ms ease-out; }
+.practice-pitch-marker.is-inside { background: #d2ead8; }
+.practice-pitch-labels { position: relative; margin-top: 8px; color: #e9e2c8; }
+.practice-pitch-labels strong { position: absolute; left: 50%; transform: translateX(-50%); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .practice-pitch-marker { transition: none; } }
 .app-shell .course-player .practice-listening-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .app-shell .course-player .practice-listening button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border: 1px solid var(--line); background: transparent; color: inherit; cursor: pointer; }
 .app-shell .course-player .practice-listening button:hover:not(:disabled) { border-color: currentColor; }
@@ -53,3 +64,6 @@
 @media (min-width: 1001px) {
   .app-shell .course-player.practical-page .has-take .lesson-sheet { max-height: min(440px, calc(100svh - 440px)); }
 }
+
+.app-shell.support-shell .course-player.practical-page .practice-target { display: block; padding: 0; border: 0; background: transparent; }
+.app-shell .course-player .practice-target .practice-pitch-labels strong { color: #e9e2c8; font-size: 14px; }

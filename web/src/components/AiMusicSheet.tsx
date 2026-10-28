@@ -49,7 +49,7 @@ export function AiMusicSheet({ score, valid, onChange, disabled = false, onPract
     </div>
     {practice ? <>
       <p className="ai-sheet-help">Luyện cao độ từng nốt, chưa chấm nhịp. Dấu lặng được giữ trên sheet; nốt nối chỉ cần một lần thổi. Kết quả không tính vào tiến độ khóa học.</p>
-      {completed && <div className="ai-sheet-result" role="status"><p>Bạn đã thổi đúng toàn bộ nốt!</p><button onClick={() => { setCompleted(false); setAttempt(n => n + 1); }}>Tập lại</button></div>}
+      {completed && <div className="ai-sheet-result" role="status"><p>Bạn đã hoàn tất các nốt trong lượt luyện!</p><button onClick={() => { setCompleted(false); setAttempt(n => n + 1); }}>Tập lại</button></div>}
       <div className="course-player practical-page ai-sheet-practice">
         <PracticalLesson key={attempt} practical={practical} busy={false} completed={completed} listeningScore={score} localPractice
           onSubmit={async () => { setCompleted(true); }}
