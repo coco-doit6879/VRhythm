@@ -1,0 +1,12 @@
+/
+  Cache-Control: no-store
+/index.html
+  Cache-Control: no-store
+/explore*
+  Cache-Control: no-store
+/learn*
+  Cache-Control: no-store
+/ai-music
+  Cache-Control: no-store
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
